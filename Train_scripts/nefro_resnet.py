@@ -1805,10 +1805,10 @@ if __name__ == '__main__':
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
-    parser.add_argument('--wandb_flag', type=bool, default=True, help='wand init')
-    parser.add_argument('--sampler', type=bool, default=True, help='use sampler or not')
-    parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
-    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
+    parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
+    parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
+    parser.add_argument('--classes', type=int, default=1, help='number of classes to train')
+    parser.add_argument('--wloss', type=bool, default=False, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
@@ -1869,7 +1869,7 @@ if __name__ == '__main__':
         #     n.train()
         #     # n.save() ma perchè richiama la save() ??
         
-        data = '_Old3'
+        data = '_New1'
         w_path = n.load(data)
         # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
         # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
@@ -1878,6 +1878,7 @@ if __name__ == '__main__':
         cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                         [FN={cm[1,0]} TP={cm[1,1]}]]"""
         res_dict = {
+            'Commento' : 'Esperimento sui dati nuovi, senza WLoss, con max su output quindi senza soglia',
             'Esperimento': vars(opt),
             'Accuracy': float(accuracy),
             'Precision': float(pr),

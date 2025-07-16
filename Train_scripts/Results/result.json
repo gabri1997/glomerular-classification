@@ -35,5 +35,80 @@
         "Fscore": 0.3633107008388211,
         "Conf_matrix": "[[TN=536 FP=164]\n                        [FN=197 TP=103]]",
         "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_Old3_net.pth"
+    },
+    {
+        "Esperimento": {
+            "label": "MESANGIALE",
+            "old_or_new_dataset_folder": "Files_old_Pollo/",
+            "conf_matrix_label": [
+                "non-MESANGIALE",
+                "MESANGIALE"
+            ],
+            "network": "resnet18",
+            "project_name": "Train_R18_Old_Data_YesWLoss_Sampler_MaxOut_Num_classes_2",
+            "dropout": false,
+            "wandb_flag": true,
+            "sampler": false,
+            "classes": 2,
+            "wloss": true,
+            "loadEpoch": 0,
+            "workers": 8,
+            "batch_size": 64,
+            "learning_rate": 1e-05,
+            "thresh": 0.5,
+            "epochs": 180,
+            "size": 512,
+            "w4k": true,
+            "wdiapo": false,
+            "n_forwards": 1,
+            "savemodel": 5,
+            "SRV": true,
+            "from_scratch": false,
+            "augm_config": 0
+        },
+        "Accuracy": 0.701,
+        "Precision": 0.5012345555250728,
+        "Recall": 0.6766666441111119,
+        "Fscore": 0.5758816194369033,
+        "Conf_matrix": "[[TN=498 FP=202]\n                        [FN=97 TP=203]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_Old2_net.pth"
+    },
+    {
+        "Commento": "Esperimento sui dati nuovi, senza WLoss, con max su output quindi senza soglia",
+        "Esperimento": {
+            "label": "MESANGIALE",
+            "old_or_new_dataset_folder": "Files/",
+            "conf_matrix_label": [
+                "non-MESANGIALE",
+                "MESANGIALE"
+            ],
+            "network": "resnet18",
+            "project_name": "Train_R18_Old_Data_YesWLoss_Sampler_MaxOut_Num_classes_2",
+            "dropout": false,
+            "wandb_flag": true,
+            "sampler": false,
+            "classes": 1,
+            "wloss": true,
+            "loadEpoch": 0,
+            "workers": 8,
+            "batch_size": 64,
+            "learning_rate": 1e-05,
+            "thresh": 0.5,
+            "epochs": 180,
+            "size": 512,
+            "w4k": true,
+            "wdiapo": false,
+            "n_forwards": 1,
+            "savemodel": 5,
+            "SRV": true,
+            "from_scratch": false,
+            "augm_config": 0
+        },
+        "Accuracy": 0.635483870967742,
+        "Precision": 0.6394557605627292,
+        "Recall": 0.9641025146614095,
+        "Fscore": 0.7689113289386821,
+        "Conf_matrix": "[[TN=9 FP=106]\n                        [FN=7 TP=188]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_New1_net.pth"
     }
 ]
