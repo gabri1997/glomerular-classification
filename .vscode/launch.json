@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Current File",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "cwd": "/work/grana_far2023_fomo/Pollastri_Glomeruli",
+        "console": "integratedTerminal",
+        "justMyCode": false,
+        "args": [
+          "--label", "PAR_IRREG",
+          "--network", "resnet101",
+          "--dropout",
+          "--classes", "1",
+          "--loadEpoch", "0",
+          "--workers", "8",
+          "--batch_size", "2",
+          "--learning_rate", "0.00001",
+          "--thresh", "0.5",
+          "--epochs", "41",
+          "--size", "512",
+          "--w4k", "True",
+          "--wdiapo",
+          "--n_forwards", "1",
+          "--savemodel", "10",
+          "--SRV", "True",
+          "--from_scratch",
+          "--augm_config", "0"
+        ]
+      }
+    ]
+  }
+  
