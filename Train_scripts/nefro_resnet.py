@@ -207,7 +207,7 @@ class ImgAugTransform:
 
 
 class NefroNet():
-    def __init__(self, wandb_flag, sampler, old_or_new_folder, project_name, net, dropout, num_classes, num_epochs, l_r, size, batch_size, n_workers, thresh, lbl_name, conf_matrix_lbl, w4k,
+    def __init__(self, wandb_flag, sampler, old_or_new_folder, project_name, wloss, net, dropout, num_classes, num_epochs, l_r, size, batch_size, n_workers, thresh, lbl_name, conf_matrix_lbl, w4k,
                  wdiapo, augm_config=0, pretrained=True, write_flag=False):
 
         self.project_name = project_name
@@ -221,6 +221,7 @@ class NefroNet():
         self.size = size
         self.batch_size = batch_size
         self.n_workers = n_workers
+        self.wloss = wloss
         self.thresh = thresh
         self.lbl_name = lbl_name
         self.conf_matrix_lbl = conf_matrix_lbl
@@ -459,15 +460,13 @@ class NefroNet():
             c1_w = 1.0 / c1_w
             c0_w = 1.0 / c0_w
 
-            if self.lbl_name != [['INTENS']] and sampler == False:
+            if self.lbl_name != [['INTENS']] and wloss==True: # loss mi dice se voglio pesare o no la loss function 
                 class_w = torch.tensor([c0_w, c1_w], device='cuda')
                 print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
                 self.criterion = nn.CrossEntropyLoss(weight=class_w)
             else: 
-                print('La loss è stata pesata lo stesso (num_classes = 2)')
-                class_w = torch.tensor([c0_w, c1_w], device='cuda')
-                self.criterion = nn.CrossEntropyLoss(weight=class_w)
-                #self.criterion = nn.CrossEntropyLoss()
+                print('La loss non è stata pesata(num_classes = 2)')
+                self.criterion = nn.CrossEntropyLoss()
 
             # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()),
             #                                   lr=self.learning_rate)
@@ -1809,6 +1808,7 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_flag', type=bool, default=True, help='wand init')
     parser.add_argument('--sampler', type=bool, default=True, help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
+    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
@@ -1855,7 +1855,7 @@ if __name__ == '__main__':
 
     if opt.SRV:
 
-        n = NefroNet(net=opt.network, project_name=opt.project_name, old_or_new_folder = opt.old_or_new_dataset_folder, dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
+        n = NefroNet(net=opt.network, project_name=opt.project_name, wloss = opt.wloss, old_or_new_folder = opt.old_or_new_dataset_folder, dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
                      size=opt.size, batch_size=opt.batch_size, thresh=opt.thresh, pretrained=(not opt.from_scratch),
                      l_r=opt.learning_rate, n_workers=opt.workers, lbl_name=labels_to_use, conf_matrix_lbl=opt.conf_matrix_label, w4k=opt.w4k, wdiapo=opt.wdiapo,
                      write_flag=False)
@@ -1883,7 +1883,8 @@ if __name__ == '__main__':
             'Precision': float(pr),
             'Recall': float(rec),
             'Fscore': float(fscore),
-            "Conf_matrix": cm_pretty
+            "Conf_matrix": cm_pretty,
+            "Weights" : w_path
         }
         result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
         if os.path.exists(result_path):

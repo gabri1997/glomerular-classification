@@ -1,0 +1,39 @@
+[
+    {
+        "Esperimento": {
+            "label": "MESANGIALE",
+            "old_or_new_dataset_folder": "Files_old_Pollo/",
+            "conf_matrix_label": [
+                "non-MESANGIALE",
+                "MESANGIALE"
+            ],
+            "network": "resnet18",
+            "project_name": "Train_R18_Old_Data_YesWLoss_Sampler_MaxOut_Num_classes_2",
+            "dropout": false,
+            "wandb_flag": true,
+            "sampler": true,
+            "classes": 2,
+            "wloss": true,
+            "loadEpoch": 0,
+            "workers": 8,
+            "batch_size": 64,
+            "learning_rate": 1e-05,
+            "thresh": 0.5,
+            "epochs": 180,
+            "size": 512,
+            "w4k": true,
+            "wdiapo": false,
+            "n_forwards": 1,
+            "savemodel": 5,
+            "SRV": true,
+            "from_scratch": false,
+            "augm_config": 0
+        },
+        "Accuracy": 0.639,
+        "Precision": 0.385767775813941,
+        "Recall": 0.3433333218888893,
+        "Fscore": 0.3633107008388211,
+        "Conf_matrix": "[[TN=536 FP=164]\n                        [FN=197 TP=103]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_Old3_net.pth"
+    }
+]
