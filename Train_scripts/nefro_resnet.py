@@ -1942,4 +1942,7 @@ if __name__ == '__main__':
 
         # ESPERIMENTO USANDO :
         # DATI VECCHI, NUM_CLASSES = 2, LOSS NON PESATA, WEIGHTED SAMPLER, MAX SU OUTPUT Pesi Old3
+        #         Questa è la confusion matrix :  [536  164]
+                                               #  [197 103 ]
+        # Acc: 0.6390 | F1 Score: 0.3633 | Precision: 0.3858 | Recall: 0.3433 | Ground Truth Trues: 300 | Time: 6.54s
 
