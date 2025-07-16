@@ -2,6 +2,7 @@ import os
 import csv
 import cv2
 import time
+import json
 from matplotlib.path import Path
 import torch
 import random
@@ -463,8 +464,10 @@ class NefroNet():
                 print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
                 self.criterion = nn.CrossEntropyLoss(weight=class_w)
             else: 
-                print('La loss non è stata pesata (num_classes = 2)')
-                self.criterion = nn.CrossEntropyLoss()
+                print('La loss è stata pesata lo stesso (num_classes = 2)')
+                class_w = torch.tensor([c0_w, c1_w], device='cuda')
+                self.criterion = nn.CrossEntropyLoss(weight=class_w)
+                #self.criterion = nn.CrossEntropyLoss()
 
             # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()),
             #                                   lr=self.learning_rate)
@@ -739,7 +742,7 @@ class NefroNet():
                     print(f"[ERROR] Failed to log confusion matrix: {e}")
 
 
-        return accuracy, pr, rec, fscore
+        return accuracy, pr, rec, fscore, cm
 
 
     def eval_intensity(self, d_loader, epoch, write_flag=False):
@@ -1469,6 +1472,7 @@ class NefroNet():
         #self.optimizer.load_state_dict(torch.load(os.path.join(self.models_dir, nname + '_opt.pth')))
         print(f"model weights successfully loaded: {self.n.load_state_dict(torch.load(w_path))} ")
         print('Weights path : ', w_path)
+        return w_path
 
     def load_old_ckpt(self, ckpt_name='_old'):
         self.n.load_state_dict(torch.load(os.path.join(self.models_dir, self.lbl_name + '_net' + ckpt_name + '.pth')))
@@ -1802,7 +1806,7 @@ if __name__ == '__main__':
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
-    parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
+    parser.add_argument('--wandb_flag', type=bool, default=True, help='wand init')
     parser.add_argument('--sampler', type=bool, default=True, help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
@@ -1863,15 +1867,46 @@ if __name__ == '__main__':
         #     # n.eval_intensity(n.validation_data_loader, 0)
         # else:
         #     n.train()
-            #n.save() ma perchè richiama la save() ??
+        #     # n.save() ma perchè richiama la save() ??
         
         data = '_Old3'
-        n.load(data)
+        w_path = n.load(data)
         # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
         # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
         # # # # n.eval(n.validation_data_loader, True)
-        n.eval(n.eval_data_loader_4k, True)
-        print('Finish!')
+        accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+        cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                        [FN={cm[1,0]} TP={cm[1,1]}]]"""
+        res_dict = {
+            'Esperimento': vars(opt),
+            'Accuracy': float(accuracy),
+            'Precision': float(pr),
+            'Recall': float(rec),
+            'Fscore': float(fscore),
+            "Conf_matrix": cm_pretty
+        }
+        result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
+        if os.path.exists(result_path):
+            with open(result_path, 'r') as f:
+                try:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        all_results = data
+                    else:
+                        all_results = [data]
+                except json.JSONDecodeError:
+                    all_results = []
+        else:
+            all_results = []
+        all_results.append(res_dict)
+
+     
+        with open(result_path, 'w') as f:
+            json.dump(all_results, f, indent=4)
+
+        print("Risultato aggiunto al file JSON.")
+
+      
         # n.explain_eval(True)
         # #n.eval_calibration(dset='validation', write_flag=True)
         # n.eval_calibration(dset='test', write_flag=True)
