@@ -45,7 +45,7 @@
                 "MESANGIALE"
             ],
             "network": "resnet18",
-            "project_name": "Train_R18_Old_Data_YesWLoss_Sampler_MaxOut_Num_classes_2",
+            "project_name": "Train_R18_Old_Data_YesWLoss_MaxOut_Num_classes_2",
             "dropout": false,
             "wandb_flag": true,
             "sampler": false,

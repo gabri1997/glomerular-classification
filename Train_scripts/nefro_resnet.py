@@ -297,7 +297,7 @@ class NefroNet():
                                 ])
         )
 
-        print('Numero dati di train:', len(dataset))
+
 
         # Creo il weighted random sampler
         labels_list = dataset.labels_list
@@ -333,6 +333,10 @@ class NefroNet():
                                                       #nefro.NefroTiffToTensor(),
                                                       #transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851))
                                 ]))
+        
+        print('Il numero di dati nel dataset di train è :', len(dataset))
+        print('Il numero di dati nel dataset di validation è :', len(validation_dataset))
+        print('Il numero di dati nel test dataset è :', len(eval_dataset_4k))
        
         # eval_dataset_diapo = nefro_4k_and_diapo.Nefro(split='test', label_name=self.lbl_name, w4k=False,
         #                                               wdiapo=True,
@@ -378,6 +382,7 @@ class NefroNet():
             # Con sampler
             if self.sampler == True:
                 print('W sampler True')
+                print('Ozzy Osbourne')
                 self.data_loader = DataLoader(dataset,
                                             batch_size=self.batch_size,
                                             sampler=sampler,
@@ -533,7 +538,7 @@ class NefroNet():
 
             print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
             print('Validation: ')
-            val_acc, val_pr, val_recall, val_f_score = self.eval(self.validation_data_loader, epoch=epoch, write_flag=True)
+            val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, write_flag=True)
             self.scheduler.step(val_acc)
 
             if epoch % 5 == 0:
@@ -1807,8 +1812,8 @@ if __name__ == '__main__':
     parser.add_argument('--dropout', action='store_true', help='DropOut')
     parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
     parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
-    parser.add_argument('--classes', type=int, default=1, help='number of classes to train')
-    parser.add_argument('--wloss', type=bool, default=False, help='weighted or not loss')
+    parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
+    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
@@ -1861,52 +1866,52 @@ if __name__ == '__main__':
                      write_flag=False)
         
         # CLASSIC TRAINING
-        # if opt.label == 'INTENS' :
-        #     n.train_intensity()
-        #     # n.load()
-        #     # n.eval_intensity(n.validation_data_loader, 0)
-        # else:
-        #     n.train()
-        #     # n.save() ma perchè richiama la save() ??
-        
-        data = '_New1'
-        w_path = n.load(data)
-        # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
-        # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
-        # # # # n.eval(n.validation_data_loader, True)
-        accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
-        cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
-                        [FN={cm[1,0]} TP={cm[1,1]}]]"""
-        res_dict = {
-            'Commento' : 'Esperimento sui dati nuovi, senza WLoss, con max su output quindi senza soglia',
-            'Esperimento': vars(opt),
-            'Accuracy': float(accuracy),
-            'Precision': float(pr),
-            'Recall': float(rec),
-            'Fscore': float(fscore),
-            "Conf_matrix": cm_pretty,
-            "Weights" : w_path
-        }
-        result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
-        if os.path.exists(result_path):
-            with open(result_path, 'r') as f:
-                try:
-                    data = json.load(f)
-                    if isinstance(data, list):
-                        all_results = data
-                    else:
-                        all_results = [data]
-                except json.JSONDecodeError:
-                    all_results = []
+        if opt.label == 'INTENS' :
+            n.train_intensity()
+            # n.load()
+            # n.eval_intensity(n.validation_data_loader, 0)
         else:
-            all_results = []
-        all_results.append(res_dict)
+            n.train()
+            # n.save() ma perchè richiama la save() ??
+        
+        # data = '_New1'
+        # w_path = n.load(data)
+        # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
+        # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
+        # # # # # n.eval(n.validation_data_loader, True)
+        # accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+        # cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+        #                 [FN={cm[1,0]} TP={cm[1,1]}]]"""
+        # res_dict = {
+        #     'Commento' : 'Esperimento sui dati nuovi, senza WLoss, con max su output quindi senza soglia',
+        #     'Esperimento': vars(opt),
+        #     'Accuracy': float(accuracy),
+        #     'Precision': float(pr),
+        #     'Recall': float(rec),
+        #     'Fscore': float(fscore),
+        #     "Conf_matrix": cm_pretty,
+        #     "Weights" : w_path
+        # }
+        # result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
+        # if os.path.exists(result_path):
+        #     with open(result_path, 'r') as f:
+        #         try:
+        #             data = json.load(f)
+        #             if isinstance(data, list):
+        #                 all_results = data
+        #             else:
+        #                 all_results = [data]
+        #         except json.JSONDecodeError:
+        #             all_results = []
+        # else:
+        #     all_results = []
+        # all_results.append(res_dict)
 
      
-        with open(result_path, 'w') as f:
-            json.dump(all_results, f, indent=4)
+        # with open(result_path, 'w') as f:
+        #     json.dump(all_results, f, indent=4)
 
-        print("Risultato aggiunto al file JSON.")
+        # print("Risultato aggiunto al file JSON.")
 
       
         # n.explain_eval(True)
