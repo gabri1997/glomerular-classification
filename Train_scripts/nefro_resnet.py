@@ -148,6 +148,8 @@ class ImgAugTransform:
             self.mode = 'constant'
 
         self.possible_aug_list = [
+            None,
+            None,
             sometimes(ia.augmenters.AdditivePoissonNoise((0, 10), per_channel=False, name="PoissonNoise")),
             sometimes(ia.augmenters.Dropout((0, 0.02), per_channel=False, name="Dropout")),
             sometimes(ia.augmenters.GaussianBlur((0, 0.8), name="GaussianBlur")),
@@ -187,6 +189,7 @@ class ImgAugTransform:
         return self.aug_list
 
     def __call__(self, img):
+
         self.aug.reseed(random.randint(1, 10000))
 
         img = np.array(img, dtype='uint16')
@@ -380,24 +383,25 @@ class NefroNet():
 
 
             # Con sampler
-            if self.sampler == True:
-                print('W sampler True')
-                print('Ozzy Osbourne')
-                self.data_loader = DataLoader(dataset,
-                                            batch_size=self.batch_size,
-                                            sampler=sampler,
-                                            num_workers=self.n_workers,
-                                            drop_last=True,
-                                            pin_memory=True) # prefatch factor
+            # if self.sampler == True:
+            #     print('W sampler True')
+                
+            #     self.data_loader = DataLoader(dataset,
+            #                                 batch_size=self.batch_size,
+            #                                 sampler=sampler,
+            #                                 num_workers=self.n_workers,
+            #                                 drop_last=True,
+            #                                 pin_memory=True) # prefatch factor
 
-            else: 
-                print('W sampler False')
-                self.data_loader = DataLoader(dataset,
-                                            batch_size=self.batch_size,
-                                            shuffle=True,
-                                            num_workers=self.n_workers,
-                                            drop_last=True,
-                                            pin_memory=True) # prefatch factor
+            
+
+            print('W sampler False')
+            self.data_loader = DataLoader(dataset,
+                                        batch_size=self.batch_size,
+                                        shuffle=True,
+                                        num_workers=self.n_workers,
+                                        drop_last=True,
+                                        pin_memory=True) # prefatch factor
 
             self.validation_data_loader = DataLoader(validation_dataset,
                                                     batch_size=self.batch_size,
@@ -1813,7 +1817,7 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
     parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
-    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
+    parser.add_argument('--wloss', type=bool, default=False, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
@@ -1829,6 +1833,11 @@ if __name__ == '__main__':
     parser.add_argument('--SRV', type=bool, default=True, help='is training on remote server')
     parser.add_argument('--from_scratch', action='store_true', help='not finetuning')
     parser.add_argument('--augm_config', type=int, default=0, help='configuration code for augmentation techniques choice')
+    """
+    La randomicità locale di ogni immagine è diversa perché richiamo il reseed() (nella call delle augmentation) con un seed diverso ogni volta (che però deriva da un random controllato).
+    La riproducibilità globale rimane perché il generatore di numeri casuali globale è fissato con il seed nel main."""
+
+    parser.add_argument('--seed', type=int, default=42, help = 'seed for transformation')
     opt = parser.parse_args()
 
     # LOGICA LABEL SELECTION
@@ -1871,6 +1880,9 @@ if __name__ == '__main__':
             # n.load()
             # n.eval_intensity(n.validation_data_loader, 0)
         else:
+            random.seed(opt.seed)
+            np.random.seed(opt.seed)
+            ia.seed(opt.seed)
             n.train()
             # n.save() ma perchè richiama la save() ??
         
