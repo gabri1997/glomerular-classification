@@ -280,7 +280,8 @@ class NefroNet():
                     "label": self.lbl_name,
                     "img_aug": self.aug_trans,
                     "w4k": self.w4k,
-                    "wdiapo": self.wdiapo
+                    "wdiapo": self.wdiapo,
+                    "lr" : self.learning_rate
                 }
             )
 
@@ -505,6 +506,16 @@ class NefroNet():
 
     def train(self):
 
+        # Controllo monotonia step, devono crescere e non risettarsi a 1, ma dà un WARNING che non sono crescenti
+        # Così loggo con step=epoch
+        wandb.define_metric("epoch")
+        wandb.define_metric("train/loss", step_metric="epoch")
+        wandb.define_metric("val/accuracy", step_metric="epoch")
+        wandb.define_metric("val/precision", step_metric="epoch")
+        wandb.define_metric("val/recall", step_metric="epoch")
+        wandb.define_metric("val/f1_score", step_metric="epoch")
+        wandb.define_metric("learning_rate", step_metric="epoch")
+
         for epoch in range(self.num_epochs):
             self.n.train()
             losses = []
@@ -547,11 +558,12 @@ class NefroNet():
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                lr = self.optimizer.param_groups[0]['lr']  # Get the current learning rate
 
             print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
             print('Validation: ')
             val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, write_flag=True)
-            self.scheduler.step(val_acc)
+            self.scheduler.step(val_f_score)
 
             if epoch % 5 == 0:
                 self.thresh_eval(epoch)
@@ -570,20 +582,13 @@ class NefroNet():
                 print(f"Errore nella conversione a float: {e}")
                 continue  # salta logging per questo epoch se conversione fallisce
 
-            # Controllo monotonia step, devono crescere e non risettarsi a 1, ma dà un WARNING che non sono crescenti
-            # Così loggo con step=epoch
-            wandb.define_metric("epoch")
-            wandb.define_metric("train/loss", step_metric="epoch")
-            wandb.define_metric("val/accuracy", step_metric="epoch")
-            wandb.define_metric("val/precision", step_metric="epoch")
-            wandb.define_metric("val/recall", step_metric="epoch")
-            wandb.define_metric("val/f1_score", step_metric="epoch")
             try :
                 wandb.log({"train/loss" : mean_loss, 'epoch': epoch})
                 wandb.log({"val/accuracy" : val_acc, 'epoch': epoch})
                 wandb.log({"val/precision" : val_pr, 'epoch': epoch})
                 wandb.log({"val/recall" : val_recall, 'epoch': epoch})
                 wandb.log({"val/f1_score" : val_f_score, 'epoch': epoch})
+                wandb.log({"learning_rate": lr})  # Log the learning rate
             except Exception as e:
                 print(f'Errore nel log di wandb nel train: {e}')
 
@@ -1840,7 +1845,7 @@ if __name__ == '__main__':
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
-    parser.add_argument('--learning_rate', type=float, default=0.00001, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.1, help='learning rate')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
     parser.add_argument('--epochs', type=int, default=180, help='number of epochs to train')
     parser.add_argument('--size', type=int, default=512, help='size of images')
