@@ -301,7 +301,6 @@ class NefroNet():
         )
 
 
-
         # Creo il weighted random sampler
         labels_list = dataset.labels_list
         class_distribution = dataset.class_distribution
@@ -484,6 +483,15 @@ class NefroNet():
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
                                                                         threshold=0.004)
 
+    def kfold_indices(dataset, k):
+        fold_size = len(dataset) // k
+        indices = np.arange(len(dataset))
+        folds =[]
+        for i in range(k):
+            val_indices = indices[i * fold_size: (i + 1) * fold_size]
+            train_indices = np.concatenate([indices[:i * fold_size], indices[(i + 1) * fold_size:]])
+            folds.append((train_indices, val_indices))
+        return folds
     
     def freeze_layers(self, freeze_flag=True, nl=0):
         if nl:
@@ -1804,6 +1812,17 @@ if __name__ == '__main__':
     # split_dataset('mesangiale')
 
     os.environ["OMP_NUM_THREADS"] = "1"
+    def setup_seeds(seed: int = 42):
+        random.seed(seed)
+        np.random.seed(seed)
+        ia.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        os.environ["PYTHONHASHSEED"] = str(seed)
+        print(f"[SEED] All random seeds set to {seed} for deterministic behavior")
 
     files_path = '/nas/softechict-nas-1/fpollastri/data/istologia/files//'
     parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
@@ -1814,10 +1833,10 @@ if __name__ == '__main__':
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
-    parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
+    parser.add_argument('--wandb_flag', type=bool, default=True, help='wand init')
     parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
-    parser.add_argument('--wloss', type=bool, default=False, help='weighted or not loss')
+    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
@@ -1867,6 +1886,8 @@ if __name__ == '__main__':
         raise ValueError(f"Label group '{opt.label}' non riconosciuto.")
     print(opt)
 
+    setup_seeds(opt.seed)
+
     if opt.SRV:
 
         n = NefroNet(net=opt.network, project_name=opt.project_name, wloss = opt.wloss, old_or_new_folder = opt.old_or_new_dataset_folder, dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
@@ -1875,55 +1896,52 @@ if __name__ == '__main__':
                      write_flag=False)
         
         # CLASSIC TRAINING
-        if opt.label == 'INTENS' :
-            n.train_intensity()
-            # n.load()
-            # n.eval_intensity(n.validation_data_loader, 0)
-        else:
-            random.seed(opt.seed)
-            np.random.seed(opt.seed)
-            ia.seed(opt.seed)
-            n.train()
+        # if opt.label == 'INTENS' :
+        #     n.train_intensity()
+        #     # n.load()
+        #     # n.eval_intensity(n.validation_data_loader, 0)
+        # else:
+        #     n.train()
             # n.save() ma perchè richiama la save() ??
         
-        # data = '_New1'
-        # w_path = n.load(data)
+        data = '_Old9'
+        w_path = n.load(data)
         # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
         # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
         # # # # # n.eval(n.validation_data_loader, True)
-        # accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
-        # cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
-        #                 [FN={cm[1,0]} TP={cm[1,1]}]]"""
-        # res_dict = {
-        #     'Commento' : 'Esperimento sui dati nuovi, senza WLoss, con max su output quindi senza soglia',
-        #     'Esperimento': vars(opt),
-        #     'Accuracy': float(accuracy),
-        #     'Precision': float(pr),
-        #     'Recall': float(rec),
-        #     'Fscore': float(fscore),
-        #     "Conf_matrix": cm_pretty,
-        #     "Weights" : w_path
-        # }
-        # result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
-        # if os.path.exists(result_path):
-        #     with open(result_path, 'r') as f:
-        #         try:
-        #             data = json.load(f)
-        #             if isinstance(data, list):
-        #                 all_results = data
-        #             else:
-        #                 all_results = [data]
-        #         except json.JSONDecodeError:
-        #             all_results = []
-        # else:
-        #     all_results = []
-        # all_results.append(res_dict)
+        accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+        cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                        [FN={cm[1,0]} TP={cm[1,1]}]]"""
+        res_dict = {
+            'Commento' : 'Esperimento su vecchi dati, con WLoss, con max su output quindi senza soglia, con seed 42, i pesi sono stati salvati a epoch 11 però',
+            'Esperimento': vars(opt),
+            'Accuracy': float(accuracy),
+            'Precision': float(pr),
+            'Recall': float(rec),
+            'Fscore': float(fscore),
+            "Conf_matrix": cm_pretty,
+            "Weights" : w_path
+        }
+        result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
+        if os.path.exists(result_path):
+            with open(result_path, 'r') as f:
+                try:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        all_results = data
+                    else:
+                        all_results = [data]
+                except json.JSONDecodeError:
+                    all_results = []
+        else:
+            all_results = []
+        all_results.append(res_dict)
 
      
-        # with open(result_path, 'w') as f:
-        #     json.dump(all_results, f, indent=4)
+        with open(result_path, 'w') as f:
+            json.dump(all_results, f, indent=4)
 
-        # print("Risultato aggiunto al file JSON.")
+        print("Risultato aggiunto al file JSON.")
 
       
         # n.explain_eval(True)

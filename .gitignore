@@ -14,7 +14,7 @@ Train_scripts/models_retrain/
 Train_scripts/Sbatch/
 Train_scripts/all_labels.csv
 Inference_scripts/Augmented_images_*/
-
+Train_scripts/DataLeakage*/
 
 *.pt 
 *.pth 

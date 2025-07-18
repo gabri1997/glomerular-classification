@@ -58,8 +58,6 @@ class Nefro(data.Dataset):
         self.load = load
         self.size = size
         
-      
-
         self.tiff_transform = NefroTiffToTensor()
         self.diapo_transform = DiapoTiffToTensor()
 
@@ -269,7 +267,6 @@ class Nefro(data.Dataset):
         return split_list, labels_list
 
 
-   
     def get_split_name(self, label, w4k, wdiapo, split, custom_name=''):
         final_name = str(label)
         if w4k:
