@@ -23,7 +23,8 @@ flagsdic = {
 
 # Percorso al file CSV
 #csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GEN_SEGM\', \'FOC_SEGM\']]_4k_training.csv"
-csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[['MESANGIALE']]_4k_test.csv"
+#csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[['MESANGIALE']]_4k_test.csv"
+csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_test_seed16.csv"
 # ----------- ANALISI TRUE in una specifica colonna ----------- #
 label_to_check = 'MESANGIALE'  # Cambia qui per usare un'altra label
 col_idx = flagsdic[label_to_check]
