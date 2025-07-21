@@ -9,8 +9,8 @@ from collections import defaultdict
 
 def transform(input_excel):
     
-    "Questa funzione prende l'excel fornito da Magistroni che contiene le annotazioni a livello di WSI, e genera il file all_labels.csv che contiene"
-    "Nome WSI - stringa di True e False che corrispondono alla presenza o assenza della specifica feature come indicato nel file di Magistroni"
+    """ Questa funzione prende l'excel fornito da Magistroni che contiene le annotazioni a livello di WSI, e genera il file all_labels.csv che contiene
+        Nome WSI - stringa di True e False che corrispondono alla presenza o assenza della specifica feature come indicato nel file di Magistroni"""
 
     df = pd.read_excel(input_excel, skiprows=1)
     print(df.columns)

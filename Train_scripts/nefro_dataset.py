@@ -267,7 +267,7 @@ class Nefro(data.Dataset):
         return split_list, labels_list
 
 
-    def get_split_name(self, label, w4k, wdiapo, split, custom_name=''):
+    def     get_split_name(self, label, w4k, wdiapo, split, custom_name=''):
         final_name = str(label)
         if w4k:
             final_name += '_4k'

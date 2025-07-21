@@ -4,6 +4,7 @@ import cv2
 import time
 import json
 from matplotlib.path import Path
+from torch.utils.data import Subset
 import torch
 import random
 import argparse
@@ -262,14 +263,14 @@ class NefroNet():
 
         self.aug_trans = aug_trans_list
 
-        today = datetime.date.today()
-        print(today) 
+        self.today = datetime.date.today()
+        print(self.today) 
 
         # INIT WANDB
         if self.wandb_flag:
             wandb.init(
                 project="Nefrologia",
-                name=f"{self.project_name}_{self.lbl_name}_{today}",
+                name=f"{self.project_name}_{self.lbl_name}_{self.today}",
                 config={
                     "model": "ResNet18",
                     "num_classes": self.num_classes,
@@ -285,7 +286,7 @@ class NefroNet():
                 }
             )
 
-
+        
         dataset = nefro_4k_and_diapo.Nefro(
                                 split='training',
                                 old_or_new_folder = self.old_or_new_folder,
@@ -341,6 +342,24 @@ class NefroNet():
         print('Il numero di dati nel dataset di validation è :', len(validation_dataset))
         print('Il numero di dati nel test dataset è :', len(eval_dataset_4k))
        
+        
+        self.dataset_for_folds = nefro_4k_and_diapo.Nefro(
+                                split='train_val_fused_for_split',
+                                old_or_new_folder = self.old_or_new_folder,
+                                label_name=self.lbl_name,
+                                w4k=self.w4k,
+                                wdiapo=self.wdiapo,
+                                size=(opt.size, opt.size),
+                                transform=transforms.Compose([
+                                    imgaug_transforms,  # questo deve avere __call__ definito
+                                    # Questo non ci vuole perchè viene già fatto quando chiamo get_images
+                                    #nefro.NefroTiffToTensor(),
+                                    #transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851))
+                                ])
+        )
+
+
+
         # eval_dataset_diapo = nefro_4k_and_diapo.Nefro(split='test', label_name=self.lbl_name, w4k=False,
         #                                               wdiapo=True,
         #                                               size=(opt.size, opt.size),
@@ -457,19 +476,9 @@ class NefroNet():
             #     c2_w = 0.9
             
             # Nel caso nel dataset non ci fossero esempi di classe 1 o 0 devo usare un epsilon per evitare la divisone per 0
-            c1_w = get_probabilities(self.data_loader)
-            epsilon = 1e-6
-
-            if c1_w < epsilon:
-                c1_w = epsilon
-            if c1_w > 1 - epsilon:
-                c1_w = 1 - epsilon
-
-            c0_w = 1.0 - c1_w
-            c1_w = 1.0 / c1_w
-            c0_w = 1.0 / c0_w
-
-            if self.lbl_name != [['INTENS']] and wloss==True: # loss mi dice se voglio pesare o no la loss function 
+            c0_w, c1_w = self.get_probabilities(self.data_loader)
+           
+            if self.lbl_name != [['INTENS']] and self.wloss==True: # loss mi dice se voglio pesare o no la loss function 
                 class_w = torch.tensor([c0_w, c1_w], device='cuda')
                 print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
                 self.criterion = nn.CrossEntropyLoss(weight=class_w)
@@ -484,7 +493,7 @@ class NefroNet():
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
                                                                         threshold=0.004)
 
-    def kfold_indices(dataset, k):
+    def kfold_indices(self, dataset, k):
         fold_size = len(dataset) // k
         indices = np.arange(len(dataset))
         folds =[]
@@ -591,6 +600,158 @@ class NefroNet():
                 wandb.log({"learning_rate": lr})  # Log the learning rate
             except Exception as e:
                 print(f'Errore nel log di wandb nel train: {e}')
+            
+        wandb.finish()
+
+
+    def train_on_fold(self):
+
+        folds = self.kfold_indices(self.dataset_for_folds, 4)
+
+        # Faccio sempre 4 Fold
+        for fold, (train_indices, val_indices) in enumerate(folds):
+
+            wandb.init(project="Nefrologia", 
+                       name=f"{self.project_name}_{self.lbl_name}_{self.today}_fold_{fold+1}",
+                       group=self.project_name,
+                       config={
+                            "model": "ResNet18",
+                            "num_classes": self.num_classes,
+                            "learning_rate": self.learning_rate,
+                            "batch_size": self.batch_size,
+                            "epochs": self.num_epochs,
+                            "thresh": self.thresh,
+                            "label": self.lbl_name,
+                            "img_aug": self.aug_trans,
+                            "w4k": self.w4k,
+                            "wdiapo": self.wdiapo,
+                        },
+                       reinit=True)
+            # Controllo monotonia step, devono crescere e non risettarsi a 1, ma dà un WARNING che non sono crescenti
+            # Così loggo con step=epoch
+            wandb.define_metric("epoch")
+            wandb.define_metric("train/loss", step_metric="epoch")
+            wandb.define_metric("val/accuracy", step_metric="epoch")
+            wandb.define_metric("val/precision", step_metric="epoch")
+            wandb.define_metric("val/recall", step_metric="epoch")
+            wandb.define_metric("val/f1_score", step_metric="epoch")
+            wandb.define_metric("learning_rate", step_metric="epoch")
+            
+            train_subset = Subset(self.dataset_for_folds, train_indices)
+            val_subset = Subset(self.dataset_for_folds, val_indices)
+
+            self.train_fold_data_loader = DataLoader(train_subset,
+                              batch_size=self.batch_size,
+                              shuffle=True,
+                              num_workers=self.n_workers,
+                              drop_last=True,
+                              pin_memory=True)
+
+            self.validation_fold_data_loader = DataLoader(val_subset,
+                                    batch_size=self.batch_size,
+                                    shuffle=False,
+                                    num_workers=self.n_workers,
+                                    drop_last=False,
+                                    pin_memory=True)
+
+        
+            print(f'Sto usando il fold {fold+1}/{4}')
+            print(f'Questa è la lunghezza del train_fold_data_loader {len(self.train_fold_data_loader)}')
+            print(f'Questa è la lunghezza del validation_fold_data_loader {len(self.validation_fold_data_loader)}')
+
+            c0_w, c1_w = self.get_probabilities(self.train_fold_data_loader)
+
+            if self.lbl_name != [['INTENS']] and self.wloss==True: # loss mi dice se voglio pesare o no la loss function 
+                class_w = torch.tensor([c0_w, c1_w], device='cuda')
+                print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
+                self.criterion = nn.CrossEntropyLoss(weight=class_w)
+            else: 
+                print('La loss non è stata pesata(num_classes = 2)')
+                self.criterion = nn.CrossEntropyLoss()
+            
+
+            # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()), lr=self.learning_rate)
+            self.optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.n.parameters()), lr=self.learning_rate)
+            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,threshold=0.004)
+
+            for epoch in range(self.num_epochs):
+                self.n.train()
+                losses = []
+                start_time = time.time()
+
+                # PER DEBUG
+                # image, label, name = self.data_loader.dataset[42]  # indice casuale
+                # print(f"Nome immagine: {name}")
+                # print(f"Etichetta: {label}")
+                # print(f"Tipo: {type(image)}")
+                # print(f"Shape immagine: {image.shape}")  # per immagini torch: (C, H, W)
+                # print('_'*30)
+                # image, label, name = self.data_loader.dataset[30]  # indice casuale
+                # print(f"Nome immagine: {name}")
+                # print(f"Etichetta: {label}")
+                # print(f"Tipo: {type(image)}")
+                # print(f"Shape immagine: {image.shape}")  # per immagini torch: (C, H, W)
+
+                for i, (x, target, _) in enumerate(self.train_fold_data_loader):
+
+                    # Stampiamo la distribuzione delle classi nel batch
+                    if i % 10 == 0:  
+                        counts = Counter(target.tolist())
+                        print(f"[Epoch {epoch} | Batch {i}] Class distribution in batch: {dict(counts)}")
+
+
+                    x = x.to('cuda')
+                    if self.num_classes == 1:
+                        target = target.to('cuda', torch.float)
+                        # Questo peso qui essendo fisso sarebbe meglio impostarlo al di fuori del training loop quando definisco la loss la prima volta, ma non dovrebbe dare errori
+                        # Non capisco pero perchè non rifletta la distribuzione dei dati di training 
+                        #self.criterion.weight = get_weights(target)
+                        output = torch.squeeze(self.n(x))
+                    else:
+                        target = target.to('cuda', torch.long)
+                        output = self.n(x)
+                    loss = self.criterion(output, target)
+                    losses.append(loss.item())
+
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    self.optimizer.step()
+                    lr = self.optimizer.param_groups[0]['lr']  # Get the current learning rate
+
+                print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
+                print('Validation: ')
+                val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_fold_data_loader, epoch=epoch, write_flag=True)
+                self.scheduler.step(val_f_score)
+
+                if epoch % 5 == 0:
+                    self.thresh_eval(epoch)
+
+                mean_loss = np.mean(losses)
+                print(f'Questa è la media delle loss: {mean_loss:.6f}')
+
+                # Trasformo tutto in float python per sicurezza (non tensori o None), perchè qua da problemi di log 
+                try:
+                    val_acc = float(val_acc)
+                    val_pr = float(val_pr)
+                    val_recall = float(val_recall)
+                    val_f_score = float(val_f_score)
+                    mean_loss = float(mean_loss)
+                except Exception as e:
+                    print(f"Errore nella conversione a float: {e}")
+                    continue  # salta logging per questo epoch se conversione fallisce
+
+                try :
+                    wandb.log({"train/loss" : mean_loss, 'epoch': epoch})
+                    wandb.log({"val/accuracy" : val_acc, 'epoch': epoch})
+                    wandb.log({"val/precision" : val_pr, 'epoch': epoch})
+                    wandb.log({"val/recall" : val_recall, 'epoch': epoch})
+                    wandb.log({"val/f1_score" : val_f_score, 'epoch': epoch})
+                    wandb.log({"learning_rate": lr})  # Log the learning rate
+                except Exception as e:
+                    print(f'Errore nel log di wandb nel train: {e}')
+
+            wandb.finish()
+
 
     # I livelli di intensità sono livelli da 0 a 3 con step 0.5.
     def train_intensity(self):
@@ -1458,6 +1619,30 @@ class NefroNet():
             i += 1
         return i 
 
+    def get_probabilities(self, dl):
+        # Se il dataset è un Subset, allora accediamo al dataset vero
+        if isinstance(dl.dataset, torch.utils.data.Subset):
+            dataset = dl.dataset.dataset
+            indices = dl.dataset.indices
+            # Ottieni solo le label dagli indici
+            lbls = [dataset.lbls[i] for i in indices]
+        else:
+            lbls = dl.dataset.lbls
+
+        counter = sum(lbls)
+        total = len(lbls)
+        print(f"Classe 1 count: {counter} / {total} ({counter/total:.4f})")
+        
+        c1_w = counter / total
+        epsilon = 1e-6
+        c1_w = min(max(c1_w, epsilon), 1 - epsilon)
+
+        c0_w = 1.0 - c1_w
+        c1_w = 1.0 / c1_w
+        c0_w = 1.0 / c0_w
+        return c0_w, c1_w
+
+    
     # Qui bisogna salvare i pesi con un identificativo di qualche tipo
     def save(self):
         # Questo serve per identificare se faccio esperimenti old o new 
@@ -1572,11 +1757,7 @@ def get_weights(target):
     weights += 0.
     return weights
 
-def get_probabilities(dl):
-    counter = sum(dl.dataset.lbls)
-    total = len(dl.dataset)
-    print(f"Classe 1 count: {counter} / {total} ({counter/total:.4f})")
-    return counter / total
+
 
 
 
@@ -1907,9 +2088,12 @@ if __name__ == '__main__':
         #     # n.eval_intensity(n.validation_data_loader, 0)
         # else:
         #     n.train()
-            # n.save() ma perchè richiama la save() ??
+        #     #n.train_on_fold()
+        #     #n.save() ma perchè richiama la save() ??
         
-        data = '_Old9'
+        ########################################################
+
+        data = '_OldDataDiPollo'
         w_path = n.load(data)
         # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
         # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
@@ -1918,7 +2102,7 @@ if __name__ == '__main__':
         cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                         [FN={cm[1,0]} TP={cm[1,1]}]]"""
         res_dict = {
-            'Commento' : 'Esperimento su vecchi dati, con WLoss, con max su output quindi senza soglia, con seed 42, i pesi sono stati salvati a epoch 11 però',
+            'Commento' : 'Esperimento su vecchi dati, con WLoss, con max su output quindi senza soglia, con seed 42, i pesi sono stati salvati a epoch 20, lr 0.1, post consigli Luca',
             'Esperimento': vars(opt),
             'Accuracy': float(accuracy),
             'Precision': float(pr),
@@ -1948,7 +2132,7 @@ if __name__ == '__main__':
 
         print("Risultato aggiunto al file JSON.")
 
-      
+        ##########################################
         # n.explain_eval(True)
         # #n.eval_calibration(dset='validation', write_flag=True)
         # n.eval_calibration(dset='test', write_flag=True)
