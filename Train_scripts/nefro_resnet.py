@@ -400,28 +400,26 @@ class NefroNet():
             self.n = MyDensenet(net=self.net, pretrained=pretrained, num_classes=self.num_classes,
                                 dropout_flag=self.dropout).to('cuda')
         else:
-
-
             # Con sampler
-            # if self.sampler == True:
-            #     print('W sampler True')
+            if self.sampler == 'True':
+                print('Weighted sampler True')
                 
-            #     self.data_loader = DataLoader(dataset,
-            #                                 batch_size=self.batch_size,
-            #                                 sampler=sampler,
-            #                                 num_workers=self.n_workers,
-            #                                 drop_last=True,
-            #                                 pin_memory=True) # prefatch factor
+                self.data_loader = DataLoader(dataset,
+                                            batch_size=self.batch_size,
+                                            sampler=sampler,
+                                            num_workers=self.n_workers,
+                                            drop_last=True,
+                                            pin_memory=True) # prefatch factor
 
             
-
-            print('W sampler False')
-            self.data_loader = DataLoader(dataset,
-                                        batch_size=self.batch_size,
-                                        shuffle=True,
-                                        num_workers=self.n_workers,
-                                        drop_last=True,
-                                        pin_memory=True) # prefatch factor
+            else:
+                print('Weighted sampler False')
+                self.data_loader = DataLoader(dataset,
+                                            batch_size=self.batch_size,
+                                            shuffle=True,
+                                            num_workers=self.n_workers,
+                                            drop_last=True,
+                                            pin_memory=True) # prefatch factor
 
             self.validation_data_loader = DataLoader(validation_dataset,
                                                     batch_size=self.batch_size,
@@ -454,7 +452,7 @@ class NefroNet():
                               dropout_flag=self.dropout).to('cuda')
         
         # Ricarico i pesi per fine-tuning
-        if self.load_for_fine_tuning == True:
+        if self.load_for_fine_tuning == 'True':
             print('Esperimento fine tuning! ...')
             checkpoint = torch.load(self.weights_path, map_location = 'cuda')
             try:
@@ -502,7 +500,16 @@ class NefroNet():
                 self.criterion = nn.CrossEntropyLoss()
 
             # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()),
-            #                                   lr=self.learning_rate)
+            #                                    lr=self.learning_rate)
+
+            # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            #     self.optimizer,
+            #     max_lr=self.learning_rate,
+            #     steps_per_epoch=len(self.data_loader),
+            #     epochs=self.num_epochs,
+            #     pct_start=0.3
+            # )
+
             self.optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.n.parameters()),
                                              lr=self.learning_rate)
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
@@ -2027,31 +2034,34 @@ if __name__ == '__main__':
 
     files_path = '/nas/softechict-nas-1/fpollastri/data/istologia/files//'
     # Cartella in cui salvo i pesi del training
-    models_dir = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain"
+    models_dir = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain"
     # Percorso pesi per fine-tuning
-    weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
+    weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
     parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
+
     parser.add_argument('--label', type=str, default='MESANGIALE',
                     help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files_old_Pollo/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
+    parser.add_argument('--train_or_test', type=str, default='Train', help='Train or test on your data')
+    parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
     parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=['0', '0.5', '1', '1.5', '2', '2.5', '3'],help='Etichette da mostrare nella matrice di confusione')
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
     parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
-    parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
+    parser.add_argument('--sampler', type=str, default='False', help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
     parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
-    parser.add_argument('--learning_rate', type=float, default=0.1, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
     parser.add_argument('--epochs', type=int, default=180, help='number of epochs to train')
     parser.add_argument('--size', type=int, default=512, help='size of images')
     # parser.add_argument('--w4k', action='store_true', help='is training on 4k dataset')
     parser.add_argument('--w4k', type=bool, default=True, help='is training on 4k dataset')
-    parser.add_argument('--load_for_fine_tuning', type=bool, default=True, help='load weights for fine tuning')
+    parser.add_argument('--load_for_fine_tuning', type=str, default='False', help='load weights for fine tuning')
     parser.add_argument('--wdiapo', action='store_true', help='is training on diapo dataset')
     parser.add_argument('--n_forwards', type=int, default=1, help='number of different forwards to compute')
     parser.add_argument('--savemodel', type=int, default=5, help='number of epochs between saving models')
@@ -2104,55 +2114,54 @@ if __name__ == '__main__':
                      write_flag=False)
         
         # CLASSIC TRAINING
-        # if opt.label == 'INTENS' :
-        #     n.train_intensity()
-        #     # n.load()
-        #     # n.eval_intensity(n.validation_data_loader, 0)
-        # else:
-        #     n.train()
-        #     #n.train_on_fold()
-        #     #n.save() ma perchè richiama la save() ??
-        
-        ########################################################
-
-        data = '_New8'
-        w_path = n.load(data)
-        # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
-        # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
-        # # # # # n.eval(n.validation_data_loader, True)
-        accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
-        cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
-                        [FN={cm[1,0]} TP={cm[1,1]}]]"""
-        res_dict = {
-            'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.1, post consigli Luca, canali RGB non solo Green come prima, seed 16 per split, salvo pesi dopo epoca 15',
-            'Esperimento': vars(opt),
-            'Accuracy': float(accuracy),
-            'Precision': float(pr),
-            'Recall': float(rec),
-            'Fscore': float(fscore),
-            "Conf_matrix": cm_pretty,
-            "Weights" : w_path
-        }
-        result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_{opt.label}.json'
-        if os.path.exists(result_path):
-            with open(result_path, 'r') as f:
-                try:
-                    data = json.load(f)
-                    if isinstance(data, list):
-                        all_results = data
-                    else:
-                        all_results = [data]
-                except json.JSONDecodeError:
-                    all_results = []
+        if opt.train_or_test == 'Train':
+            if opt.label == 'INTENS' :
+                n.train_intensity()
+                # n.load()
+                # n.eval_intensity(n.validation_data_loader, 0)
+            else:
+                n.train()
+                #n.train_on_fold()
+                #n.save() ma perchè richiama la save() ??
         else:
-            all_results = []
-        all_results.append(res_dict)
+            data = opt.weights
+            w_path = n.load(data)
+            # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
+            # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
+            # # # # # n.eval(n.validation_data_loader, True)
+            accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+            cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                            [FN={cm[1,0]} TP={cm[1,1]}]]"""
+            res_dict = {
+                'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.1, post consigli Luca, canali RGB non solo Green come prima, seed 16 per split, salvo pesi dopo epoca 15',
+                'Esperimento': vars(opt),
+                'Accuracy': float(accuracy),
+                'Precision': float(pr),
+                'Recall': float(rec),
+                'Fscore': float(fscore),
+                "Conf_matrix": cm_pretty,
+                "Weights" : w_path
+            }
+            result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_{opt.label}.json'
+            if os.path.exists(result_path):
+                with open(result_path, 'r') as f:
+                    try:
+                        data = json.load(f)
+                        if isinstance(data, list):
+                            all_results = data
+                        else:
+                            all_results = [data]
+                    except json.JSONDecodeError:
+                        all_results = []
+            else:
+                all_results = []
+            all_results.append(res_dict)
 
-     
-        with open(result_path, 'w') as f:
-            json.dump(all_results, f, indent=4)
+        
+            with open(result_path, 'w') as f:
+                json.dump(all_results, f, indent=4)
 
-        print("Risultato aggiunto al file JSON.")
+            print("Risultato aggiunto al file JSON.")
 
         ##########################################
         # n.explain_eval(True)

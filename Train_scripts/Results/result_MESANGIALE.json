@@ -503,5 +503,47 @@
         "Fscore": 0.6869359864157111,
         "Conf_matrix": "[[TN=84 FP=114]\n                        [FN=61 TP=192]]",
         "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_New8_net.pth"
+    },
+    {
+        "Commento": "Esperimento su nuovi dati con FineTuning, OnecycleLR con Adam, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.1, post consigli Luca, canali RGB non solo Green come prima, seed 16 per split, salvo pesi dopo epoca 15",
+        "Esperimento": {
+            "label": "MESANGIALE",
+            "old_or_new_dataset_folder": "Files/",
+            "train_or_test": "Test",
+            "weights": "_New9",
+            "conf_matrix_label": [
+                "non-MESANGIALE",
+                "MESANGIALE"
+            ],
+            "network": "resnet18",
+            "project_name": "Train_R18_New_Data_Warmup_Seed16_RGB_WLoss_Max_Num_classes_2_Lr001",
+            "dropout": false,
+            "wandb_flag": true,
+            "sampler": true,
+            "classes": 2,
+            "wloss": true,
+            "loadEpoch": 0,
+            "workers": 8,
+            "batch_size": 64,
+            "learning_rate": 0.01,
+            "thresh": 0.5,
+            "epochs": 180,
+            "size": 512,
+            "w4k": true,
+            "load_for_fine_tuning": true,
+            "wdiapo": false,
+            "n_forwards": 1,
+            "savemodel": 5,
+            "SRV": true,
+            "from_scratch": false,
+            "augm_config": 0,
+            "seed": 42
+        },
+        "Accuracy": 0.5898004434589801,
+        "Precision": 0.6096773996878259,
+        "Recall": 0.747035543595433,
+        "Fscore": 0.6713982245947104,
+        "Conf_matrix": "[[TN=77 FP=121]\n                            [FN=64 TP=189]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_New9_net.pth"
     }
 ]
