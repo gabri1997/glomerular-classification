@@ -183,11 +183,10 @@ class Nefro(data.Dataset):
 
         if img.ndim == 2:
             img_rgb = np.dstack([img, img, img])
-        elif img.ndim == 3:
-            green = img[:, :, 1]
-            img_rgb = np.dstack([green, green, green])
-        else:
-            raise ValueError(f"Immagine ha shape imprevista: {img.shape}")
+        # If you want to use only Green:
+        # elif img.ndim == 3:
+        #     green = img[:, :, 1]
+        #     img_rgb = np.dstack([green, green, green])
         
         # Cast esplicito a uint8 prima di trasformare
         img_rgb = img_rgb.astype(np.uint8)
@@ -195,9 +194,14 @@ class Nefro(data.Dataset):
         to_tensor = transforms.ToTensor()
         img_tensor = to_tensor(img_rgb)
 
+        # If you want to use only Green:
+        # normalize = transforms.Normalize(
+        #     mean=(0.1319403, 0.1319403, 0.1319403),
+        #     std=(0.18537317, 0.18537317, 0.18537317)
+        # )
         normalize = transforms.Normalize(
-            mean=(0.1319403, 0.1319403, 0.1319403),
-            std=(0.18537317, 0.18537317, 0.18537317)
+            mean=(0.13496943, 0.14678506, 0.13129657),
+            std=(0.19465959, 0.19976119, 0.19709547)
         )
 
         img_normalized = normalize(img_tensor)
@@ -267,7 +271,7 @@ class Nefro(data.Dataset):
         return split_list, labels_list
 
 
-    def     get_split_name(self, label, w4k, wdiapo, split, custom_name=''):
+    def get_split_name(self, label, w4k, wdiapo, split, custom_name=''):
         final_name = str(label)
         if w4k:
             final_name += '_4k'

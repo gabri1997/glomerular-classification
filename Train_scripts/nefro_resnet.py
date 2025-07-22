@@ -212,7 +212,7 @@ class ImgAugTransform:
 
 class NefroNet():
     def __init__(self, wandb_flag, sampler, old_or_new_folder, project_name, wloss, net, dropout, num_classes, num_epochs, l_r, size, batch_size, n_workers, thresh, lbl_name, conf_matrix_lbl, w4k,
-                 wdiapo, augm_config=0, pretrained=True, write_flag=False):
+                 wdiapo, load_for_fine_tuning, weights_path, models_dir, augm_config=0, pretrained=True, write_flag=False):
 
         self.project_name = project_name
 
@@ -232,11 +232,13 @@ class NefroNet():
         self.w4k = w4k
         self.wdiapo = wdiapo
         self.write_flag = write_flag
-        self.models_dir = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain"
+        self.models_dir = models_dir
         self.best_acc = 0.0
         self.wandb_flag = wandb_flag
         self.sampler = sampler
         self.old_or_new_folder = old_or_new_folder
+        self.load_for_fine_tuning = load_for_fine_tuning
+        self.weights_path = weights_path
 
 
         print("GPU disponibile:", torch.cuda.is_available())
@@ -317,7 +319,6 @@ class NefroNet():
             num_samples=len(sample_weights),
             replacement=True
         )
-
 
         validation_dataset = nefro_4k_and_diapo.Nefro(split='validation', old_or_new_folder = self.old_or_new_folder, label_name=self.lbl_name, w4k=self.w4k,
                                                       wdiapo=self.wdiapo,
@@ -451,6 +452,20 @@ class NefroNet():
       
         self.n = MyResnet(net=self.net, pretrained=pretrained, num_classes=self.num_classes,
                               dropout_flag=self.dropout).to('cuda')
+        
+        # Ricarico i pesi per fine-tuning
+        if self.load_for_fine_tuning == True:
+            print('Esperimento fine tuning! ...')
+            checkpoint = torch.load(self.weights_path, map_location = 'cuda')
+            try:
+                # Prima del caricamento
+                print("Prima del caricamento:", self.n.last_fc.weight.data.norm())
+                self.n.load_state_dict(checkpoint)
+                # Dopo il caricamento
+                print("Dopo il caricamento:", self.n.last_fc.weight.data.norm())
+                print(f'Ho caricato i pesi del modello trovati nel percorso {self.weights_path}')
+            except RuntimeError as error:
+                print(f"Errore nel caricamento dei pesi {self.weights_path}")
 
         # Loss and optimizer
         if self.num_classes == 1:
@@ -898,7 +913,7 @@ class NefroNet():
             # if saved:
             #     self.best_acc = accuracy
 
-            if accuracy > self.best_acc and write_flag and epoch > 10:
+            if accuracy > self.best_acc and write_flag and epoch > 15:
 
                 print(f"L'accuracy è {accuracy:.4f} mentre la best_accuracy è {self.best_acc:.4f}, quindi salvo i pesi")
                 print("SAVING MODEL")
@@ -2011,6 +2026,10 @@ if __name__ == '__main__':
         print(f"[SEED] All random seeds set to {seed} for deterministic behavior")
 
     files_path = '/nas/softechict-nas-1/fpollastri/data/istologia/files//'
+    # Cartella in cui salvo i pesi del training
+    models_dir = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain"
+    # Percorso pesi per fine-tuning
+    weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
     parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
     parser.add_argument('--label', type=str, default='MESANGIALE',
                     help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
@@ -2019,7 +2038,7 @@ if __name__ == '__main__':
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
-    parser.add_argument('--wandb_flag', type=bool, default=True, help='wand init')
+    parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
     parser.add_argument('--sampler', type=bool, default=False, help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
     parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
@@ -2032,6 +2051,7 @@ if __name__ == '__main__':
     parser.add_argument('--size', type=int, default=512, help='size of images')
     # parser.add_argument('--w4k', action='store_true', help='is training on 4k dataset')
     parser.add_argument('--w4k', type=bool, default=True, help='is training on 4k dataset')
+    parser.add_argument('--load_for_fine_tuning', type=bool, default=True, help='load weights for fine tuning')
     parser.add_argument('--wdiapo', action='store_true', help='is training on diapo dataset')
     parser.add_argument('--n_forwards', type=int, default=1, help='number of different forwards to compute')
     parser.add_argument('--savemodel', type=int, default=5, help='number of epochs between saving models')
@@ -2076,9 +2096,11 @@ if __name__ == '__main__':
 
     if opt.SRV:
 
-        n = NefroNet(net=opt.network, project_name=opt.project_name, wloss = opt.wloss, old_or_new_folder = opt.old_or_new_dataset_folder, dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
+        n = NefroNet(net=opt.network, project_name=opt.project_name, wloss = opt.wloss, old_or_new_folder = opt.old_or_new_dataset_folder, 
+                     dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
                      size=opt.size, batch_size=opt.batch_size, thresh=opt.thresh, pretrained=(not opt.from_scratch),
-                     l_r=opt.learning_rate, n_workers=opt.workers, lbl_name=labels_to_use, conf_matrix_lbl=opt.conf_matrix_label, w4k=opt.w4k, wdiapo=opt.wdiapo,
+                     l_r=opt.learning_rate, n_workers=opt.workers, lbl_name=labels_to_use, conf_matrix_lbl=opt.conf_matrix_label, 
+                     w4k=opt.w4k, wdiapo=opt.wdiapo, load_for_fine_tuning = opt.load_for_fine_tuning, weights_path = weights_path, models_dir = models_dir,
                      write_flag=False)
         
         # CLASSIC TRAINING
@@ -2093,7 +2115,7 @@ if __name__ == '__main__':
         
         ########################################################
 
-        data = '_OldDataDiPollo'
+        data = '_New8'
         w_path = n.load(data)
         # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
         # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
@@ -2102,7 +2124,7 @@ if __name__ == '__main__':
         cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                         [FN={cm[1,0]} TP={cm[1,1]}]]"""
         res_dict = {
-            'Commento' : 'Esperimento su vecchi dati, con WLoss, con max su output quindi senza soglia, con seed 42, i pesi sono stati salvati a epoch 20, lr 0.1, post consigli Luca',
+            'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.1, post consigli Luca, canali RGB non solo Green come prima, seed 16 per split, salvo pesi dopo epoca 15',
             'Esperimento': vars(opt),
             'Accuracy': float(accuracy),
             'Precision': float(pr),
@@ -2111,7 +2133,7 @@ if __name__ == '__main__':
             "Conf_matrix": cm_pretty,
             "Weights" : w_path
         }
-        result_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result.json'
+        result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_{opt.label}.json'
         if os.path.exists(result_path):
             with open(result_path, 'r') as f:
                 try:

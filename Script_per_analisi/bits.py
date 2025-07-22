@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
+# Analisi immagini pollastri
 cartella = "/nas/softechict-nas-1/fpollastri/data/istologia/images"
 excel_files = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/files/Images.xlsx"
 df_image = pd.read_excel(excel_files)
