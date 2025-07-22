@@ -2133,7 +2133,7 @@ if __name__ == '__main__':
             cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                             [FN={cm[1,0]} TP={cm[1,1]}]]"""
             res_dict = {
-                'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.1, post consigli Luca, canali RGB non solo Green come prima, seed 16 per split, salvo pesi dopo epoca 15',
+                'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.01, canali RGB non solo Green come prima, seed 42 per split, salvo pesi dopo epoca 15',
                 'Esperimento': vars(opt),
                 'Accuracy': float(accuracy),
                 'Precision': float(pr),
@@ -2222,19 +2222,10 @@ if __name__ == '__main__':
                                                #  [ 93  51]
         # Acc: 0.6580 | F1 Score: 0.2297 | Precision: 0.3542 | Recall: 0.1700 | Ground Truth Trues: 300.0 | Time: 10.01s
 
-   
-        # Io ho delle wsi che hanno una label chiamata location, questa label si suddivise in 4 componenti:  Mesangiale, continuous regular capillary wall (subendothelial), capillary wall regular discontinuous, irregular capillary wall (subendothelial)
-        # Queste ultime 3 caratteristiche possono essere inglobate in una unica caratteristica chiamata 'Parietale' ? 
-        # FONTE CHAT GPT
         """
         Le tre sotto-categorie che vuoi unire rappresentano diverse morfologie della parete capillare glomerulare, con differenze nel grado di regolarità o continuità, 
         ma tutte sono localizzate nella zona parietale del glomerulo (cioè lungo la parete del capillare o nella regione subendoteliale). 
         Quindi, dal punto di vista anatomico-funzionale o di classificazione più semplificata, è giustificato inglobarle sotto un'unica etichetta "Parietale".
         """
 
-        # ESPERIMENTO USANDO :
-        # DATI VECCHI, NUM_CLASSES = 2, LOSS NON PESATA, WEIGHTED SAMPLER, MAX SU OUTPUT Pesi Old3
-        #         Questa è la confusion matrix :  [536  164]
-                                               #  [197 103 ]
-        # Acc: 0.6390 | F1 Score: 0.3633 | Precision: 0.3858 | Recall: 0.3433 | Ground Truth Trues: 300 | Time: 6.54s
-
+   
