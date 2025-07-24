@@ -574,11 +574,23 @@ class NefroNet():
         base_ids = list(base_id_to_indices.keys())
         random.shuffle(base_ids)
 
-        fold_size = len(base_ids) // k
-        folds = [base_ids[i * fold_size: (i + 1) * fold_size] for i in range(k)]
+        # Distribuzione round-robin per assicurare che tutti i base_id siano inclusi
+        folds = [[] for _ in range(k)]
+        for i, bid in enumerate(base_ids):
+            folds[i % k].append(bid)
+
+        used_ids = set()
+        for f in folds:
+            used_ids.update(f)
+
+        all_ids = set(base_ids)
+        excluded_ids = all_ids - used_ids
+
+        print(f"[DEBUG] Base ID totali: {len(all_ids)} | Usati nei fold: {len(used_ids)} | Esclusi: {excluded_ids}")
+
         
         results = []
-        
+        csv_rows = []
         for i in range(k):
             test_ids = folds[i]
             val_ids = folds[(i + 1) % k]  
@@ -588,11 +600,30 @@ class NefroNet():
             val_indices = [idx for bid in val_ids for idx in base_id_to_indices[bid]]
             train_indices = [idx for bid in train_ids for idx in base_id_to_indices[bid]]
 
+            for idx in train_indices:
+                img_path = dataset.names[idx]
+                csv_rows.append((os.path.basename(img_path), i, "train"))
+            for idx in val_indices:
+                img_path = dataset.names[idx]
+                csv_rows.append((os.path.basename(img_path), i, "val"))
+            for idx in test_indices:
+                img_path = dataset.names[idx]
+                csv_rows.append((os.path.basename(img_path), i, "test"))
+
             results.append((
                 np.array(train_indices),
                 np.array(val_indices),
                 np.array(test_indices)
             ))
+
+        # Salva il CSV
+        save_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/Cross_fold/folds.csv'
+        with open(save_path, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["image_name", "fold", "split"])
+            writer.writerows(csv_rows)
+
+        print(f"[INFO] File CSV salvato in: {save_path}")
 
         return results
         
@@ -2194,7 +2225,7 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate')
     parser.add_argument('--scheduler', type=str, default='OneCycle', help='scheduler')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
-    parser.add_argument('--epochs', type=int, default=20, help='number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=40, help='number of epochs to train')
     parser.add_argument('--size', type=int, default=512, help='size of images')
     # parser.add_argument('--w4k', action='store_true', help='is training on 4k dataset')
     parser.add_argument('--w4k', type=bool, default=True, help='is training on 4k dataset')
