@@ -6,6 +6,8 @@ import json
 from matplotlib.path import Path
 from torch.utils.data import Subset
 from collections import defaultdict
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import random
 import argparse
@@ -92,6 +94,7 @@ class MyResnet(nn.Module):
             bl_exp = 4
         else:
             raise Warning("Wrong Net Name!!")
+       
         self.resnet = nn.Sequential(*(list(resnet.children())[:-2]))
         self.avgpool = nn.AvgPool2d(int(opt.size / 32), stride=1)
         if self.dropout_flag:
@@ -234,7 +237,6 @@ class NefroNet():
         self.wdiapo = wdiapo
         self.write_flag = write_flag
         self.models_dir = models_dir
-        self.best_acc = 0.0
         self.wandb_flag = wandb_flag
         self.sampler = sampler
         self.old_or_new_folder = old_or_new_folder
@@ -242,6 +244,7 @@ class NefroNet():
         self.weights_path = weights_path
         self.val_loss = val_loss
         self.scheduler = scheduler
+        self.pretrained = pretrained
 
 
         print("GPU disponibile:", torch.cuda.is_available())
@@ -362,7 +365,8 @@ class NefroNet():
                                 ])
         )
 
-
+        self.folds = self.kfold_train_val_test_split(self.dataset_for_folds, 4)
+        self.check_no_overlap(self.folds)
 
         # eval_dataset_diapo = nefro_4k_and_diapo.Nefro(split='test', label_name=self.lbl_name, w4k=False,
         #                                               wdiapo=True,
@@ -451,22 +455,8 @@ class NefroNet():
         print('Numero dati di validation : ', len(self.validation_data_loader))
         print('Numero dati di test : ', len(self.eval_data_loader_4k))
       
-        self.n = MyResnet(net=self.net, pretrained=pretrained, num_classes=self.num_classes,
-                              dropout_flag=self.dropout).to('cuda')
-        
-        # Ricarico i pesi per fine-tuning
-        if self.load_for_fine_tuning == 'True':
-            print('Esperimento fine tuning! ...')
-            checkpoint = torch.load(self.weights_path, map_location = 'cuda')
-            try:
-                # Prima del caricamento
-                print("Prima del caricamento:", self.n.last_fc.weight.data.norm())
-                self.n.load_state_dict(checkpoint)
-                # Dopo il caricamento
-                print("Dopo il caricamento:", self.n.last_fc.weight.data.norm())
-                print(f'Ho caricato i pesi del modello trovati nel percorso {self.weights_path}')
-            except RuntimeError as error:
-                print(f"Errore nel caricamento dei pesi {self.weights_path}")
+
+        self.n = self.init_model()
 
         # Loss and optimizer
         if self.num_classes == 1:
@@ -482,14 +472,6 @@ class NefroNet():
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
                                                                         threshold=0.004)
         else:
-            # if self.lbl_name == [['PAR_REGOL_CONT']]:
-            #     c1_w = 0.2
-            # elif self.lbl_name == 'parietal':
-            #     c1_w = 0.2
-            #     c2_w = 0.9
-            # else:
-            #     c1_w = 0.2
-            #     c2_w = 0.9
             
             # Nel caso nel dataset non ci fossero esempi di classe 1 o 0 devo usare un epsilon per evitare la divisone per 0
             c0_w, c1_w = self.get_probabilities(self.data_loader)
@@ -528,15 +510,7 @@ class NefroNet():
             else:
                         print("Altro scheduler")
 
-    # def kfold_indices(self, dataset, k):
-    #     fold_size = len(dataset) // k
-    #     indices = np.arange(len(dataset))
-    #     folds =[]
-    #     for i in range(k):
-    #         val_indices = indices[i * fold_size: (i + 1) * fold_size]
-    #         train_indices = np.concatenate([indices[:i * fold_size], indices[(i + 1) * fold_size:]])
-    #         folds.append((train_indices, val_indices))
-    #     return folds
+
     def extract_base_id(self, wsi_name):
         name = wsi_name.strip()
 
@@ -554,6 +528,34 @@ class NefroNet():
         else:
             return name
 
+    def init_model(self):
+        model = MyResnet(net=self.net, pretrained=True, num_classes=self.num_classes,
+                        dropout_flag=self.dropout).to('cuda')
+        if self.load_for_fine_tuning == 'True':
+            print('Esperimento fine tuning! ...')
+            checkpoint = torch.load(self.weights_path, map_location='cuda')
+            try:
+                print("Prima del caricamento:", model.last_fc.weight.data.norm())
+                model.load_state_dict(checkpoint)
+                print("Dopo il caricamento:", model.last_fc.weight.data.norm())
+                print(f'Ho caricato i pesi del modello trovati nel percorso {self.weights_path}')
+            except RuntimeError as error:
+                print(f"Errore nel caricamento dei pesi {self.weights_path}")
+        return model
+
+
+    def check_no_overlap(self, results):
+        tests = [set(test.tolist()) for _, _, test in results]
+        for i in range(len(tests)):
+            for j in range(i+1, len(tests)):
+                inter = tests[i].intersection(tests[j])
+                if inter:
+                    print(f"I fold {i+1} e {j+1} condividono {len(inter)} elementi nei test set!")
+                    return False
+        print("Test set di tutti i fold sono disgiunti (nessuna sovrapposizione)")
+        return True
+
+
 
     def group_indices_by_base_id(self, dataset):
         base_id_to_indices = defaultdict(list)
@@ -565,7 +567,7 @@ class NefroNet():
 
         return base_id_to_indices
 
-    def kfold_indices_grouped_by_wsi(self,dataset, k=2, seed=42):
+    def kfold_train_val_test_split(self, dataset, k=4, seed=42):
         random.seed(seed)
         base_id_to_indices = self.group_indices_by_base_id(dataset)
 
@@ -573,17 +575,26 @@ class NefroNet():
         random.shuffle(base_ids)
 
         fold_size = len(base_ids) // k
-        folds = []
+        folds = [base_ids[i * fold_size: (i + 1) * fold_size] for i in range(k)]
+        
+        results = []
+        
         for i in range(k):
-            val_ids = base_ids[i * fold_size: (i + 1) * fold_size]
-            train_ids = base_ids[:i * fold_size] + base_ids[(i + 1) * fold_size:]
-
-            train_indices = [idx for bid in train_ids for idx in base_id_to_indices[bid]]
+            test_ids = folds[i]
+            val_ids = folds[(i + 1) % k]  
+            train_ids = [bid for j, f in enumerate(folds) if j not in (i, (i + 1) % k) for bid in f]
+            
+            test_indices = [idx for bid in test_ids for idx in base_id_to_indices[bid]]
             val_indices = [idx for bid in val_ids for idx in base_id_to_indices[bid]]
+            train_indices = [idx for bid in train_ids for idx in base_id_to_indices[bid]]
 
-            folds.append((np.array(train_indices), np.array(val_indices)))
+            results.append((
+                np.array(train_indices),
+                np.array(val_indices),
+                np.array(test_indices)
+            ))
 
-        return folds
+        return results
         
     def freeze_layers(self, freeze_flag=True, nl=0):
         if nl:
@@ -656,7 +667,9 @@ class NefroNet():
 
             print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
             print('Validation: ')
-            val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, write_flag=True)
+            # Non sto facendo cross-validation quindi fold None
+            fold = None
+            val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, fold=fold, write_flag=True)
             if self.scheduler != 'OneCycle':
                 self.scheduler.step(val_f_score)
 
@@ -690,31 +703,29 @@ class NefroNet():
         wandb.finish()
 
 
-    def train_on_fold(self):
+    def train_test_on_folds(self):
+  
+        for fold, (train_indices, val_indices, test_indices) in enumerate(self.folds):
 
-        folds = self.kfold_indices_grouped_by_wsi(self.dataset_for_folds, 4)
+            wandb.init(
+                project="Nefrologia Cross_Fold", 
+                name=f"{self.project_name}_{self.lbl_name}_{self.today}_fold_{fold+1}",
+                group=self.project_name,
+                config={
+                    "model": "ResNet18",
+                    "num_classes": self.num_classes,
+                    "learning_rate": self.learning_rate,
+                    "batch_size": self.batch_size,
+                    "epochs": self.num_epochs,
+                    "thresh": self.thresh,
+                    "label": self.lbl_name,
+                    "img_aug": self.aug_trans,
+                    "w4k": self.w4k,
+                    "wdiapo": self.wdiapo,
+                },
+                reinit=True
+            )
 
-        # Faccio sempre 4 Fold
-        for fold, (train_indices, val_indices) in enumerate(folds):
-
-            wandb.init(project="Nefrologia", 
-                       name=f"{self.project_name}_{self.lbl_name}_{self.today}_fold_{fold+1}",
-                       group=self.project_name,
-                       config={
-                            "model": "ResNet18",
-                            "num_classes": self.num_classes,
-                            "learning_rate": self.learning_rate,
-                            "batch_size": self.batch_size,
-                            "epochs": self.num_epochs,
-                            "thresh": self.thresh,
-                            "label": self.lbl_name,
-                            "img_aug": self.aug_trans,
-                            "w4k": self.w4k,
-                            "wdiapo": self.wdiapo,
-                        },
-                       reinit=True)
-            # Controllo monotonia step, devono crescere e non risettarsi a 1, ma dà un WARNING che non sono crescenti
-            # Così loggo con step=epoch
             wandb.define_metric("epoch")
             wandb.define_metric("train/loss", step_metric="epoch")
             wandb.define_metric("val/accuracy", step_metric="epoch")
@@ -722,125 +733,154 @@ class NefroNet():
             wandb.define_metric("val/recall", step_metric="epoch")
             wandb.define_metric("val/f1_score", step_metric="epoch")
             wandb.define_metric("learning_rate", step_metric="epoch")
-            
+
+            # Dataset e dataloader per fold
             train_subset = Subset(self.dataset_for_folds, train_indices)
             val_subset = Subset(self.dataset_for_folds, val_indices)
-
-            self.train_fold_data_loader = DataLoader(train_subset,
-                              batch_size=self.batch_size,
-                              shuffle=True,
-                              num_workers=self.n_workers,
-                              drop_last=True,
-                              pin_memory=True)
-
-            self.validation_fold_data_loader = DataLoader(val_subset,
-                                    batch_size=self.batch_size,
-                                    shuffle=False,
-                                    num_workers=self.n_workers,
-                                    drop_last=False,
-                                    pin_memory=True)
-
-        
-            print(f'Sto usando il fold {fold+1}/{2}')
-            print(f'Questa è la lunghezza del train_fold_data_loader {len(self.train_fold_data_loader)}')
-            print(f'Questa è la lunghezza del validation_fold_data_loader {len(self.validation_fold_data_loader)}')
+            self.train_fold_data_loader = DataLoader(train_subset, batch_size=self.batch_size, shuffle=True,
+                                                    num_workers=self.n_workers, drop_last=True, pin_memory=True)
+            self.validation_fold_data_loader = DataLoader(val_subset, batch_size=self.batch_size, shuffle=False,
+                                                        num_workers=self.n_workers, drop_last=False, pin_memory=True)
+       
+            print(f'\n Fold {fold+1}/{len(self.folds)}')
+            print(f'Train size: {len(self.train_fold_data_loader)}, Val size: {len(self.validation_fold_data_loader)}')
 
             c0_w, c1_w = self.get_probabilities(self.train_fold_data_loader)
 
-            if self.lbl_name != [['INTENS']] and self.wloss==True: # loss mi dice se voglio pesare o no la loss function 
+            if self.lbl_name != [['INTENS']] and self.wloss:
                 class_w = torch.tensor([c0_w, c1_w], device='cuda')
-                print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
+                print(f'Loss pesata con: {class_w}')
                 self.criterion = nn.CrossEntropyLoss(weight=class_w)
-            else: 
-                print('La loss non è stata pesata(num_classes = 2)')
+            else:
+                print('Loss NON pesata')
                 self.criterion = nn.CrossEntropyLoss()
-            
 
-            # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()), lr=self.learning_rate)
+            # Inizializzo il modello per ogni fold altrimenti riparte dal training del fold precednete senza resettarsi
+            self.n = self.init_model()
+
             self.optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.n.parameters()), lr=self.learning_rate)
-            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,threshold=0.004)
+            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True, threshold=0.004)
 
+            # Ogni fold deve avere la sua best accuracy indipendente
+            self.best_acc = 0.0
             for epoch in range(self.num_epochs):
                 self.n.train()
                 losses = []
                 start_time = time.time()
 
-                # PER DEBUG
-                # image, label, name = self.data_loader.dataset[42]  # indice casuale
-                # print(f"Nome immagine: {name}")
-                # print(f"Etichetta: {label}")
-                # print(f"Tipo: {type(image)}")
-                # print(f"Shape immagine: {image.shape}")  # per immagini torch: (C, H, W)
-                # print('_'*30)
-                # image, label, name = self.data_loader.dataset[30]  # indice casuale
-                # print(f"Nome immagine: {name}")
-                # print(f"Etichetta: {label}")
-                # print(f"Tipo: {type(image)}")
-                # print(f"Shape immagine: {image.shape}")  # per immagini torch: (C, H, W)
-
                 for i, (x, target, _) in enumerate(self.train_fold_data_loader):
-
-                    # Stampiamo la distribuzione delle classi nel batch
-                    if i % 10 == 0:  
+                    if i % 10 == 0:
                         counts = Counter(target.tolist())
-                        print(f"[Epoch {epoch} | Batch {i}] Class distribution in batch: {dict(counts)}")
-
+                        print(f"[Epoch {epoch} | Batch {i}] Class dist: {dict(counts)}")
 
                     x = x.to('cuda')
-                    if self.num_classes == 1:
-                        target = target.to('cuda', torch.float)
-                        # Questo peso qui essendo fisso sarebbe meglio impostarlo al di fuori del training loop quando definisco la loss la prima volta, ma non dovrebbe dare errori
-                        # Non capisco pero perchè non rifletta la distribuzione dei dati di training 
-                        #self.criterion.weight = get_weights(target)
-                        output = torch.squeeze(self.n(x))
-                    else:
-                        target = target.to('cuda', torch.long)
-                        output = self.n(x)
+                    target = target.to('cuda', torch.float if self.num_classes == 1 else torch.long)
+                    output = torch.squeeze(self.n(x)) if self.num_classes == 1 else self.n(x)
+
                     loss = self.criterion(output, target)
                     losses.append(loss.item())
 
                     self.optimizer.zero_grad()
                     loss.backward()
                     self.optimizer.step()
-                    lr = self.optimizer.param_groups[0]['lr']  # Get the current learning rate
+
+                    lr = self.optimizer.param_groups[0]['lr']
                     if self.scheduler == 'OneCycle':
                         self.scheduler.step()
 
+                print(f"Epoch {epoch} | Loss: {np.mean(losses):.4f} | Time: {time.time() - start_time:.2f}s")
+                print("Validation:")
+                val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_fold_data_loader, epoch, fold, write_flag=True)
 
-                print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
-                print('Validation: ')
-                val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_fold_data_loader, epoch=epoch, write_flag=True)
                 if self.scheduler != 'OneCycle':
                     self.scheduler.step(val_f_score)
 
                 if epoch % 5 == 0:
                     self.thresh_eval(epoch)
 
-                mean_loss = np.mean(losses)
-                print(f'Questa è la media delle loss: {mean_loss:.6f}')
-
-                # Trasformo tutto in float python per sicurezza (non tensori o None), perchè qua da problemi di log 
+                # Logging su wandb
                 try:
-                    val_acc = float(val_acc)
-                    val_pr = float(val_pr)
-                    val_recall = float(val_recall)
-                    val_f_score = float(val_f_score)
-                    mean_loss = float(mean_loss)
+                    wandb.log({
+                        "train/loss": float(np.mean(losses)),
+                        "val/accuracy": float(val_acc),
+                        "val/precision": float(val_pr),
+                        "val/recall": float(val_recall),
+                        "val/f1_score": float(val_f_score),
+                        "learning_rate": lr,
+                        "epoch": epoch
+                    })
                 except Exception as e:
-                    print(f"Errore nella conversione a float: {e}")
-                    continue  # salta logging per questo epoch se conversione fallisce
-
-                try :
-                    wandb.log({"train/loss" : mean_loss, 'epoch': epoch})
-                    wandb.log({"val/accuracy" : val_acc, 'epoch': epoch})
-                    wandb.log({"val/precision" : val_pr, 'epoch': epoch})
-                    wandb.log({"val/recall" : val_recall, 'epoch': epoch})
-                    wandb.log({"val/f1_score" : val_f_score, 'epoch': epoch})
-                    wandb.log({"learning_rate": lr})  # Log the learning rate
-                except Exception as e:
-                    print(f'Errore nel log di wandb nel train: {e}')
+                    print(f"[WANDB ERROR] {e}")
 
             wandb.finish()
+
+    
+        print("\n Fine training inizio valutazione su test set per ciascun fold")
+        result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_FoldSeed42_{self.lbl_name}.json"
+        all_results = []
+
+        if os.path.exists(result_path):
+            with open(result_path, 'r') as f:
+                try:
+                    data = json.load(f)
+                    all_results = data if isinstance(data, list) else [data]
+                except json.JSONDecodeError:
+                    all_results = []
+
+        for fold, (_, _, test_indices) in enumerate(self.folds):
+            print(f"\n Fold {fold} valutazione su test set")
+
+            model_dir = os.path.join(self.models_dir, f"fold_{fold}")
+            self.best_acc = 0  
+
+            if self.old_or_new_folder == 'Files_old_Pollo/':
+                if self.dropout:
+                    model_name = f"dropout_{self.net}_{self.lbl_name}_Old_{fold}_net.pth"
+                else:
+                    model_name = f"{self.net}_{self.lbl_name}_Old_{fold}_net.pth"
+            else:
+                if self.dropout:
+                    model_name = f"dropout_{self.net}_{self.lbl_name}_New_{fold}_net.pth"
+                else:
+                    model_name = f"{self.net}_{self.lbl_name}_New_{fold}_net.pth"
+
+            model_path = os.path.join(model_dir, model_name)
+
+            if not os.path.isfile(model_path):
+                print(f"Modello non trovato per il fold {fold}: {model_path}")
+                continue
+
+            self.n.load_state_dict(torch.load(model_path))
+            self.n.to("cuda")
+            self.n.eval()
+
+            test_subset = Subset(self.dataset_for_folds, test_indices)
+            self.test_loader = DataLoader(test_subset, batch_size=self.batch_size, shuffle=False,
+                                    num_workers=self.n_workers, drop_last=False, pin_memory=True)
+
+            acc, pr, rec, f1, cm = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+
+            cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                            [FN={cm[1,0]} TP={cm[1,1]}]]"""
+
+            res_dict = {
+                "Fold": fold,
+                "Commento": "Eval finale su test set dopo training su tutti i fold",
+                "Esperimento": vars(self.opt) if hasattr(self, "opt") else {},
+                "Accuracy": float(acc),
+                "Precision": float(pr),
+                "Recall": float(rec),
+                "Fscore": float(f1),
+                "Conf_matrix": cm_pretty,
+                "Weights": model_path
+            }
+
+            all_results.append(res_dict)
+
+        with open(result_path, 'w') as f:
+            json.dump(all_results, f, indent=4)
+
+        print(f"\nTutti i risultati salvati in: {result_path}")
 
 
     # I livelli di intensità sono livelli da 0 a 3 con step 0.5.
@@ -900,7 +940,7 @@ class NefroNet():
                 # self.eval_intensity(self.eval_data_loader_diapo, epoch=epoch)
 
 
-    def eval(self, d_loader, epoch, write_flag=False):
+    def eval(self, d_loader, epoch, fold, write_flag=False):
         val_losses = []
         y_true_all = []
         y_pred_all = []
@@ -959,8 +999,10 @@ class NefroNet():
             # EVAL LOSS
             if self.val_loss == 'True':
                 mean_loss = np.mean(val_losses)
-                wandb.log({"val/loss" : mean_loss, 'epoch': epoch})
+                if wandb.run:  # wandb.run is None se wandb non è stato inizializzato
+                    wandb.log({"val/loss" : mean_loss, 'epoch': epoch})
                 print(f"Validation Loss: {mean_loss:.6f}")
+
 
             class_names = self.conf_matrix_lbl
             print("Predizione 0 significa:", class_names[0])
@@ -1004,7 +1046,7 @@ class NefroNet():
 
                 print(f"L'accuracy è {accuracy:.4f} mentre la best_accuracy è {self.best_acc:.4f}, quindi salvo i pesi")
                 print("SAVING MODEL")
-                saved = self.save()
+                saved = self.save(fold)
                 if saved:
                     self.best_acc = accuracy
 
@@ -1117,63 +1159,14 @@ class NefroNet():
                     wandb.log({"confusion_matrix_image": wandb.Image(plt)}, step=epoch)
                     plt.close()
 
-                # Per me era ridondante rifare una passata sul test set se la metrica migliora 
-                # if epoch % 5 != 0:
-                #     print('Ogni 5 epoche facciamo una passata anche sul test set: ')
-                #     print('Dataset 4k: ')
-                #     self.eval_intensity(self.eval_data_loader_4k, epoch=epoch)
-                    # print('diapo: ')
-                    # self.eval_intensity(self.eval_data_loader_diapo, epoch=epoch)
-                   
-        # if write_flag:
-        #     self.close_html(stats_string)
+            
         return mae / len(d_loader.dataset)
-        # return acc / len(d_loader.dataset)
+        
 
     def thresh_eval(self,epoch):
-        print('\n')
-        print('test: ')
-        # self.thresh = 0.1
-        # print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k, epoch=epoch)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo, epoch=epoch)
-        # print('\n')
-        # self.thresh = 0.2
-        # print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k, epoch=epoch)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo, epoch=epoch)
-        # print('\n')
-        # self.thresh = 0.3
-        # print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k, epoch=epoch)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo, epoch=epoch)
-        # print('\n')
-        # self.thresh = 0.4
-        # print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k, epoch=epoch)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo, epoch=epoch)
-        # print('\n')
         self.thresh = 0.5
         print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k, , epoch=epoch)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo, , epoch=epoch)
-        # self.thresh = 0.6
-        # print(self.thresh)
-        # print('4k: ')
-        # self.eval(self.eval_data_loader_4k)
-        # print('diapo: ')
-        # self.eval(self.eval_data_loader_diapo)
-        print('\n')
+     
 
     def bayesian_dropout_eval(self, dset='test', n_forwards=100, write_flag=False):
         with torch.no_grad():
@@ -1746,30 +1739,92 @@ class NefroNet():
 
     
     # Qui bisogna salvare i pesi con un identificativo di qualche tipo
-    def save(self):
-        # Questo serve per identificare se faccio esperimenti old o new 
-        if self.old_or_new_folder == 'Files_old_Pollo/':
-            nname = str(self.net) + '_' + str(self.lbl_name) + '_Old'
-        else:
-            nname = str(self.net) + '_' + str(self.lbl_name) + '_New'
-        if self.dropout:
-            nname = 'dropout_' + nname
-            # Questo serve per controllare se ci sono già pesi per quella classe e se ci sono mettere un numero incrementale per non sovrascriverli
-            # Questo per la prima epoca chiaramente, poi un volta creati i pesi nuovi si sovrascrivono
-        if not hasattr(self, 'base_index'):
-            i = self.incrementForFilename(nname)
-            self.base_index = i
+    # def save(self, fold):
+    #     # Questo serve per identificare se faccio esperimenti old o new 
+    #     if self.old_or_new_folder == 'Files_old_Pollo/':
+    #         nname = str(self.net) + '_' + str(self.lbl_name) + '_Old'
+    #     else:
+    #         nname = str(self.net) + '_' + str(self.lbl_name) + '_New'
+
+    #     if fold != None:
+    #         nname = nname + '_fold_' + str(fold) + '_'
+
+    #     if self.dropout:
+    #         nname = 'dropout_' + nname
+    #         # Questo serve per controllare se ci sono già pesi per quella classe e se ci sono mettere un numero incrementale per non sovrascriverli
+    #         # Questo per la prima epoca chiaramente, poi un volta creati i pesi nuovi si sovrascrivono
+    #     if not hasattr(self, 'base_index'):
+    #         i = self.incrementForFilename(nname)
+    #         self.base_index = i
             
-        try:
-            save_dir_n = os.path.join(self.models_dir, nname + str(self.base_index) + '_net.pth')
-            torch.save(self.n.state_dict(), save_dir_n)
-            save_dir_optimizer = os.path.join(self.models_dir, nname + str(self.base_index) + '_opt.pth')
-            torch.save(self.optimizer.state_dict(), save_dir_optimizer)
-            print(f"Model weights successfully saved in {save_dir_n}")
-            return True
-        except Exception as e:
-            print(f"Error during Saving: {e}")
-            return False
+    #     try:
+    #         save_dir_n = os.path.join(self.models_dir, nname + str(self.base_index) + '_net.pth')
+    #         torch.save(self.n.state_dict(), save_dir_n)
+    #         save_dir_optimizer = os.path.join(self.models_dir, nname + str(self.base_index) + '_opt.pth')
+    #         torch.save(self.optimizer.state_dict(), save_dir_optimizer)
+    #         print(f"Model weights successfully saved in {save_dir_n}")
+    #         return True
+    #     except Exception as e:
+    #         print(f"Error during Saving: {e}")
+    #         return False
+
+    def save(self, fold=None):
+
+        """
+        Salva lo stato del modello e dell'optimizer.
+        Se fold è specificato, salva in una sottocartella dedicata al fold.
+        Altrimenti salva nella cartella principale con un indice.
+        """
+
+        # Costruisci nome base
+        if self.old_or_new_folder == 'Files_old_Pollo/':
+            nname = f"{self.net}_{self.lbl_name}_Old"
+        else:
+            nname = f"{self.net}_{self.lbl_name}_New"
+
+        if self.dropout:
+            nname = f"dropout_{nname}"
+
+        # CASO 1: Cross-validation (fold specificato)
+        if fold is not None:
+            print(f'Il valore di fold è {fold}')
+            # Crea sottocartella per il fold
+            fold_subdir = os.path.join(self.models_dir, f"fold_{fold}")
+            os.makedirs(fold_subdir, exist_ok=True)
+
+            try:
+                model_path = os.path.join(fold_subdir, f"{nname}_{fold}_net.pth")
+                opt_path = os.path.join(fold_subdir, f"{nname}_{fold}_opt.pth")
+
+                torch.save(self.n.state_dict(), model_path)
+                torch.save(self.optimizer.state_dict(), opt_path)
+
+                print(f"Model weights saved for fold {fold} in {fold_subdir}")
+                return True
+            except Exception as e:
+                print(f"Error during saving fold {fold}: {e}")
+                return False
+
+        # CASO 2: Salvataggio standard (no fold)
+        else:
+            print(f'Il valore di fold è {fold}, perchè non sto facendo cross-validation')
+            if not hasattr(self, 'base_index'):
+                i = self.incrementForFilename(nname)
+                self.base_index = i
+
+            try:
+                model_path = os.path.join(self.models_dir, f"{nname}_{self.base_index}_net.pth")
+                opt_path = os.path.join(self.models_dir, f"{nname}_{self.base_index}_opt.pth")
+
+                torch.save(self.n.state_dict(), model_path)
+                torch.save(self.optimizer.state_dict(), opt_path)
+
+                print(f"Model weights saved in {model_path}")
+                return True
+            except Exception as e:
+                print(f"Error during standard saving: {e}")
+                return False
+
         
     def load(self, data):
         nname = self.net + '_' + str(self.lbl_name) + data
@@ -2121,7 +2176,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--label', type=str, default='MESANGIALE',
                     help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
-    parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files_old_Pollo/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
+    parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
     parser.add_argument('--train_or_test', type=str, default='Train', help='Train or test on your data')
     parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
     parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=['0', '0.5', '1', '1.5', '2', '2.5', '3'],help='Etichette da mostrare nella matrice di confusione')
@@ -2136,10 +2191,10 @@ if __name__ == '__main__':
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
-    parser.add_argument('--learning_rate', type=float, default=0.1, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate')
     parser.add_argument('--scheduler', type=str, default='OneCycle', help='scheduler')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
-    parser.add_argument('--epochs', type=int, default=80, help='number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=20, help='number of epochs to train')
     parser.add_argument('--size', type=int, default=512, help='size of images')
     # parser.add_argument('--w4k', action='store_true', help='is training on 4k dataset')
     parser.add_argument('--w4k', type=bool, default=True, help='is training on 4k dataset')
@@ -2202,8 +2257,8 @@ if __name__ == '__main__':
                 # n.load()
                 # n.eval_intensity(n.validation_data_loader, 0)
             else:
-                n.train()
-                #n.train_on_fold()
+                #n.train()
+                n.train_test_on_folds()
                 #n.save() ma perchè richiama la save() ??
         else:
             data = opt.weights
@@ -2211,6 +2266,7 @@ if __name__ == '__main__':
             # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
             # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
             # # # # # n.eval(n.validation_data_loader, True)
+
             accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
             cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                             [FN={cm[1,0]} TP={cm[1,1]}]]"""

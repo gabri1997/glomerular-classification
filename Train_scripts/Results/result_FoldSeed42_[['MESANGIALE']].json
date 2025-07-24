@@ -1,0 +1,46 @@
+[
+    {
+        "Fold": 0,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7341772151898734,
+        "Precision": 0.7945945516435378,
+        "Recall": 0.8546511131016794,
+        "Fscore": 0.8235243722889857,
+        "Conf_matrix": "[[TN=27 FP=38]\n                            [FN=25 TP=147]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_0/resnet18_[['MESANGIALE']]_New_0_net.pth"
+    },
+    {
+        "Fold": 1,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6481481481481481,
+        "Precision": 0.6894736479224396,
+        "Recall": 0.7043010374031701,
+        "Fscore": 0.6968034741757537,
+        "Conf_matrix": "[[TN=79 FP=59]\n                            [FN=55 TP=131]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_1/resnet18_[['MESANGIALE']]_New_1_net.pth"
+    },
+    {
+        "Fold": 2,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7400611620795107,
+        "Precision": 0.8577405498853327,
+        "Recall": 0.8007812187194837,
+        "Fscore": 0.8282778007443252,
+        "Conf_matrix": "[[TN=37 FP=34]\n                            [FN=51 TP=205]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_2/resnet18_[['MESANGIALE']]_New_2_net.pth"
+    },
+    {
+        "Fold": 3,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6894117647058824,
+        "Precision": 0.9608695234404555,
+        "Recall": 0.6424418417894814,
+        "Fscore": 0.7700300136272908,
+        "Conf_matrix": "[[TN=72 FP=9]\n                            [FN=123 TP=221]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_3/resnet18_[['MESANGIALE']]_New_3_net.pth"
+    }
+]

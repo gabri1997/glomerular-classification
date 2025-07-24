@@ -225,8 +225,11 @@ if __name__ == '__main__':
     folds = kfold_train_val_test_split(dataset_for_folds, k=4)
 
     for f in folds:
+        print(f'Fold')
         print(f'Train : {len(f[0])}')
-        print(f'test : {len(f[1])}')
+        print(f'Val : {len(f[1])}')
+        print(f'Test : {len(f[1])}')
+
 
     for i, (train_idx, val_idx) in enumerate(folds):
         print(f"Fold {i+1}: Train={len(train_idx)}, Val={len(val_idx)}")
