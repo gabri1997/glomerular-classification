@@ -5,6 +5,7 @@ import time
 import json
 from matplotlib.path import Path
 from torch.utils.data import Subset
+from collections import defaultdict
 import torch
 import random
 import argparse
@@ -211,7 +212,7 @@ class ImgAugTransform:
 
 
 class NefroNet():
-    def __init__(self, wandb_flag, sampler, old_or_new_folder, project_name, wloss, net, dropout, num_classes, num_epochs, l_r, size, batch_size, n_workers, thresh, lbl_name, conf_matrix_lbl, w4k,
+    def __init__(self, wandb_flag, sampler, old_or_new_folder, project_name, wloss, net, dropout, num_classes, num_epochs, l_r, scheduler, size, batch_size, val_loss, n_workers, thresh, lbl_name, conf_matrix_lbl, w4k,
                  wdiapo, load_for_fine_tuning, weights_path, models_dir, augm_config=0, pretrained=True, write_flag=False):
 
         self.project_name = project_name
@@ -239,6 +240,8 @@ class NefroNet():
         self.old_or_new_folder = old_or_new_folder
         self.load_for_fine_tuning = load_for_fine_tuning
         self.weights_path = weights_path
+        self.val_loss = val_loss
+        self.scheduler = scheduler
 
 
         print("GPU disponibile:", torch.cuda.is_available())
@@ -491,7 +494,7 @@ class NefroNet():
             # Nel caso nel dataset non ci fossero esempi di classe 1 o 0 devo usare un epsilon per evitare la divisone per 0
             c0_w, c1_w = self.get_probabilities(self.data_loader)
            
-            if self.lbl_name != [['INTENS']] and self.wloss==True: # loss mi dice se voglio pesare o no la loss function 
+            if self.lbl_name != [['INTENS']] and self.wloss=='True': # loss mi dice se voglio pesare o no la loss function 
                 class_w = torch.tensor([c0_w, c1_w], device='cuda')
                 print(f'La Loss è stata pesata con pesi {class_w} (num_classes = 2)')
                 self.criterion = nn.CrossEntropyLoss(weight=class_w)
@@ -499,32 +502,89 @@ class NefroNet():
                 print('La loss non è stata pesata(num_classes = 2)')
                 self.criterion = nn.CrossEntropyLoss()
 
-            # self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()),
-            #                                    lr=self.learning_rate)
+            self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.n.parameters()),
+                                               lr=self.learning_rate)
 
-            # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            #     self.optimizer,
-            #     max_lr=self.learning_rate,
-            #     steps_per_epoch=len(self.data_loader),
-            #     epochs=self.num_epochs,
-            #     pct_start=0.3
-            # )
-
+            
             self.optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.n.parameters()),
                                              lr=self.learning_rate)
-            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
-                                                                        threshold=0.004)
+            
+            if self.scheduler != 'OneCycle':
+                self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True,
+                                                                            threshold=0.004)
+            else:
+                self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                    self.optimizer,
+                    max_lr=self.learning_rate,
+                    steps_per_epoch=len(self.data_loader),
+                    epochs=self.num_epochs,
+                    pct_start=0.3
+                )
 
-    def kfold_indices(self, dataset, k):
-        fold_size = len(dataset) // k
-        indices = np.arange(len(dataset))
-        folds =[]
+            if isinstance(self.scheduler, torch.optim.lr_scheduler.OneCycleLR):
+                        print("Scheduler : OneCycleLR")
+            elif isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                        print("Scheduler : ReduceLROnPlateau")
+            else:
+                        print("Altro scheduler")
+
+    # def kfold_indices(self, dataset, k):
+    #     fold_size = len(dataset) // k
+    #     indices = np.arange(len(dataset))
+    #     folds =[]
+    #     for i in range(k):
+    #         val_indices = indices[i * fold_size: (i + 1) * fold_size]
+    #         train_indices = np.concatenate([indices[:i * fold_size], indices[(i + 1) * fold_size:]])
+    #         folds.append((train_indices, val_indices))
+    #     return folds
+    def extract_base_id(self, wsi_name):
+        name = wsi_name.strip()
+
+        if name.startswith("R24") or name.startswith("R23"):
+            parts = name.replace(' ', '_').split('_')
+            if len(parts) >= 3:
+                return '_'.join(parts[:3])
+            else:
+                return name
+
+        elif name.startswith("R22"):
+            parts = name.split(' ')
+            return parts[0] if parts else name
+
+        else:
+            return name
+
+
+    def group_indices_by_base_id(self, dataset):
+        base_id_to_indices = defaultdict(list)
+
+        for idx, img_path in enumerate(dataset.names):
+            wsi_name = os.path.basename(os.path.dirname(img_path))  # cartella contenente l’immagine
+            base_id = self.extract_base_id(wsi_name)
+            base_id_to_indices[base_id].append(idx)
+
+        return base_id_to_indices
+
+    def kfold_indices_grouped_by_wsi(self,dataset, k=2, seed=42):
+        random.seed(seed)
+        base_id_to_indices = self.group_indices_by_base_id(dataset)
+
+        base_ids = list(base_id_to_indices.keys())
+        random.shuffle(base_ids)
+
+        fold_size = len(base_ids) // k
+        folds = []
         for i in range(k):
-            val_indices = indices[i * fold_size: (i + 1) * fold_size]
-            train_indices = np.concatenate([indices[:i * fold_size], indices[(i + 1) * fold_size:]])
-            folds.append((train_indices, val_indices))
+            val_ids = base_ids[i * fold_size: (i + 1) * fold_size]
+            train_ids = base_ids[:i * fold_size] + base_ids[(i + 1) * fold_size:]
+
+            train_indices = [idx for bid in train_ids for idx in base_id_to_indices[bid]]
+            val_indices = [idx for bid in val_ids for idx in base_id_to_indices[bid]]
+
+            folds.append((np.array(train_indices), np.array(val_indices)))
+
         return folds
-    
+        
     def freeze_layers(self, freeze_flag=True, nl=0):
         if nl:
             l = list(self.n.resnet.named_children())[:-nl]
@@ -541,6 +601,7 @@ class NefroNet():
         # Così loggo con step=epoch
         wandb.define_metric("epoch")
         wandb.define_metric("train/loss", step_metric="epoch")
+        wandb.define_metric("val/loss", step_metric="epoch")
         wandb.define_metric("val/accuracy", step_metric="epoch")
         wandb.define_metric("val/precision", step_metric="epoch")
         wandb.define_metric("val/recall", step_metric="epoch")
@@ -590,11 +651,14 @@ class NefroNet():
                 loss.backward()
                 self.optimizer.step()
                 lr = self.optimizer.param_groups[0]['lr']  # Get the current learning rate
+                if self.scheduler == 'OneCycle':
+                    self.scheduler.step()
 
             print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
             print('Validation: ')
             val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, write_flag=True)
-            self.scheduler.step(val_f_score)
+            if self.scheduler != 'OneCycle':
+                self.scheduler.step(val_f_score)
 
             if epoch % 5 == 0:
                 self.thresh_eval(epoch)
@@ -619,7 +683,7 @@ class NefroNet():
                 wandb.log({"val/precision" : val_pr, 'epoch': epoch})
                 wandb.log({"val/recall" : val_recall, 'epoch': epoch})
                 wandb.log({"val/f1_score" : val_f_score, 'epoch': epoch})
-                wandb.log({"learning_rate": lr})  # Log the learning rate
+                wandb.log({"learning_rate": lr, 'epoch': epoch})  
             except Exception as e:
                 print(f'Errore nel log di wandb nel train: {e}')
             
@@ -628,7 +692,7 @@ class NefroNet():
 
     def train_on_fold(self):
 
-        folds = self.kfold_indices(self.dataset_for_folds, 4)
+        folds = self.kfold_indices_grouped_by_wsi(self.dataset_for_folds, 4)
 
         # Faccio sempre 4 Fold
         for fold, (train_indices, val_indices) in enumerate(folds):
@@ -677,7 +741,7 @@ class NefroNet():
                                     pin_memory=True)
 
         
-            print(f'Sto usando il fold {fold+1}/{4}')
+            print(f'Sto usando il fold {fold+1}/{2}')
             print(f'Questa è la lunghezza del train_fold_data_loader {len(self.train_fold_data_loader)}')
             print(f'Questa è la lunghezza del validation_fold_data_loader {len(self.validation_fold_data_loader)}')
 
@@ -739,11 +803,15 @@ class NefroNet():
                     loss.backward()
                     self.optimizer.step()
                     lr = self.optimizer.param_groups[0]['lr']  # Get the current learning rate
+                    if self.scheduler == 'OneCycle':
+                        self.scheduler.step()
+
 
                 print(f'Epoch: {epoch} | loss: {np.mean(losses):.6f} | time: {time.time() - start_time:.2f}s')
                 print('Validation: ')
                 val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_fold_data_loader, epoch=epoch, write_flag=True)
-                self.scheduler.step(val_f_score)
+                if self.scheduler != 'OneCycle':
+                    self.scheduler.step(val_f_score)
 
                 if epoch % 5 == 0:
                     self.thresh_eval(epoch)
@@ -833,6 +901,7 @@ class NefroNet():
 
 
     def eval(self, d_loader, epoch, write_flag=False):
+        val_losses = []
         y_true_all = []
         y_pred_all = []
         y_scores_all = []
@@ -860,6 +929,11 @@ class NefroNet():
                     target = target.to('cuda', torch.long)
                     check_output = sofmx(output)
                     check_output, res = torch.max(check_output, 1)
+                    # EVAL LOSS
+                    if self.val_loss == 'True':
+                        loss = self.criterion(output, target)
+                        val_losses.append(loss.item())
+
                     #y_scores_all.extend(check_output[:, 1].cpu().numpy().tolist())
                     #res = (check_output[:, 1] > self.thresh).int()
 
@@ -881,6 +955,12 @@ class NefroNet():
                 # Wandb rompe le palle se non metto tutta sta roba .cpu().int().numpy().tolist()
                 y_true_all.extend(target.cpu().int().numpy().tolist())
                 y_pred_all.extend(res.cpu().int().numpy().tolist())
+
+            # EVAL LOSS
+            if self.val_loss == 'True':
+                mean_loss = np.mean(val_losses)
+                wandb.log({"val/loss" : mean_loss, 'epoch': epoch})
+                print(f"Validation Loss: {mean_loss:.6f}")
 
             class_names = self.conf_matrix_lbl
             print("Predizione 0 significa:", class_names[0])
@@ -2049,15 +2129,17 @@ if __name__ == '__main__':
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
     parser.add_argument('--wandb_flag', type=bool, default=False, help='wand init')
+    parser.add_argument('--val_loss', type=str, default='False', help='log_validation_loss')
     parser.add_argument('--sampler', type=str, default='False', help='use sampler or not')
     parser.add_argument('--classes', type=int, default=2, help='number of classes to train')
-    parser.add_argument('--wloss', type=bool, default=True, help='weighted or not loss')
+    parser.add_argument('--wloss', type=str, default='True', help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
-    parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.1, help='learning rate')
+    parser.add_argument('--scheduler', type=str, default='OneCycle', help='scheduler')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
-    parser.add_argument('--epochs', type=int, default=180, help='number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=80, help='number of epochs to train')
     parser.add_argument('--size', type=int, default=512, help='size of images')
     # parser.add_argument('--w4k', action='store_true', help='is training on 4k dataset')
     parser.add_argument('--w4k', type=bool, default=True, help='is training on 4k dataset')
@@ -2108,8 +2190,8 @@ if __name__ == '__main__':
 
         n = NefroNet(net=opt.network, project_name=opt.project_name, wloss = opt.wloss, old_or_new_folder = opt.old_or_new_dataset_folder, 
                      dropout=opt.dropout, wandb_flag=opt.wandb_flag, sampler=opt.sampler, num_classes=opt.classes, num_epochs=opt.epochs,
-                     size=opt.size, batch_size=opt.batch_size, thresh=opt.thresh, pretrained=(not opt.from_scratch),
-                     l_r=opt.learning_rate, n_workers=opt.workers, lbl_name=labels_to_use, conf_matrix_lbl=opt.conf_matrix_label, 
+                     size=opt.size, val_loss=opt.val_loss, batch_size=opt.batch_size, thresh=opt.thresh, pretrained=(not opt.from_scratch),
+                     l_r=opt.learning_rate, scheduler=opt.scheduler, n_workers=opt.workers, lbl_name=labels_to_use, conf_matrix_lbl=opt.conf_matrix_label, 
                      w4k=opt.w4k, wdiapo=opt.wdiapo, load_for_fine_tuning = opt.load_for_fine_tuning, weights_path = weights_path, models_dir = models_dir,
                      write_flag=False)
         
@@ -2133,7 +2215,7 @@ if __name__ == '__main__':
             cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                             [FN={cm[1,0]} TP={cm[1,1]}]]"""
             res_dict = {
-                'Commento' : 'Esperimento su nuovi dati con FineTuning, con WLoss, con max su output quindi senza soglia, con seed 42, lr 0.01, canali RGB non solo Green come prima, seed 42 per split, salvo pesi dopo epoca 15',
+                'Commento' : 'Esperimento su nuovi dati, Sampler, con WLoss, con Max su output, Seed 42 per random, lr 0.1, canali RGB, seed 16 per split, salvo pesi con pazienza 15 epoche',
                 'Esperimento': vars(opt),
                 'Accuracy': float(accuracy),
                 'Precision': float(pr),
@@ -2142,7 +2224,7 @@ if __name__ == '__main__':
                 "Conf_matrix": cm_pretty,
                 "Weights" : w_path
             }
-            result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_{opt.label}.json'
+            result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_Seed16_{opt.label}.json'
             if os.path.exists(result_path):
                 with open(result_path, 'r') as f:
                     try:

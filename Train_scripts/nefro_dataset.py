@@ -123,6 +123,9 @@ class Nefro(data.Dataset):
                 image = Image.open(name).convert('I')
         else:
             image = self.imgs[index]
+    #TODO
+    # Scambiare ordine tra augmentations e normalizzazione
+    # Salvare tutte le immagini del batch nella enumerate del dataloader con Nick, cosi vedò cosa fanno le trasformazioni
 
         if self.transform is None:
             return np.asarray(image), label, name

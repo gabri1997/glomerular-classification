@@ -190,18 +190,16 @@ def generate_2fold_splits(root_folder, final_dictionary, output, train_ratio=0.6
         val_ids = fold_ids[num_train:num_train + num_val]
         test_ids = fold_ids[num_train + num_val:]
 
-        # Ricava le cartelle
+      
         train_folders = [f for bid in train_ids for f in base_id_to_folders[bid]]
         val_folders = [f for bid in val_ids for f in base_id_to_folders[bid]]
         test_folders = [f for bid in test_ids for f in base_id_to_folders[bid]]
 
-        # Ricava immagini
         all_images_dict = collect_dict_images_from_folders(leaf_folders, root_folder)
         train_images_dict = collect_dict_images_from_folders(train_folders, root_folder)
         val_images_dict = collect_dict_images_from_folders(val_folders, root_folder)
         test_images_dict = collect_dict_images_from_folders(test_folders, root_folder)
 
-        # Costruisci merge dictionary
         merge_dictionary = {}
         for key, vals in all_images_dict.items():
             if key in final_dictionary:
@@ -210,7 +208,6 @@ def generate_2fold_splits(root_folder, final_dictionary, output, train_ratio=0.6
                     image_name = v[0]
                     merge_dictionary[image_name] = label_list
 
-        # Salva CSV
         save_labels_to_csv(merge_dictionary, f'csv_example_{fold_name}.csv')
         save_split_csvs(
             merge_dictionary,
@@ -287,6 +284,13 @@ if __name__ == '__main__':
     final_dictionary = transform(input_excel)
 
     # Scegli se vuoi uno split o una 2-cross-fold-validation
+    """
+    60% dei dati al training
+
+    15% al validation
+
+    25% al test"""
+    
     transfer_labels_from_wsi_to_glomeruli(root_folder, final_dictionary, output, train_ratio=0.6, seed=42)
 
     # generate_2fold_splits(

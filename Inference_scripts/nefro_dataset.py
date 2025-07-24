@@ -89,7 +89,9 @@ class Nefro(data.Dataset):
             label = 1
         else:
             label = 0
-
+    #TODO
+    # Scambiare ordine tra augmentations e normalizzazione
+    # Salvare tutte le immagini del batch nella enumerate del dataloader con Nick, cosi vedò cosa fanno le trasformazioni
         if self.transform is not None:
             image = self.transform(image)
 
