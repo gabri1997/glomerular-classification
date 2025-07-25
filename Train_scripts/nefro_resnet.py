@@ -32,7 +32,6 @@ from pathlib import Path as FilePath
 import wandb
 import os
 from sklearn.metrics import roc_auc_score, RocCurveDisplay
-import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 import ast
