@@ -159,67 +159,6 @@ def save_split_csvs(merge_dictionary, train_dict, val_dict, test_dict, train_csv
             else:
                 print(f"Attenzione: immagine {image_name} non trovata in alcuno split")
 
-def generate_2fold_splits(root_folder, final_dictionary, output, train_ratio=0.6, val_ratio=0.2, seed=42):
-    random.seed(seed)
-    leaf_folders = collect_leaf_folders(root_folder)
-
-    # Raggruppa WSI per base_id
-    base_id_to_folders = defaultdict(list)
-    for folder in leaf_folders:
-        wsi = os.path.basename(folder)
-        base_id = extract_base_id(wsi)
-        base_id_to_folders[base_id].append(folder)
-
-    base_ids = list(base_id_to_folders.keys())
-    random.shuffle(base_ids)
-
-    # Dividi in 2 fold
-    mid = len(base_ids) // 2
-    fold1_ids = base_ids[:mid]
-    fold2_ids = base_ids[mid:]
-
-    # Crea i due split
-    folds = {'fold1': fold1_ids, 'fold2': fold2_ids}
-
-    for fold_name, fold_ids in folds.items():
-        # Dividi in train/val/test
-        num_total = len(fold_ids)
-        num_train = int(num_total * train_ratio)
-        num_val = int(num_total * val_ratio)
-        train_ids = fold_ids[:num_train]
-        val_ids = fold_ids[num_train:num_train + num_val]
-        test_ids = fold_ids[num_train + num_val:]
-
-      
-        train_folders = [f for bid in train_ids for f in base_id_to_folders[bid]]
-        val_folders = [f for bid in val_ids for f in base_id_to_folders[bid]]
-        test_folders = [f for bid in test_ids for f in base_id_to_folders[bid]]
-
-        all_images_dict = collect_dict_images_from_folders(leaf_folders, root_folder)
-        train_images_dict = collect_dict_images_from_folders(train_folders, root_folder)
-        val_images_dict = collect_dict_images_from_folders(val_folders, root_folder)
-        test_images_dict = collect_dict_images_from_folders(test_folders, root_folder)
-
-        merge_dictionary = {}
-        for key, vals in all_images_dict.items():
-            if key in final_dictionary:
-                label_list = final_dictionary[key][0]
-                for v in vals:
-                    image_name = v[0]
-                    merge_dictionary[image_name] = label_list
-
-        save_labels_to_csv(merge_dictionary, f'csv_example_{fold_name}.csv')
-        save_split_csvs(
-            merge_dictionary,
-            train_images_dict, val_images_dict, test_images_dict,
-            f'csv_{fold_name}_train_seed{seed}.csv',
-            f'csv_{fold_name}_val_seed{seed}.csv',
-            f'csv_{fold_name}_test_seed{seed}.csv'
-        )
-
-        print(f"[{fold_name.upper()}] Train: {sum(len(v) for v in train_images_dict.values())} immagini")
-        print(f"[{fold_name.upper()}] Val:   {sum(len(v) for v in val_images_dict.values())} immagini")
-        print(f"[{fold_name.upper()}] Test:  {sum(len(v) for v in test_images_dict.values())} immagini")
 
 def transfer_labels_from_wsi_to_glomeruli(root_folder, final_dictionary, output, train_ratio=0.6, seed=42):
     random.seed(seed)
@@ -293,11 +232,4 @@ if __name__ == '__main__':
     
     transfer_labels_from_wsi_to_glomeruli(root_folder, final_dictionary, output, train_ratio=0.6, seed=42)
 
-    # generate_2fold_splits(
-    #     root_folder=root_folder,
-    #     final_dictionary=final_dictionary,
-    #     output=output,
-    #     train_ratio=0.6,  # 60% train, 20% val, 20% test
-    #     val_ratio=0.2,
-    #     seed=42
-    # )
+

@@ -351,7 +351,7 @@ class NefroNet():
        
         
         self.dataset_for_folds = nefro_4k_and_diapo.Nefro(
-                                split='train_val_fused_for_split',
+                                split='NewComplete',
                                 old_or_new_folder = self.old_or_new_folder,
                                 label_name=self.lbl_name,
                                 w4k=self.w4k,
@@ -1944,10 +1944,6 @@ def get_weights(target):
     weights = target * 0.2
     weights += 0.
     return weights
-
-
-
-
 
 def split_dataset(label, w4k=False, wdiapo=False, n_trues_test=375, n_test=1000, n_trues_val=100, n_val=200,
                   custom_name=""):

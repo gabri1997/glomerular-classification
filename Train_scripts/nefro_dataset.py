@@ -28,6 +28,8 @@ class Nefro(data.Dataset):
 
 
     # Aggiungo altre due colonne a questo dizionario che corrispondono alle colonne [Globale (GLOB) e Segmentale (SEGM)]
+
+    #TODO RIMAPPARE QUESTO CON LE COLONNE DEL NUOVO DATASET
     flagsdic = {
         'LIN': 2,
         'PSEUDOLIN': 3,
