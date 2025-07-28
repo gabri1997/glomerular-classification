@@ -3,49 +3,49 @@ import pandas as pd
 
 # Dati dei fold
 results = [
-        {
+    {
         "Fold": 0,
         "Commento": "Eval finale su test set dopo training su tutti i fold",
         "Esperimento": {},
-        "Accuracy": 0.7279693486590039,
-        "Precision": 0.6372548394848196,
-        "Recall": 0.6565655902459,
-        "Fscore": 0.6467611059518624,
-        "Conf_matrix": "[[TN=125 FP=37]\n                            [FN=34 TP=65]]",
-        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_0/resnet18_[['PAR_IRREG']]_New_0_net.pth"
+        "Accuracy": 0.6702127659574468,
+        "Precision": 0.1538461242603607,
+        "Recall": 0.09090908057851357,
+        "Fscore": 0.11428102876210652,
+        "Conf_matrix": "[[TN=244 FP=44]\n                            [FN=80 TP=8]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_0/resnet18_[['SEGM']]_New_0_net.pth"
     },
     {
         "Fold": 1,
         "Commento": "Eval finale su test set dopo training su tutti i fold",
         "Esperimento": {},
-        "Accuracy": 0.6690821256038647,
-        "Precision": 0.5803108507610958,
-        "Recall": 0.6666666269841294,
-        "Fscore": 0.6204936046009489,
-        "Conf_matrix": "[[TN=165 FP=81]\n                            [FN=56 TP=112]]",
-        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_1/resnet18_[['PAR_IRREG']]_New_1_net.pth"
+        "Accuracy": 0.6610878661087866,
+        "Precision": 0.15277775655864492,
+        "Recall": 0.35483859521335637,
+        "Fscore": 0.21358798386994143,
+        "Conf_matrix": "[[TN=147 FP=61]\n                            [FN=20 TP=11]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_1/resnet18_[['SEGM']]_New_1_net.pth"
     },
     {
         "Fold": 2,
         "Commento": "Eval finale su test set dopo training su tutti i fold",
         "Esperimento": {},
-        "Accuracy": 0.5748175182481752,
-        "Precision": 0.5659574227252161,
-        "Recall": 0.5037878597050054,
-        "Fscore": 0.5330611278332167,
-        "Conf_matrix": "[[TN=182 FP=102]\n                            [FN=131 TP=133]]",
-        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_2/resnet18_[['PAR_IRREG']]_New_2_net.pth"
+        "Accuracy": 0.8836633663366337,
+        "Precision": 0.39999920000160005,
+        "Recall": 0.04347825141777143,
+        "Fscore": 0.07842957327841704,
+        "Conf_matrix": "[[TN=355 FP=3]\n                            [FN=44 TP=2]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_2/resnet18_[['SEGM']]_New_2_net.pth"
     },
     {
         "Fold": 3,
         "Commento": "Eval finale su test set dopo training su tutti i fold",
         "Esperimento": {},
-        "Accuracy": 0.6616161616161617,
-        "Precision": 0.5980391570549846,
-        "Recall": 0.7011493446954776,
-        "Fscore": 0.6454976087278098,
-        "Conf_matrix": "[[TN=70 FP=41]\n                            [FN=26 TP=61]]",
-        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_3/resnet18_[['PAR_IRREG']]_New_3_net.pth"
+        "Accuracy": 0.8805970149253731,
+        "Precision": 0.0,
+        "Recall": 0.0,
+        "Fscore": 0.0,
+        "Conf_matrix": "[[TN=354 FP=25]\n                            [FN=23 TP=0]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_3/resnet18_[['SEGM']]_New_3_net.pth"
     }
 ]
 
@@ -109,9 +109,12 @@ print(f"  F1-score: {f1:.4f}")
 # Media per fold: Accuracy 0.702 | Precision 0.585 | Recall 0.566 | FScore 0.565
 # PARETE REGOLARE DISCONT (capillary wall) Non ho esempi positivi infatti predice sempre negativo
 # PARETE REGOLARE CONTINUA
-# Media per fold: Accuracy 0.735 | Precision  0.612 | Recall 0.585 | FScore 0.592
+# Media per fold: Accuracy 0.735 | Precision  0.612 | Recall 0.585  | FScore 0.592
 # PARETE IRREGOLARE
-# Media per fold: Accuracy 0.658 | Precision  0.595 | Recall 0.632 | FScore 0.611
-
+# Media per fold: Accuracy 0.658 | Precision  0.595 | Recall 0.632  | FScore 0.611
+# GLOBALE
+# Media per fold: Accuracy 0.810 | Precision  0.876 | Recall 0.908  | FScore 0.892
+# SEGMENTALE
+# Media per fold: Accuracy 0.788 | Precision  0.136 | Recall  0.111 | FScore  0.122
 
 

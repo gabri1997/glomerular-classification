@@ -4,7 +4,7 @@ def uniformer(csv_in_path, csv_out_path, cols_idx):
     """
     Unisce GEN_SEGM e FOC_SEGM in una nuova colonna "segmental",
     GEN_DIFF e FOC_GLOB in una nuova colonna "globale".
-    Rimuove le colonne originali.
+    Non rimuove le colonne originali.
 
     Questo è il dizionario delle labels, ogni indice è una colonna
     
@@ -52,14 +52,34 @@ def uniformer(csv_in_path, csv_out_path, cols_idx):
 
 
 if __name__ == '__main__':
-    csv_train_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_training_old.csv'
-    csv_val_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_validation_old.csv'
-    csv_test_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_test_old.csv'
-    csv_train_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_training.csv'
-    csv_val_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_validation.csv'
-    csv_test_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_test.csv'
+    # csv_train_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_training_old.csv'
+    # csv_val_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_validation_old.csv'
+    # csv_test_in_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\', \'SEGM\']]_4k_test_old.csv'
+    # csv_train_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_training.csv'
+    # csv_val_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_validation.csv'
+    # csv_test_out_path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GLOB\',\'SEGM\']]_4k_test.csv'
 
+    """
+    Questo file csv_input_newdata_global è stato creato dallo script label_generator_from_excel.py a partere dal file excel 'if_score' di Magistroni, le label vengono 
+    già mappate dallo script nel dizionario delle label di pollastri
+    """
+    csv_input_newdata_global = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_example.csv'
+    """
+    Questo file csv di output è il file identico al file di input ma in più ho due colonne finali che corrispondono alla aggregazione di due colonne, questo file viene usato
+    per creare i 4 fold e allenare il modello ResNet
+    """
+    csv_output_newdata_global = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_with_aggregated_global_and_segmental.csv'
+
+    """
+    Questa lista contiene gli indici delle colonne che voglio unificare, nel nostro caso 
+    Unisce GEN_SEGM e FOC_SEGM in una nuova colonna "segmental",
+    GEN_DIFF e FOC_GLOB in una nuova colonna "globale".
+    """
     cols_idx = [6, 7, 8, 9]
-    uniformer(csv_train_in_path, csv_train_out_path, cols_idx)
-    uniformer(csv_val_in_path, csv_val_out_path, cols_idx)
-    uniformer(csv_test_in_path, csv_test_out_path, cols_idx)
+
+    uniformer(csv_input_newdata_global, csv_output_newdata_global, cols_idx)
+
+    # Questo è per uniformare le colonne del vecchio dataset di Pollastri 
+    # uniformer(csv_train_in_path, csv_train_out_path, cols_idx)
+    # uniformer(csv_val_in_path, csv_val_out_path, cols_idx)
+    # uniformer(csv_test_in_path, csv_test_out_path, cols_idx)

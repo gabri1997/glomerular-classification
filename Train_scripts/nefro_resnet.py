@@ -554,8 +554,6 @@ class NefroNet():
         print("Test set di tutti i fold sono disgiunti (nessuna sovrapposizione)")
         return True
 
-
-
     def group_indices_by_base_id(self, dataset):
         base_id_to_indices = defaultdict(list)
 
@@ -2200,7 +2198,7 @@ if __name__ == '__main__':
     weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
     parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
 
-    parser.add_argument('--label', type=str, default='MESANGIALE',
+    parser.add_argument('--label', type=str, default='GLOBAL',
                     help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
     parser.add_argument('--train_or_test', type=str, default='Train', help='Train or test on your data')
@@ -2261,6 +2259,10 @@ if __name__ == '__main__':
         labels_to_use = [['PAR_IRREG']]
     elif opt.label == 'GLOBAL_SEGMENTAL':
         labels_to_use = [['GLOB', 'SEGM']]
+    elif opt.label == 'GLOBAL':
+        labels_to_use = [['GLOB']]
+    elif opt.label == 'SEGMENTAL':
+        labels_to_use = [['SEGM']]
     else:
         raise ValueError(f"Label group '{opt.label}' non riconosciuto.")
     print(opt)
