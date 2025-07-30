@@ -19,21 +19,24 @@ flagsdic = {
     'CAPS_BOW': 15,
     'POLOVASC': 16,
     'INTENS': 17,
+    'GLOB': 18,
+    'SEGM' : 19, 
 }
 
 # Percorso al file CSV
 #csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[[\'GEN_SEGM\', \'FOC_SEGM\']]_4k_training.csv"
 #csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[['MESANGIALE']]_4k_test.csv"
-csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_test_seed16.csv"
+#csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_test_seed16.csv"
+csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[['GLOB', 'SEGM']]_4k_NewComplete.csv"
 # ----------- ANALISI TRUE in una specifica colonna ----------- #
-label_to_check = 'MESANGIALE'  # Cambia qui per usare un'altra label
+label_to_check = 'SEGM'  # Cambia qui per usare un'altra label
 col_idx = flagsdic[label_to_check]
 true_count = 0
 false_count = 0
 
 with open(csv_file, mode='r', newline='') as file:
     reader = csv.reader(file)
-    header = next(reader)  # Salta intestazione
+    header = next(reader)  
 
     for row in reader:
         if len(row) > col_idx:

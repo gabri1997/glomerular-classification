@@ -697,7 +697,7 @@ class NefroNet():
             print('Validation: ')
             # Non sto facendo cross-validation quindi fold None
             fold = None
-            val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_data_loader, epoch=epoch, fold=fold, write_flag=True)
+            val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_data_loader, epoch=epoch, fold=fold, write_flag=True)
             if self.scheduler != 'OneCycle':
                 self.scheduler.step(val_f_score)
 
@@ -790,7 +790,11 @@ class NefroNet():
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='max', verbose=True, threshold=0.004)
 
             # Ogni fold deve avere la sua best accuracy indipendente
-            self.best_acc = 0.0
+            if self.lbl_name != [['INTENS']]:
+                self.best_acc = 0.0
+            else:
+                self.best_acc = float('inf')
+                
             for epoch in range(self.num_epochs):
                 self.n.train()
                 losses = []
@@ -805,7 +809,15 @@ class NefroNet():
                     target = target.to('cuda', torch.float if self.num_classes == 1 else torch.long)
                     output = torch.squeeze(self.n(x)) if self.num_classes == 1 else self.n(x)
 
-                    loss = self.criterion(output, target)
+                    if self.lbl_name != [['INTENS']]:
+                        loss = self.criterion(output, target)
+                    elif self.lbl_name == [['INTENS']]:
+                        intensity_prob = F.softmax(output, dim=1)
+                        intensity_values = torch.arange(7).float().cuda()
+                        intensity_values /= 2
+                        intensity_expect = torch.sum(intensity_values * intensity_prob, 1)
+                        loss = F.smooth_l1_loss(intensity_expect, target.float())
+
                     losses.append(loss.item())
 
                     self.optimizer.zero_grad()
@@ -818,30 +830,34 @@ class NefroNet():
 
                 print(f"Epoch {epoch} | Loss: {np.mean(losses):.4f} | Time: {time.time() - start_time:.2f}s")
                 print("Validation:")
-                val_acc, val_pr, val_recall, val_f_score, cm = self.eval(self.validation_fold_data_loader, epoch, fold, write_flag=True)
 
-                if self.scheduler != 'OneCycle':
+                if self.lbl_name != [['INTENS']]:
+                    val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_fold_data_loader, epoch, fold, write_flag=True)
+                    # Logging su wandb
+                    try:
+                        wandb.log({
+                            "train/loss": float(np.mean(losses)),
+                            "val/accuracy": float(val_acc),
+                            "val/precision": float(val_pr),
+                            "val/recall": float(val_recall),
+                            "val/f1_score": float(val_f_score),
+                            "learning_rate": lr,
+                            "epoch": epoch
+                        })
+                    except Exception as e:
+                        print(f"[WANDB ERROR] {e}")
+
+            
+
+                elif self.lbl_name == [['INTENS']]:
+                    acc, _ = self.eval_intensity(self.validation_fold_data_loader, epoch, fold, write_flag=True)
+
+                if self.scheduler != 'OneCycle' and self.lbl_name != [['INTENS']]:
                     self.scheduler.step(val_f_score)
-
-                if epoch % 5 == 0:
-                    self.thresh_eval(epoch)
-
-                # Logging su wandb
-                try:
-                    wandb.log({
-                        "train/loss": float(np.mean(losses)),
-                        "val/accuracy": float(val_acc),
-                        "val/precision": float(val_pr),
-                        "val/recall": float(val_recall),
-                        "val/f1_score": float(val_f_score),
-                        "learning_rate": lr,
-                        "epoch": epoch
-                    })
-                except Exception as e:
-                    print(f"[WANDB ERROR] {e}")
-
+                else:
+                    self.scheduler.step(acc)
+                
             wandb.finish()
-
     
         print("\n Fine training inizio valutazione su test set per ciascun fold")
         result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_FoldSeed42_{self.lbl_name}.json"
@@ -886,31 +902,118 @@ class NefroNet():
             self.test_loader = DataLoader(test_subset, batch_size=self.batch_size, shuffle=False,
                                     num_workers=self.n_workers, drop_last=False, pin_memory=True)
 
-            acc, pr, rec, f1, cm = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+            if self.lbl_name != [['INTENS']]:
+                acc, pr, rec, f1, cm, _, _ = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+                cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                                [FN={cm[1,0]} TP={cm[1,1]}]]"""
 
-            cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
-                            [FN={cm[1,0]} TP={cm[1,1]}]]"""
+                res_dict = {
+                    "Fold": fold,
+                    "Commento": "Eval finale su test set dopo training su tutti i fold",
+                    "Esperimento": vars(self.opt) if hasattr(self, "opt") else {},
+                    "Accuracy": float(acc),
+                    "Precision": float(pr),
+                    "Recall": float(rec),
+                    "Fscore": float(f1),
+                    "Conf_matrix": cm_pretty,
+                    "Weights": model_path
+                }
 
-            res_dict = {
-                "Fold": fold,
-                "Commento": "Eval finale su test set dopo training su tutti i fold",
-                "Esperimento": vars(self.opt) if hasattr(self, "opt") else {},
-                "Accuracy": float(acc),
-                "Precision": float(pr),
-                "Recall": float(rec),
-                "Fscore": float(f1),
-                "Conf_matrix": cm_pretty,
-                "Weights": model_path
-            }
+                all_results.append(res_dict)
 
-            all_results.append(res_dict)
+            elif self.lbl_name == [['INTENS']]:
+                acc, conf_matrix, _, _ = self.eval_intensity(self.test_loader, epoch='final', fold=fold, write_flag=False )
+               
+                labels = ['0', '0.5', '1', '1.5', '2', '2.5', '3']
+                cm_array = conf_matrix.conf_matrix
+
+                header = "       " + " ".join([f"{label:>5}" for label in labels]) + "\n"
+                rows = ""
+                for i, row in enumerate(cm_array):
+                    row_str = " ".join([f"{val:5d}" for val in row])
+                    rows += f"{labels[i]:>5} | {row_str}\n"
+
+                cm_pretty = "Confusion Matrix:\n" + header + rows
+
+                res_dict = {
+                    "Fold": fold,
+                    "Commento": "Eval finale su test set dopo training su tutti i fold",
+                    "Esperimento": vars(self.opt) if hasattr(self, "opt") else {},
+                    "Accuracy": float(acc),
+                    "Conf_matrix": cm_pretty,
+                    "Weights": model_path
+                }
+                
 
         with open(result_path, 'w') as f:
             json.dump(all_results, f, indent=4)
 
         print(f"\nTutti i risultati salvati in: {result_path}")
 
+    def write_on_descriptive_file(self, result_path, fold, images, y_pred_all):
+        """
+        Salvo i risultati della evaluation separata in un result files dove tengo traccia del nome del glomerulo e della sua prediction associata.
+        """
+        os.makedirs(result_path, exist_ok = True)   
+        final_pth = os.path.join(result_path, f'fold{fold}.csv')
+        with open(final_pth, 'a', newline='') as csvfile:
+                    label_name = self.lbl_name[0] if isinstance(self.lbl_name, list) and len(self.lbl_name) > 0 else 'Prediction'
+                    fieldnames = ['Glom_name', f'Prediction_{label_name}']
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    for img, pred in zip(images, y_pred_all):
+                        writer.writerow({'Glom_name': img.split('/')[-1], f'Prediction_{label_name}': pred})
+                
+        print('Ho finito di scrivere il csv dei risultati')
 
+    def separeted_evaluation_on_folds(self, folds_weights_pth, result_path):
+
+        print("\n Inizio valutazione separata su test set per ciascun fold")
+
+        for fold, (_, _, test_indices) in enumerate(self.folds):
+            print(f"\n Fold {fold} valutazione su test set")
+
+            model_dir = os.path.join(folds_weights_pth, str(self.lbl_name), f"fold_{fold}")
+
+            self.best_acc = 0  
+
+            if self.old_or_new_folder == 'Files_old_Pollo/':
+                if self.dropout:
+                    model_name = f"dropout_{self.net}_{self.lbl_name}_Old_{fold}_net.pth"
+                else:
+                    model_name = f"{self.net}_{self.lbl_name}_Old_{fold}_net.pth"
+            else:
+                if self.dropout:
+                    model_name = f"dropout_{self.net}_{self.lbl_name}_New_{fold}_net.pth"
+                else:
+                    model_name = f"{self.net}_{self.lbl_name}_New_{fold}_net.pth"
+
+            model_path = os.path.join(model_dir, model_name)
+
+            if not os.path.isfile(model_path):
+                print(f"Modello non trovato per il fold {fold}: {model_path}")
+                continue
+
+            self.n.load_state_dict(torch.load(model_path))
+            self.n.to("cuda")
+            self.n.eval()
+
+            test_subset = Subset(self.dataset_for_folds, test_indices)
+            self.test_loader = DataLoader(test_subset, batch_size=self.batch_size, shuffle=False,
+                                    num_workers=self.n_workers, drop_last=False, pin_memory=True)
+
+            if self.lbl_name != [['INTENS']]:
+
+                _, _, _, _, _, y_pred_all, images = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+                self.write_on_descriptive_file(result_path, fold, images, y_pred_all)
+               
+   
+            elif self.lbl_name == [['INTENS']]:
+
+                _, _, y_pred_all, images = self.eval_intensity(self.test_loader, epoch='final', fold=fold, write_flag=False)
+                self.write_on_descriptive_file(result_path, fold, images, y_pred_all)
+               
+                
     # I livelli di intensità sono livelli da 0 a 3 con step 0.5.
     def train_intensity(self):
     
@@ -957,7 +1060,7 @@ class NefroNet():
             print('Epoch: ' + str(epoch) + ' | loss: ' + str(np.mean(losses)) + ' | time: ' + str(
                 time.time() - start_time))
             print('Validation: ', end=' --> ')
-            acc = self.eval_intensity(self.validation_data_loader, epoch=epoch, write_flag=True)
+            acc, _, _, _ = self.eval_intensity(self.validation_data_loader, epoch=epoch, write_flag=True)
             self.scheduler.step(acc)
 
             if epoch % 10 == 0:
@@ -973,6 +1076,7 @@ class NefroNet():
         y_true_all = []
         y_pred_all = []
         y_scores_all = []
+        images = []
 
         with torch.no_grad():
             sigm = nn.Sigmoid()
@@ -1023,6 +1127,7 @@ class NefroNet():
                 # Wandb rompe le palle se non metto tutta sta roba .cpu().int().numpy().tolist()
                 y_true_all.extend(target.cpu().int().numpy().tolist())
                 y_pred_all.extend(res.cpu().int().numpy().tolist())
+                images.extend(img_name)
 
             # EVAL LOSS
             if self.val_loss == 'True':
@@ -1040,6 +1145,8 @@ class NefroNet():
             # Conversione in array numpy
             y_pred_all = np.array(y_pred_all)
             y_true_all = np.array(y_true_all)
+
+            print("Etichette presenti nel validation set:", sorted(set(y_true_all)))
 
             # Calcolo TP, FP, FN su tutto il validation set
             tp = int(((y_pred_all == 1) & (y_true_all == 1)).sum())
@@ -1096,10 +1203,10 @@ class NefroNet():
                     print(f"[ERROR] Failed to log confusion matrix: {e}")
 
 
-        return accuracy, pr, rec, fscore, cm
+        return accuracy, pr, rec, fscore, cm, y_pred_all, images
 
 
-    def eval_intensity(self, d_loader, epoch, write_flag=False):
+    def eval_intensity(self, d_loader, epoch, fold, write_flag=False):
         print('Eval Intensity...')
         conf_matrix = ConfusionMatrix(self.num_classes)
         with torch.no_grad():
@@ -1107,25 +1214,17 @@ class NefroNet():
             mse = 0
             t_mae = 0
             t_mse = 0
+            y_pred_all = []
+            images = []
             self.n.eval()
-
-            # if write_flag:
-            #     self.create_html()
-
             start_time = time.time()
             for i, (x, target, img_name) in enumerate(d_loader):
-                # measure data loading time
-                # print("data time: " + str(time.time() - start_time))
-
+    
+                images.extend(img_name)
                 # compute output
                 x = x.to('cuda')
                 target = target.to('cuda')
 
-                # if self.num_classes == 1:
-                #     target = target.to('cuda', torch.float)
-                #     self.criterion.weight = get_weights(target)
-                # else:
-                #     target = target.to('cuda', torch.long)
                 output = torch.squeeze(self.n(x))
                 intensity_prob = F.softmax(output, dim=1)
                 intensity_values = torch.arange(7).float().cuda()
@@ -1136,17 +1235,13 @@ class NefroNet():
                 t_intensity_expect = torch.round(intensity_expect * 2) / 2
                 t_mae += F.l1_loss(t_intensity_expect, target.float(), reduction='sum').item()
                 t_mse += F.mse_loss(t_intensity_expect, target.float(), reduction='sum').item()
-                # Prima
-                #conf_matrix.update_matrix((t_intensity_expect * 2).int(), (target * 2).int())
-                # Meglio
                 conf_matrix.update_matrix((t_intensity_expect * 2).long(), (target * 2).long())
+                
+                float_preds = [val.item() for val in t_intensity_expect]
+                y_pred_all.extend(float_preds)
                 # Per debug
                 # print("Predicted class counts:", torch.bincount((t_intensity_expect * 2).int()))
                 # print("True class counts:", torch.bincount((target * 2).int()))
-
-
-            # if write_flag:
-            #     self.write_html(img_name=img_name, target=target, res=res, conf=check_output)
 
             stats_string = 'MAE: ' + str(mae / len(d_loader.dataset)) + ' | MSE: ' + str(mse / len(d_loader.dataset)) + \
                            ' | THRESHOLD MAE: ' + str(t_mae / len(d_loader.dataset)) + \
@@ -1155,19 +1250,20 @@ class NefroNet():
             
             print(stats_string)
 
-            wandb.log({
-                'MAE': mae / len(d_loader.dataset),
-                'MSE': mse / len(d_loader.dataset),
-                'THRESHOLD_MAE': t_mae / len(d_loader.dataset),
-                'THRESHOLD_MSE': t_mse / len(d_loader.dataset),
-                'Time': time.time() - start_time
-            }, step=epoch)  # se epoch è disponibile
+            if write_flag == True:
+                wandb.log({
+                    'MAE': mae / len(d_loader.dataset),
+                    'MSE': mse / len(d_loader.dataset),
+                    'THRESHOLD_MAE': t_mae / len(d_loader.dataset),
+                    'THRESHOLD_MSE': t_mse / len(d_loader.dataset),
+                    'Time': time.time() - start_time
+                }, step=epoch)  # se epoch è disponibile
 
                                 
             if (mae / len(d_loader.dataset)) < self.best_acc and write_flag:
                 self.best_acc = mae / len(d_loader.dataset)
                 print("SAVING MODEL")
-                self.save()
+                self.save(fold)
                 # Loggo solo se miglioro 
                 if not write_flag:
                     print(conf_matrix.conf_matrix)
@@ -1187,8 +1283,7 @@ class NefroNet():
                     wandb.log({"confusion_matrix_image": wandb.Image(plt)}, step=epoch)
                     plt.close()
 
-            
-        return mae / len(d_loader.dataset)
+        return mae / len(d_loader.dataset), conf_matrix, y_pred_all, images
         
 
     def thresh_eval(self,epoch):
@@ -2175,8 +2270,6 @@ def plot(img):
 
 
 if __name__ == '__main__':
-    # split_dataset_morelabels(['Par-regol-cont', 'Par-regol-discont', 'Par-irreg', 'parietale'], 'parietal')
-    # split_dataset('mesangiale')
 
     os.environ["OMP_NUM_THREADS"] = "1"
     def setup_seeds(seed: int = 42):
@@ -2196,12 +2289,11 @@ if __name__ == '__main__':
     models_dir = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain"
     # Percorso pesi per fine-tuning
     weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
-    parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
 
-    parser.add_argument('--label', type=str, default='GLOBAL',
-                    help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
+    parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
+    parser.add_argument('--label', type=str, default='GLOBAL_SEGMENTAL', help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
-    parser.add_argument('--train_or_test', type=str, default='Train', help='Train or test on your data')
+    parser.add_argument('--train_or_test', type=str, default='Test_on_folds', help='Train or test on your data')
     parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
     parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=['0', '0.5', '1', '1.5', '2', '2.5', '3'],help='Etichette da mostrare nella matrice di confusione')
     parser.add_argument('--network', default='resnet18')
@@ -2214,7 +2306,7 @@ if __name__ == '__main__':
     parser.add_argument('--wloss', type=str, default='True', help='weighted or not loss')
     parser.add_argument('--loadEpoch', type=int, default=0, help='load pretrained models')
     parser.add_argument('--workers', type=int, default=8, help='number of data loading workers')
-    parser.add_argument('--batch_size', type=int, default=64, help='batch size during the training')
+    parser.add_argument('--batch_size', type=int, default=8, help='batch size during the training')
     parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate')
     parser.add_argument('--scheduler', type=str, default='OneCycle', help='scheduler')
     parser.add_argument('--thresh', type=float, default=0.5, help='number of data loading workers')
@@ -2281,53 +2373,113 @@ if __name__ == '__main__':
         # CLASSIC TRAINING
         if opt.train_or_test == 'Train':
             if opt.label == 'INTENS' :
-                n.train_intensity()
-                # n.load()
-                # n.eval_intensity(n.validation_data_loader, 0)
-            else:
-                #n.train()
+                # Per training sui fold
                 n.train_test_on_folds()
-                #n.save() ma perchè richiama la save() ??
-        else:
-            data = opt.weights
-            w_path = n.load(data)
-            # # # # # n.bayesian_dropout_eval(dset='validation', n_forwards=opt.n_forwards, write_flag=True)
-            # # # # # n.bayesian_dropout_eval(dset='test', n_forwards=opt.n_forwards, write_flag=True)
-            # # # # # n.eval(n.validation_data_loader, True)
-
-            accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
-            cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
-                            [FN={cm[1,0]} TP={cm[1,1]}]]"""
-            res_dict = {
-                'Commento' : 'Esperimento su nuovi dati, Sampler, con WLoss, con Max su output, Seed 42 per random, lr 0.1, canali RGB, seed 16 per split, salvo pesi con pazienza 15 epoche',
-                'Esperimento': vars(opt),
-                'Accuracy': float(accuracy),
-                'Precision': float(pr),
-                'Recall': float(rec),
-                'Fscore': float(fscore),
-                "Conf_matrix": cm_pretty,
-                "Weights" : w_path
-            }
-            result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_Seed16_{opt.label}.json'
-            if os.path.exists(result_path):
-                with open(result_path, 'r') as f:
-                    try:
-                        data = json.load(f)
-                        if isinstance(data, list):
-                            all_results = data
-                        else:
-                            all_results = [data]
-                    except json.JSONDecodeError:
-                        all_results = []
+                # Per training su uno split specifico 
+                #n.train_intensity()
             else:
-                all_results = []
-            all_results.append(res_dict)
+                # Per training sui fold
+                n.train_test_on_folds()
+                # Per training su uno split specifico 
+                #n.train()
+            
+        elif opt.train_or_test == 'Test':
+            result_path = f'/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results/result_Seed16_{opt.label}.json'
+            if opt.label != 'INTENS':
+                data = opt.weights
+                w_path = n.load(data)
+                accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+                cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                                [FN={cm[1,0]} TP={cm[1,1]}]]"""
+                res_dict = {
+                    'Commento' : 'Esperimento su nuovi dati, Sampler, con WLoss, con Max su output, Seed 42 per random, lr 0.1, canali RGB, seed 16 per split, salvo pesi con pazienza 15 epoche',
+                    'Esperimento': vars(opt),
+                    'Accuracy': float(accuracy),
+                    'Precision': float(pr),
+                    'Recall': float(rec),
+                    'Fscore': float(fscore),
+                    "Conf_matrix": cm_pretty,
+                    "Weights" : w_path
+                }
+                if os.path.exists(result_path):
+                    with open(result_path, 'r') as f:
+                        try:
+                            data = json.load(f)
+                            if isinstance(data, list):
+                                all_results = data
+                            else:
+                                all_results = [data]
+                        except json.JSONDecodeError:
+                            all_results = []
+                else:
+                    all_results = []
+                all_results.append(res_dict)
+
+            
+                with open(result_path, 'w') as f:
+                    json.dump(all_results, f, indent=4)
+
+                print("Risultato aggiunto al file JSON.")
+            else: 
+                    print('Qua ci vuole la eval_intensity')
+                    # n.load()
+                    # n.eval_intensity(n.validation_data_loader, 0)
+                
+        elif opt.train_or_test == 'Test_on_folds':
+            """Questa funzione serve per fare una evaluation seprata sui fold su cui ho trainato con n.train_test_on_folds(), 
+               i risultati vengono scritti dentro a result_path dove ho sia il nome del glomerulo sia l'output della rete per quella immagine.
+            """
+            result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images/{opt.label}"
+            folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
+            n.separeted_evaluation_on_folds(folds_weights_pth, result_path)
 
         
-            with open(result_path, 'w') as f:
-                json.dump(all_results, f, indent=4)
+   
 
-            print("Risultato aggiunto al file JSON.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         ##########################################
         # n.explain_eval(True)
