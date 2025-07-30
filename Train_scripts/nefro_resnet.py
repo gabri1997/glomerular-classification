@@ -367,41 +367,6 @@ class NefroNet():
         self.folds = self.kfold_train_val_test_split(self.dataset_for_folds, 4)
         self.check_no_overlap(self.folds)
 
-        # eval_dataset_diapo = nefro_4k_and_diapo.Nefro(split='test', label_name=self.lbl_name, w4k=False,
-        #                                               wdiapo=True,
-        #                                               size=(opt.size, opt.size),
-        #                                               transform=inference_imgaug_transforms)
-        
-##################################################################################################################################################################        
-        # dataset = nefro.Nefro(load=opt.SRV, split_name='training', label_name=self.lbl_name, size=(opt.size, opt.size),
-        #                       transform=transforms.Compose([
-        #                           transforms.Resize((self.size, self.size)),
-        #                           transforms.RandomHorizontalFlip(),
-        #                           transforms.RandomVerticalFlip(),
-        #                           transforms.RandomRotation(180),
-        #                           nefro.NefroTiffToTensor(),
-        #                           transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851)),
-        #                       ])
-        #                       )
-        #
-        # validation_dataset = nefro.Nefro(load=opt.SRV, split_name='validation', label_name=self.lbl_name,
-        #                                  size=(opt.size, opt.size),
-        #                                  transform=transforms.Compose([
-        #                                      transforms.Resize((self.size, self.size)),
-        #                                      nefro.NefroTiffToTensor(),
-        #                                      transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851)),
-        #                                  ])
-        #                                  )
-        # eval_dataset = nefro.Nefro(load=opt.SRV, split_name='test', label_name=self.lbl_name,
-        #                            size=(opt.size, opt.size),
-        #                            transform=transforms.Compose([
-        #                                transforms.Resize((self.size, self.size)),
-        #                                nefro.NefroTiffToTensor(),
-        #                                transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851)),
-        #                            ])
-        #                            )
-######################################################################################################################################################################
-
         if self.net == 'densenet':
             self.n = MyDensenet(net=self.net, pretrained=pretrained, num_classes=self.num_classes,
                                 dropout_flag=self.dropout).to('cuda')
@@ -2380,7 +2345,7 @@ if __name__ == '__main__':
             else:
                 # Per training sui fold
                 n.train_test_on_folds()
-                # Per training su uno split specifico 
+                # Per training su uno split specifico, per ora bisogna ancora generare lo split con lo script label_generator_from_excel e poi copiare lo split dentro ai csv della classe corretta
                 #n.train()
             
         elif opt.train_or_test == 'Test':
@@ -2415,7 +2380,6 @@ if __name__ == '__main__':
                     all_results = []
                 all_results.append(res_dict)
 
-            
                 with open(result_path, 'w') as f:
                     json.dump(all_results, f, indent=4)
 

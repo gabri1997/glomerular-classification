@@ -222,7 +222,7 @@ if __name__ == '__main__':
     output = ''
     final_dictionary = transform(input_excel)
 
-    # Scegli se vuoi uno split o una 2-cross-fold-validation
+    # Scegli se vuoi uno split 
     """
     60% dei dati al training
 
@@ -230,6 +230,6 @@ if __name__ == '__main__':
 
     25% al test"""
     
-    transfer_labels_from_wsi_to_glomeruli(root_folder, final_dictionary, output, train_ratio=0.6, seed=42)
+    transfer_labels_from_wsi_to_glomeruli(root_folder, final_dictionary, output, train_ratio=0.6, seed=12)
 
 
