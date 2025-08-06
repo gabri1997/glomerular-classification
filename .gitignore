@@ -31,9 +31,9 @@ Train_scripts/Files_old_Pollo/**
 !Train_scripts/Files_old_Pollo/
 
 # NON ignorare i file specifici (con escape se necessario)
-!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_training.csv
-!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_validation.csv
-!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_test.csv
+!Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_training.csv
+!Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_validation.csv
+!Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_test.csv
 
 
 *.pt 
