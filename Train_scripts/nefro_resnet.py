@@ -36,6 +36,7 @@ import numpy as np
 import datetime
 import ast
 from torch.utils.data import WeightedRandomSampler
+from sklearn.metrics import classification_report, confusion_matrix
 
 # Aggiungi il path della cartella principale al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -1097,7 +1098,7 @@ class NefroNet():
             # EVAL LOSS
             if self.val_loss == 'True':
                 mean_loss = np.mean(val_losses)
-                if wandb.run:  # wandb.run is None se wandb non è stato inizializzato
+                if wandb.run: 
                     wandb.log({"val/loss" : mean_loss, 'epoch': epoch})
                 print(f"Validation Loss: {mean_loss:.6f}")
 
@@ -1105,11 +1106,16 @@ class NefroNet():
             class_names = self.conf_matrix_lbl
             print("Predizione 0 significa:", class_names[0])
             print("Predizione 1 significa:", class_names[1])  # e.g., ['Negative', 'Positive']
-            
-            # Ricalcolo della Recall
-            # Conversione in array numpy
+
             y_pred_all = np.array(y_pred_all)
             y_true_all = np.array(y_true_all)
+            print("\n Classification Report:")
+            print(classification_report(
+                y_true_all, 
+                y_pred_all, 
+                target_names=class_names,  # es. ['Globale', 'Segmentale']
+                digits=4
+            ))
 
             print("Etichette presenti nel validation set:", sorted(set(y_true_all)))
 

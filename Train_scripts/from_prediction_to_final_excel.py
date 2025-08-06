@@ -81,52 +81,65 @@ def aggregate (path, label):
         all_merged.to_csv(os.path.join(path, label, "allfolds_aggregated.csv"), index=False)
         print("Tutti i fold concatenati e salvati in allfolds_aggregated.csv")
 
-    print(f"SEGM G_ID -> {all_merged.loc[all_merged['Final_pred']=='SEGM','G_ID'].tolist()}")
+    if label == 'GLOBAL_SEGMENTAL':
+        segm_ids = all_merged.loc[all_merged['Final_pred'] == 'SEGM', 'G_ID']
+        print("SEGM G_ID ->")
+        for gid in segm_ids:
+            print(gid)
+
+    else:
+        if label != 'INTENS':
+            g_ids = all_merged.loc[all_merged['Final_pred'] == 0, 'G_ID']
+            print("G_ID con predizione == 0:")
+            for gid in g_ids:
+                print(gid)
+
+
 
     """
     SEGM G_ID -> 
-    'R22-157 C3', 
-    'R22-168 C3', 
-    'R23 209_2A1_KAPPA-FITC', 
-    'R23_192_1A1_IgA_ind-FITC', 
-    'R23_207_1A1_C3-FITC', 
-    'R23_209_2A1_LAMBDA_FITC', 
-    'R23_223_2A1_C1q-FITC', 
-    'R23_235_2A1_IgA-FITC', 
-    'R23_235_2A1_IgG-FITC', 
-    'R23_235_2A1_IgM-FITC', 
-    'R23_240_2A1_IgG-FITC', 
-    'R24_03_1A1_C3-FITC', 
-    'R24_27_2A1_IgA-FITC', 
-    'R24_27_2A1_IgG-FITC', 
-    'R23_222_1A1_C1q-FITC', 
-    'R23_255_2A1_C3-FITC', 
-    'R23_269_1A1_IGG-FITC', 
-    'R23_281_2A1_C1q-FITC', 
-    'R23_281_2A1_IgA-FITC', 
-    'R23_281_2A1_IgM-FITC', 
-    'R23_284_1A1_IGG-FITC', 
-    'R24_13_2A1_C3-FITC', 
-    'R24_20_1C5_C3c-FITC', 
-    'R24_25_2A1_C3-FITC', 
-    'R24_45_2A1_C1q-FITC', 
-    'R24_45_2A1_IgA-FITC', 
-    'R24_45_2A1_IgG-FITC', 
-    'R24_45_2A1_IgM-FITC', 
-    'R22-181 C3', 
-    'R24_10_2A1_KAPPA-FITC', 
-    'R24_10_2A1_LAMBDA-FITC', 
-    'R23 210_1A1_C3_IND-FITC', 
-    'R23 210_1A1_IgG_IND-FITC', 
-    'R23_187_2A1_C3-FITC', 
-    'R23_187_2A1_IgA-FITC'
+    'R22-157 C3', no
+    'R22-168 C3', no
+    'R23 209_2A1_KAPPA-FITC', no
+    'R23_192_1A1_IgA_ind-FITC', ok
+    'R23_207_1A1_C3-FITC', no
+    'R23_209_2A1_LAMBDA_FITC', no
+    'R23_223_2A1_C1q-FITC', ok
+    'R23_235_2A1_IgA-FITC', ok
+    'R23_235_2A1_IgG-FITC', ok
+    'R23_235_2A1_IgM-FITC', ok
+    'R23_240_2A1_IgG-FITC', no
+    'R24_03_1A1_C3-FITC', ok
+    'R24_27_2A1_IgA-FITC', ok
+    'R24_27_2A1_IgG-FITC', ok
+    'R23_222_1A1_C1q-FITC', ok
+    'R23_255_2A1_C3-FITC', ok
+    'R23_269_1A1_IGG-FITC', no
+    'R23_281_2A1_C1q-FITC', no
+    'R23_281_2A1_IgA-FITC', no
+    'R23_281_2A1_IgM-FITC', no
+    'R23_284_1A1_IGG-FITC', no
+    'R24_13_2A1_C3-FITC', no
+    'R24_20_1C5_C3c-FITC',no 
+    'R24_25_2A1_C3-FITC', no
+    'R24_45_2A1_C1q-FITC', no
+    'R24_45_2A1_IgA-FITC', no
+    'R24_45_2A1_IgG-FITC', no
+    'R24_45_2A1_IgM-FITC', no
+    'R22-181 C3', no
+    'R24_10_2A1_KAPPA-FITC', ok
+    'R24_10_2A1_LAMBDA-FITC', ok 
+    'R23 210_1A1_C3_IND-FITC', no
+    'R23 210_1A1_IgG_IND-FITC', no
+    'R23_187_2A1_C3-FITC', no
+    'R23_187_2A1_IgA-FITC' no
     
     """
     print('END!')   
 
     
 if __name__ == '__main__':
-    label = 'INTENS'
+    label = 'GLOBAL_SEGMENTAL'
     path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images'
   
     aggregate(path, label)
