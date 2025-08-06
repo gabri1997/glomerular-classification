@@ -15,9 +15,9 @@ Il processo parte dalle **Whole Slide Images (WSI)** originali fornite, da cui s
 ### 1.  Estrazione dei glomeruli dalle WSI
 
 - I glomeruli sono stati localizzati usando YOLO.
-- Le **bounding box** rilevate sono state salvate in: Train_scripts/Annotations/
+- Le **bounding box** rilevate sono state salvate in: `Train_scripts/Annotations/`
 
-- A partire da queste coordinate, tramite lo script: Train_scripts/glomeruli_generator_from_wsi.py
+- A partire da queste coordinate, tramite lo script: `Train_scripts/glomeruli_generator_from_wsi.py`
 
 sono state generate le immagini dei glomeruli a **livello 0 della WSI**.
 
@@ -28,7 +28,7 @@ sono state generate le immagini dei glomeruli a **livello 0 della WSI**.
 
 Dopo l’estrazione, è stato necessario **trasferire le annotazioni cliniche** (riferite all’intera WSI) ai singoli glomeruli.
 
-- Le annotazioni originali si trovano nel file: Train_scripts/Excels/IF score.xlsx
+- Le annotazioni originali si trovano nel file: `Train_scripts/Excels/IF score.xlsx`
 
 - La propagazione delle etichette è stata effettuata tramite lo script:
 
@@ -101,7 +101,7 @@ Per la classe **MESANGIALE**, sono stati utilizzati gli stessi file `.csv` prese
 
 I parametri rilevanti con cui sono stati replicati i risultati sui dati del paper sono i seguenti:
 
-| Parametro       | Valore     |
+| Parametro        | Valore     |
 |------------------|------------|
 | `dropout`        | `false`    |
 | `sampler`        | `false`    |
@@ -148,31 +148,29 @@ Gli esperimenti includono le seguenti variazioni e tecniche:
 
 Tutti gli esperimenti sono stati **loggati e confrontati su Weights & Biases (wandb)**.
 
----
-
 ###  Scelta del miglior setting
 
 Dopo aver confrontato gli esperimenti eseguiti su uno **split singolo random** (con `seed = 16`), è stato selezionato il miglior set di parametri sulla base dei grafici ottenuti.
 
 I risultati di questo esperimento si trovano nel file: 
 
-Train_scripts/Results/result_Seed16_MESANGIALE.json
+`Train_scripts/Results/result_Seed16_MESANGIALE.json`
 
 ###  K-Fold Cross-Validation
 
 Per validare il modello in modo più robusto, è stata eseguita una **K-Fold Cross-Validation** con `k=4`, sempre sui nuovi dati. Sono stati generati 4 fold (split casuali) nella directory:
 
-Train_scripts/Base_split_over_wsi/Cross_fold/
+`Train_scripts/Base_split_over_wsi/Cross_fold/`
 
 Per motivi di spazio, i **pesi generati** dal training sui 4 fold **non sono stati salvati** nel repository.
 
 I risultati dei test sui 4 fold sono stati salvati in:
 
-Train_scripts/Results/result_FoldSeed42_[['MESANGIALE']].json
+`Train_scripts/Results/result_FoldSeed42_[['MESANGIALE']].json`
 
 Per aggregare i risultati provenienti dai vari fold, è disponibile uno script Python:
 
-Train_scripts/Results/aggregate_fold_results.py
+`Train_scripts/Results/aggregate_fold_results.py`
 
 > Questo script consente di raccogliere i risultati dei 4 esperimenti e ottenere una media delle metriche più rilevanti.
 
