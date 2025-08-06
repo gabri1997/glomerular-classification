@@ -197,6 +197,7 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 | SEGMENTALE                       | 0.773 ± 0.125  | 0.176 ± 0.165  | 0.122 ± 0.169  | 0.101 ± 0.088  |
 
 > *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
+Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capillary wall regular discontinuous) non ci sono abbastanza esempi positivi. 
 
 
 
