@@ -16,7 +16,7 @@ Puoi scaricare i dati da Google Drive al seguente link:
 Questo repository contiene il codice e i dati utilizzati per **replicare i risultati** presentati nel seguente articolo scientifico:
 
 📄 **[Titolo del paper]**  
-🔗 **Link al paper**: [INSERISCI LINK QUI]
+🔗 **Link al paper**: [(https://pmc.ncbi.nlm.nih.gov/articles/PMC7536749/)]
 
 ---
 
