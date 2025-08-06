@@ -42,7 +42,7 @@ Pollastri_Glomeruli/folds_csv
 *.err
 *.out 
 *.pth
-!/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Paper_replicated_weights/resnet18_[['MESANGIALE']]_Old10_net.pth
+!Train_scripts/Paper_replicated_weights/resnet18_[['MESANGIALE']]_Old10_net.pth
 
 
 
