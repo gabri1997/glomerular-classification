@@ -365,16 +365,7 @@ def get_single_label(row, classes):
 def png_diapo(name):
     return name[:-4] + '.png'
 
-    # for i, c in enumerate(classes):  # classes = [[0,1],[2]]
-    #     for s_c in c:
-    #         if row[s_c].upper() == 'TRUE':  # row ['img', 'False', 'True', 'False', ...]
-    #             print(i + 1)
-    #             break
-    #     else:  # executed if the for does NOT break
-    #         continue
-    #     break  # executed if the for does BREAK
-    # else:  # executed if the for does NOT break
-    #     print(0)
+
 
 if __name__ == '__main__':
             

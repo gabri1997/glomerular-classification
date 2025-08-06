@@ -24,6 +24,35 @@ Normalization_corrected_comparison.json
 Lv0_Lv1_extraction_comparison.json
 Inference_scripts
 Script_per_analisi
+[['GEN_DIFF', 'FOC_GLOB']]_4k_test.csv
+[['GEN_DIFF', 'FOC_GLOB']]_4k_training.csv
+[['GEN_DIFF', 'FOC_GLOB']]_4k_validation.csv
+[['GEN_SEGM', 'FOC_SEGM']]_4k_test.csv
+[['GEN_SEGM', 'FOC_SEGM']]_4k_training.csv
+[['GEN_SEGM', 'FOC_SEGM']]_4k_validation.csv
+[['GRAN_FINE']]_4k_test.csv
+[['GRAN_FINE']]_4k_training.csv
+[['GRAN_FINE']]_4k_validation.csv
+[['GRAN_GROSS']]_4k_test.csv
+[['GRAN_GROSS']]_4k_training.csv
+[['GRAN_GROSS']]_4k_validation.csv
+[['INTENS']]_4k_test.csv
+[['INTENS']]_4k_training.csv
+[['INTENS']]_4k_validation.csv
+[['LIN', 'PSEUDOLIN']]_4k_test.csv
+[['LIN', 'PSEUDOLIN']]_4k_training.csv
+[['LIN', 'PSEUDOLIN']]_4k_validation.csv
+[['MESANGIALE']]_4k_test.csv
+[['MESANGIALE']]_4k_train_val_fused_for_split.csv
+[['PAR_IRREG']]_4k_training.csv
+[['PAR_IRREG']]_4k_validation.csv
+[['PAR_REGOL_CONT']]_4k_test.csv
+[['PAR_REGOL_CONT']]_4k_training.csv
+[['PAR_REGOL_CONT']]_4k_validation.csv
+[['PAR_REGOL_DISCONT']]_4k_test.csv
+[['PAR_REGOL_DISCONT']]_4k_training.csv
+[['PAR_REGOL_DISCONT']]_4k_validation.csv
+
 *.pt 
 *.pth 
 *.err
