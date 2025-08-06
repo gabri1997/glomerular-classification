@@ -179,6 +179,12 @@ Per aggregare i risultati provenienti dai vari fold, è disponibile uno script P
 - `Train_scripts/Results/result_MESANGIALE.json`: contiene prove preliminari effettuate durante la fase di replicazione del paper.  
   > ⚠️ **Può essere ignorato**.
 
+## Risultati finali a livello dei glomeruli - Cross Validation (4 Fold)
+
+I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riassunti nel seguente grafico:
+
+![Risultati sui 4 fold](assets/results_crossval_4fold.png)
+
 
 
 
