@@ -15,6 +15,13 @@ Train_scripts/Sbatch/
 Train_scripts/all_labels.csv
 Inference_scripts/Augmented_images_*/
 Train_scripts/DataLeakage*/
+in_both.csv
+inference.log
+normalization_comparison.json
+only_in_file1.csv
+only_in_file2.csv
+Normalization_corrected_comparison.json
+Lv0_Lv1_extraction_comparison.json
 
 *.pt 
 *.pth 
