@@ -58,7 +58,6 @@ Per le altre classi, una **WSI è considerata positiva** se:
 Il modello scelto per la classificazione è una **ResNet-18**, che verrà allenata sui **1.421 glomeruli estratti** per riconoscere le caratteristiche associate.  
 Le predizioni saranno valutate sia a livello di glomerulo, sia con la logica di **aggregazione a livello WSI**.
 
-
 ## Download dei dati esterni
 
 I dati di grandi dimensioni utilizzati in questo progetto non sono inclusi direttamente nel repository per motivi di spazio.
@@ -66,6 +65,8 @@ I dati di grandi dimensioni utilizzati in questo progetto non sono inclusi diret
 Puoi scaricare i dati da Google Drive al seguente link:
 
 [Download dataset (Google Drive)](https://drive.google.com/drive/folders/16ot_9aC8AH_lzr0gr3YE9ain1ZNVYlxk?usp=drive_link)
+
+![Esempio di glomerulo](Train_scripts/assets/R22-200 IgG_glomerulo_002.png) 
 
 > ⚠️ **Nota:** Assicurati di avere i permessi necessari per accedere al file.  
 > Se il link non funziona, contattami.
