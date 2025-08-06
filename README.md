@@ -183,7 +183,7 @@ Per aggregare i risultati provenienti dai vari fold, è disponibile uno script P
 
 I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riassunti nel seguente grafico:
 
-![Risultati sui 4 fold](assets/results_crossval_4fold.png)
+![Risultati sui 4 fold](Train_scripts/assets/results_crossval_4fold.png)
 
 
 
