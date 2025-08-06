@@ -9,22 +9,22 @@ Puoi scaricare i dati da Google Drive al seguente link:
 > ⚠️ **Nota:** Assicurati di avere i permessi necessari per accedere al file.  
 > Se il link non funziona, contattami.
 
-# 🧪 Replicazione Risultati - Segmentazione Glomeruli
+#  Replicazione Risultati - Segmentazione Glomeruli
 
-## 📌 Obiettivo del progetto
+##  Obiettivo del progetto
 
 Questo repository contiene il codice e i dati utilizzati per **replicare i risultati** presentati nel seguente articolo scientifico:
 
-📄 **Evaluation of the Classification Accuracy of the Kidney Biopsy Direct Immunofluorescence through Convolutional Neural Networks**  
+ **Evaluation of the Classification Accuracy of the Kidney Biopsy Direct Immunofluorescence through Convolutional Neural Networks**  
 🔗 **Link al paper**: [(https://pmc.ncbi.nlm.nih.gov/articles/PMC7536749/)]
 
 ---
 
-## ✅ Step 1 - Replicazione dei Risultati
+##  Step 1 - Replicazione dei Risultati
 
 L'obiettivo di questo primo step è stato **verificare sperimentalmente i risultati pubblicati**, seguendo la stessa pipeline descritta nel paper.
 
-### 🔬 Classe replicata: *MESANGIALE*
+###  Classe replicata: *MESANGIALE*
 
 Per la classe **MESANGIALE**, sono stati utilizzati gli stessi file `.csv` presenti nel paper. Questi file sono stati salvati nella cartella:
 
