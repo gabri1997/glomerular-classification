@@ -31,16 +31,18 @@ Pollastri_Glomeruli/folds_csv
 # NON ignorare la cartella stessa
 !Train_scripts/Files_old_Pollo/
 
+
 # NON ignorare i file specifici (con escape se necessario)
 !Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_training.csv
 !Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_validation.csv
 !Train_scripts/Files_old_Pollo/\[\['MESANGIALE'\]\]_4k_test.csv
-!/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Paper_replicated_weights
+!/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Paper_replicated_weights/resnet18_[['MESANGIALE']]_Old10_net.pth
 
 *.pt 
-*.pth 
 *.err
 *.out 
+*.pth
+!/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Paper_replicated_weights/resnet18_[['MESANGIALE']]_Old10_net.pth
 
 
 
