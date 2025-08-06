@@ -90,9 +90,9 @@ def generate_glomeruli_crop(image_input_folder, annotation_input_folder, output_
 if __name__ == "__main__":
 
     image_input_folder = '/work/grana_far2023_fomo/Data/HAMAMATSU'
-    annotation_input_folder = '/work/grana_far2023_fomo/Annotations/Coordinate_HAMAMATSU'
+    annotation_input_folder = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Annotations'
     output_folder = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Glomeruli_estratti_Lv0/HAMAMATSU'
-    info_yaml = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Inference_scripts/INFO_wsi_file_dictionary_ALL.yaml'
+    info_yaml = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/INFO_wsi_file_dictionary_ALL.yaml'
     generate_glomeruli_crop(image_input_folder, annotation_input_folder, output_folder)
-    # /nas/softechict-nas-2/fpollastri/data/istologia/files
+  
 

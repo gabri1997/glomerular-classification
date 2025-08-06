@@ -1,0 +1,138 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "0de76ef4-361d-4394-af60-576bfe23c7bd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [37493, 17519],
+            [38029, 17519],
+            [38029, 17971],
+            [37493, 17971],
+            [37493, 17519]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "cf763575-7db1-4c68-aa59-4c68a9058ce3",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [35730, 16270],
+            [36219, 16270],
+            [36219, 16681],
+            [35730, 16681],
+            [35730, 16270]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "6d6b5a82-b04a-48f3-bd77-2d479ef8f883",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [41440, 15636],
+            [41901, 15636],
+            [41901, 16069],
+            [41440, 16069],
+            [41440, 15636]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bcb1c27b-e4e2-4ae1-abe0-762d0a841ac6",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [38480, 16327],
+            [38802, 16327],
+            [38802, 16607],
+            [38480, 16607],
+            [38480, 16327]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "7a233451-3d21-434d-b8fd-d4653fc25b13",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34977, 16018],
+            [35509, 16018],
+            [35509, 16440],
+            [34977, 16440],
+            [34977, 16018]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "4a1736e1-4db1-4054-a726-d0374318d20c",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5390, 12977],
+            [5766, 12977],
+            [5766, 13337],
+            [5390, 13337],
+            [5390, 12977]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "4c291198-844c-4571-9d54-96cdafa5e98b",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [3495, 12600],
+            [3995, 12600],
+            [3995, 13016],
+            [3495, 13016],
+            [3495, 12600]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "684ef165-59a4-4816-a351-9060165cf9a7",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [14644, 14466],
+            [15632, 14466],
+            [15632, 15294],
+            [14644, 15294],
+            [14644, 14466]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    }
+  ]
+}

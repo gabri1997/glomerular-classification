@@ -1,0 +1,100 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "c5373c10-9870-4276-a807-87f294675120",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [12228, 9156],
+            [12657, 9156],
+            [12657, 9497],
+            [12228, 9497],
+            [12228, 9156]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "b8d277c9-9e42-4715-be4a-f627653b3f20",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [12916, 8671],
+            [13406, 8671],
+            [13406, 9114],
+            [12916, 9114],
+            [12916, 8671]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "24893a73-8570-4560-a740-d0db828016bd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [11659, 9212],
+            [12065, 9212],
+            [12065, 9607],
+            [11659, 9607],
+            [11659, 9212]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "2a979b63-cf7a-4f41-afb4-14b2f1bd9a50",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [16372, 6602],
+            [16799, 6602],
+            [16799, 6955],
+            [16372, 6955],
+            [16372, 6602]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "64564e91-ff14-418c-baed-69dd0ab4906c",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5896, 5056],
+            [6432, 5056],
+            [6432, 5458],
+            [5896, 5458],
+            [5896, 5056]
+          ]
+        ]
+      },
+      "properties": {
+        "objectType": "annotation"
+      }
+    }
+  ]
+}
