@@ -24,8 +24,13 @@ Normalization_corrected_comparison.json
 Lv0_Lv1_extraction_comparison.json
 Inference_scripts
 Script_per_analisi
-Train_scripts/Files_old_Pollo/*
+# Ignora tutto nella cartella
+Train_scripts/Files_old_Pollo/**
 
+# NON ignorare la cartella stessa
+!Train_scripts/Files_old_Pollo/
+
+# NON ignorare i file specifici (con escape se necessario)
 !Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_training.csv
 !Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_validation.csv
 !Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_test.csv
