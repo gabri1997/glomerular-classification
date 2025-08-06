@@ -183,9 +183,21 @@ Per aggregare i risultati provenienti dai vari fold, è disponibile uno script P
 
 ## Risultati finali a livello dei glomeruli - Cross Validation (4 Fold)
 
-I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riassunti nel seguente grafico:
+I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riassunti nella seguente tabella:
 
-![Risultati sui 4 fold](Train_scripts/assets/results_crossval_4fold.png)
+| Classe                           | Accuracy       | Precision      | Recall         | F1-Score       |
+|----------------------------------|----------------|----------------|----------------|----------------|
+| MESANGIALE                       | 0.724 ± 0.050  | 0.810 ± 0.120  | 0.757 ± 0.093  | 0.776 ± 0.036  |
+| GRAN_GROSS                       | 0.629 ± 0.102  | 0.676 ± 0.160  | 0.725 ± 0.050  | 0.696 ± 0.111  |
+| GRAN_FINE                        | 0.702 ± 0.059  | 0.585 ± 0.123  | 0.566 ± 0.183  | 0.565 ± 0.138  |
+| PARETE REGOLARE DISCONTINUA      | —              | —              | —              | —              |
+| PARETE REGOLARE CONTINUA         | 0.735 ± 0.073  | 0.612 ± 0.252  | 0.585 ± 0.236  | 0.592 ± 0.232  |
+| PARETE IRREGOLARE                | 0.658 ± 0.063  | 0.595 ± 0.030  | 0.632 ± 0.087  | 0.611 ± 0.053  |
+| GLOBALE                          | 0.802 ± 0.099  | 0.876 ± 0.068  | 0.908 ± 0.087  | 0.892 ± 0.067  |
+| SEGMENTALE                       | 0.773 ± 0.125  | 0.176 ± 0.165  | 0.122 ± 0.169  | 0.101 ± 0.088  |
+
+> *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
+
 
 
 
