@@ -24,33 +24,11 @@ Normalization_corrected_comparison.json
 Lv0_Lv1_extraction_comparison.json
 Inference_scripts
 Script_per_analisi
-Train_scripts/Files_old_Pollo/[['GEN_DIFF', 'FOC_GLOB']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['GEN_DIFF', 'FOC_GLOB']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['GEN_DIFF', 'FOC_GLOB']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['GEN_SEGM', 'FOC_SEGM']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['GEN_SEGM', 'FOC_SEGM']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['GEN_SEGM', 'FOC_SEGM']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['GRAN_FINE']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['GRAN_FINE']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['GRAN_FINE']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['GRAN_GROSS']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['GRAN_GROSS']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['GRAN_GROSS']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['INTENS']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['INTENS']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['INTENS']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['LIN', 'PSEUDOLIN']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['LIN', 'PSEUDOLIN']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['LIN', 'PSEUDOLIN']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_train_val_fused_for_split.csv
-Train_scripts/Files_old_Pollo/[['PAR_IRREG']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['PAR_IRREG']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_CONT']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_CONT']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_CONT']]_4k_validation.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_DISCONT']]_4k_test.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_DISCONT']]_4k_training.csv
-Train_scripts/Files_old_Pollo/[['PAR_REGOL_DISCONT']]_4k_validation.csv
+Train_scripts/Files_old_Pollo/
+
+!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_training.csv
+!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_validation.csv
+!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_test.csv
 
 *.pt 
 *.pth 
