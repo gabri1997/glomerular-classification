@@ -26,9 +26,10 @@ Inference_scripts
 Script_per_analisi
 Train_scripts/Files_old_Pollo/*
 
-!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_training.csv
-!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_validation.csv
-!Train_scripts/Files_old_Pollo/[['MESANGIALE']]_4k_test.csv
+!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_training.csv
+!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_validation.csv
+!Train_scripts/Files_old_Pollo/\[\[MESANGIALE\]\]_4k_test.csv
+
 
 *.pt 
 *.pth 
