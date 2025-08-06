@@ -66,7 +66,8 @@ Puoi scaricare i dati da Google Drive al seguente link:
 
 [Download dataset (Google Drive)](https://drive.google.com/drive/folders/16ot_9aC8AH_lzr0gr3YE9ain1ZNVYlxk?usp=drive_link)
 
-![Esempio di glomerulo](Train_scripts/assets/R22-200 IgG_glomerulo_002.png) 
+![Esempio di glomerulo](Train_scripts/assets/R22-200%20IgG_glomerulo_002.png)
+
 
 > ⚠️ **Nota:** Assicurati di avere i permessi necessari per accedere al file.  
 > Se il link non funziona, contattami.
