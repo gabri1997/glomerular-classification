@@ -1,0 +1,46 @@
+[
+    {
+        "Fold": 0,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6835106382978723,
+        "Precision": 0.7734627581403639,
+        "Recall": 0.8298610822964902,
+        "Fscore": 0.800664996145162,
+        "Conf_matrix": "[[TN=18 FP=70]\n                                [FN=49 TP=239]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_0/resnet18_[['GLOB', 'SEGM']]_New_0_net.pth"
+    },
+    {
+        "Fold": 1,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7573221757322176,
+        "Precision": 0.9109947167018473,
+        "Recall": 0.8093022879394285,
+        "Fscore": 0.8571378324199459,
+        "Conf_matrix": "[[TN=7 FP=17]\n                                [FN=41 TP=174]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_1/resnet18_[['GLOB', 'SEGM']]_New_1_net.pth"
+    },
+    {
+        "Fold": 2,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.8886138613861386,
+        "Precision": 0.8994845128998837,
+        "Recall": 0.9830985638563785,
+        "Fscore": 0.9394297086936724,
+        "Conf_matrix": "[[TN=10 FP=39]\n                                [FN=6 TP=349]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_2/resnet18_[['GLOB', 'SEGM']]_New_2_net.pth"
+    },
+    {
+        "Fold": 3,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.8805970149253731,
+        "Precision": 0.9170984218368285,
+        "Recall": 0.9567567308984668,
+        "Fscore": 0.9365029139988447,
+        "Conf_matrix": "[[TN=0 FP=32]\n                                [FN=16 TP=354]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_3/resnet18_[['GLOB', 'SEGM']]_New_3_net.pth"
+    }
+]

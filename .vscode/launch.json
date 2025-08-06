@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Current File",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "cwd": "/work/grana_far2023_fomo/Pollastri_Glomeruli",
+        "console": "integratedTerminal",
+        "justMyCode": false,
+      }
+    ]
+  }
+  

@@ -1,0 +1,46 @@
+[
+    {
+        "Fold": 0,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6702127659574468,
+        "Precision": 0.1538461242603607,
+        "Recall": 0.09090908057851357,
+        "Fscore": 0.11428102876210652,
+        "Conf_matrix": "[[TN=244 FP=44]\n                            [FN=80 TP=8]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_0/resnet18_[['SEGM']]_New_0_net.pth"
+    },
+    {
+        "Fold": 1,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6610878661087866,
+        "Precision": 0.15277775655864492,
+        "Recall": 0.35483859521335637,
+        "Fscore": 0.21358798386994143,
+        "Conf_matrix": "[[TN=147 FP=61]\n                            [FN=20 TP=11]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_1/resnet18_[['SEGM']]_New_1_net.pth"
+    },
+    {
+        "Fold": 2,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.8836633663366337,
+        "Precision": 0.39999920000160005,
+        "Recall": 0.04347825141777143,
+        "Fscore": 0.07842957327841704,
+        "Conf_matrix": "[[TN=355 FP=3]\n                            [FN=44 TP=2]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_2/resnet18_[['SEGM']]_New_2_net.pth"
+    },
+    {
+        "Fold": 3,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.8805970149253731,
+        "Precision": 0.0,
+        "Recall": 0.0,
+        "Fscore": 0.0,
+        "Conf_matrix": "[[TN=354 FP=25]\n                            [FN=23 TP=0]]",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/fold_3/resnet18_[['SEGM']]_New_3_net.pth"
+    }
+]
