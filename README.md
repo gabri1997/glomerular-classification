@@ -118,6 +118,7 @@ I parametri rilevanti con cui sono stati replicati i risultati sui dati del pape
 
 
 Questi pesi sono stati utilizzati per valutare le prestazioni del modello replicato sui dati del paper.
+I pesi si trovano nella cartella `Train_scripts/Paper_replicated_weights`
 
 ### Metriche ottenute
 
@@ -127,6 +128,7 @@ Questi pesi sono stati utilizzati per valutare le prestazioni del modello replic
 | Precision   | 0.680      |
 | Recall      | 0.737      |
 | F1-score    | 0.707      |
+
 
 ##  Step 2 - Esperimenti su nuove WSI
 
