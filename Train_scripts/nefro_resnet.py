@@ -1,40 +1,31 @@
 import os
 import csv
 import cv2
+import sys
 import time
 import json
-from matplotlib.path import Path
-from torch.utils.data import Subset
-from collections import defaultdict
-import matplotlib.pyplot as plt
-import numpy as np
+import wandb
 import torch
 import random
 import argparse
+import datetime
 import numpy as np
 import imgaug as ia
 from torch import nn
-from collections import Counter
+import seaborn as sns
 from torchvision import models
 import matplotlib.pyplot as plt
+from collections import Counter
 import torch.nn.functional as F
 from torchvision import transforms
 from torch.autograd import Variable
+from torch.utils.data import Subset
+from collections import defaultdict
+from pathlib import Path as FilePath
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 import nefro_dataset as nefro_4k_and_diapo
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 from sklearn.metrics import confusion_matrix
-import sys
-from pathlib import Path as FilePath
-import wandb
-import os
-from sklearn.metrics import roc_auc_score, RocCurveDisplay
-import numpy as np
-import datetime
-import ast
 from torch.utils.data import WeightedRandomSampler
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -47,8 +38,6 @@ from calibration.utils_calibration import (
 from calibration.grad_cam import GradCam, GuidedBackprop, save_gradient_images
 from calibration.utils_nnets import categorical_to_one_hot
 import Inference_scripts.nefro_dataset as nefro
-
-#from Pollastri_Glomeruli.new_pg_GAN.progressBar import printProgressBar
 
 
 
@@ -399,14 +388,6 @@ class NefroNet():
                                                     num_workers=self.n_workers,
                                                     drop_last=False,
                                                     pin_memory=True)
-
-           
-            # self.eval_data_loader_diapo = DataLoader(eval_dataset_diapo,
-            #                                      batch_size=self.batch_size,
-            #                                      shuffle=False,
-            #                                      num_workers=self.n_workers,
-            #                                      drop_last=False,
-            #                                      pin_memory=True)
 
 
             self.eval_data_loader_4k = DataLoader(eval_dataset_4k,
@@ -989,19 +970,11 @@ class NefroNet():
             losses = []
             start_time = time.time()
             for i, (x, target, _) in enumerate(self.data_loader):
-                # measure data loading time
-                # print("data time: " + str(time.time() - start_time))
-
+            
                 # compute output
                 x = x.to('cuda')
                 target = target.to('cuda')
                 #print(f"Target values unique: {torch.unique(target.cpu())}")
-
-                # if self.num_classes == 1:
-                #     target = target.to('cuda', torch.float)
-                #     self.criterion.weight = get_weights(target)
-                # else:
-                #     target = target.to('cuda', torch.long)
 
                 output = torch.squeeze(self.n(x))
                 intensity_prob = F.softmax(output, dim=1)
@@ -1016,12 +989,6 @@ class NefroNet():
                 loss.backward()
                 self.optimizer.step()
 
-                # # measure elapsed time
-                # printProgressBar(i + 1, total + 1,
-                #                  length=20,
-                #                  prefix=f'Epoch {epoch} ',
-                #                  suffix=f', loss: {loss.item()res = (check_output > 0.5).float() * 1:.3f}'
-                #                  )
 
             print('Epoch: ' + str(epoch) + ' | loss: ' + str(np.mean(losses)) + ' | time: ' + str(
                 time.time() - start_time))
@@ -1033,9 +1000,6 @@ class NefroNet():
                 print('Facciamo una verifica sul test_set: ')
                 print('Dataset 4k: ')
                 self.eval_intensity(self.eval_data_loader_4k, epoch=epoch)
-                # print('diapo: ')
-                # self.eval_intensity(self.eval_data_loader_diapo, epoch=epoch)
-
 
     def eval(self, d_loader, epoch, fold, write_flag=False):
         val_losses = []
@@ -1071,9 +1035,6 @@ class NefroNet():
                     if self.val_loss == 'True':
                         loss = self.criterion(output, target)
                         val_losses.append(loss.item())
-
-                    #y_scores_all.extend(check_output[:, 1].cpu().numpy().tolist())
-                    #res = (check_output[:, 1] > self.thresh).int()
 
                 # tr_target = target * s2 - 1  # only for custom F1 computation, fa riportare tr_target in dominio {-1, +1}
                 tr_target = target
@@ -1128,9 +1089,6 @@ class NefroNet():
             pr = tp / (predicted_positives + 1e-5)
             cm = confusion_matrix(y_true_all, y_pred_all)
             print('Questa è la confusion matrix : ', cm)
-
-            #pr = tr_trues / (trues + 1e-5)
-            #rec = tr_trues / (g_trues + 1e-5)
 
             fscore = (2 * pr * rec) / (pr + rec + 1e-5)
             accuracy = acc / len(d_loader.dataset)
@@ -1242,7 +1200,6 @@ class NefroNet():
                     print(type(conf_matrix.conf_matrix))
                     cm_array = conf_matrix.conf_matrix
 
-                    # Plot con seaborn
                     plt.figure(figsize=(8, 6))
                     sns.heatmap(cm_array, annot=True, fmt='d', xticklabels=['0', '0.5', '1', '1.5', '2', '2.5', '3'],
                                 yticklabels=['0', '0.5', '1', '1.5', '2', '2.5', '3'], cmap='Blues')
@@ -1250,7 +1207,6 @@ class NefroNet():
                     plt.ylabel("True")
                     plt.title("Confusion Matrix")
 
-                    # Log as image
                     wandb.log({"confusion_matrix_image": wandb.Image(plt)}, step=epoch)
                     plt.close()
 
@@ -1485,128 +1441,6 @@ class NefroNet():
         if write_flag:
             self.close_html(stats_string)
 
-    def save_outs(self, write_flag=False):
-        with torch.no_grad():
-
-            sofmx = nn.Softmax(dim=1)
-            trues = 0
-            tr_trues = 0
-            acc = 0
-            n_samples = len(self.eval_data_loader_4k.dataset)
-            if self.num_classes == 7:
-                outs = np.zeros((n_samples, 2))
-            else:
-                outs = np.zeros((n_samples, self.num_classes + 1))
-
-            self.n.eval()
-
-            start_time = time.time()
-            for i, (x, target, img_name) in enumerate(self.eval_data_loader_4k):
-                # measure data loading time
-                # print("data time: " + str(time.time() - start_time))
-
-                # compute output
-                x = x.to('cuda')
-                output = torch.squeeze(self.n(x))
-
-                target = target.to('cuda', torch.long)
-                check_output = sofmx(output)
-                _, res = torch.max(check_output, 1)
-
-                tr_target = target * 2
-                tr_target = tr_target - 1
-                tr_trues += sum(res == tr_target).item()
-                trues += sum(res).item()
-                acc += sum(res == target).item()
-                n_start = i * self.eval_data_loader_4k.batch_size
-
-                if self.num_classes == 7:
-                    intensity_values = torch.arange(7).float().cuda()
-                    intensity_values /= 2
-                    intensity_expect = torch.sum(intensity_values * check_output, 1)
-                    t_intensity_expect = torch.round(intensity_expect * 2) / 2
-                    temp_out = np.array(t_intensity_expect.cpu())[:, None]
-                else:
-                    temp_out = np.array(check_output.cpu())
-
-                temp_out = np.hstack((temp_out, np.array(target.cpu()[:, None])))
-                outs[n_start:n_start + target.shape[0]] = temp_out
-
-            pr = tr_trues / (trues + 10e-5)
-            rec = tr_trues / 375
-            fscore = (2 * pr * rec) / (pr + rec + 10e-5)
-            stats_string = 'Test set = Acc: ' + str(acc / 1000.0) + ' | F1 Score: ' + str(
-                fscore) + ' | Precision: ' + str(
-                pr) + ' | Recall: ' + str(rec) + ' | Trues: ' + str(trues) + ' | Correct Trues: ' + str(
-                tr_trues) + ' | time: ' + str(time.time() - start_time)
-            print(stats_string)
-            if write_flag:
-                path = '/nas/softechict-nas-2/fpollastri/data/istologia/out_files/'
-                np.savetxt(path + str(self.lbl_name) + '_outs.csv', outs, delimiter=',')
-
-    def calibration_write_html(self):
-        imgs = np.load(files_path + 'sorted_by_calibrated_probability_' + str(self.lbl_name) + '.npy')
-        names, targets = nefro_4k_and_diapo.Nefro.read_csv('test', self.lbl_name)
-        gts = []
-        preds = []
-        with open(files_path + 'densenet_' + str(self.lbl_name) + '_test_gts.csv') as csvfile:
-            readCSV = csv.reader(csvfile, delimiter=',')
-            for row in readCSV:
-                gts.append(int(row[1][0]))
-
-        with open(files_path + 'densenet_' + str(self.lbl_name) + '_test_preds.csv') as csvfile:
-            readCSV = csv.reader(csvfile, delimiter=',')
-            for row in readCSV:
-                p0, p1 = float(row[0]), float(row[1])
-                preds.append(np.argmax(np.array([p0, p1])))
-
-        ninds = imgs[:, 0].astype(int)
-        pnames = np.array(names)
-        pnames = pnames[ninds]
-        ppreds = np.array(preds)
-        ppreds = ppreds[ninds]
-        pgts = np.array(gts)
-        pgts = pgts[ninds]
-        self.create_html(csvfname='_calibration')
-
-        self.write_html_cal(img_name=pnames, cal=imgs[:, 1], uncal=imgs[:, 2], preds=ppreds, gts=pgts,
-                            csvfname='_calibration')
-
-        self.close_html('', csvfname='_calibration')
-
-    def paper_figure(self):
-        imgs = np.load(files_path + 'sorted_by_calibrated_probability_' + self.lbl_name + '.npy')
-        names, targets = nefro_4k_and_diapo.Nefro.read_csv('test', self.lbl_name)
-        gts = []
-        preds = []
-        with open(files_path + 'densenet_' + self.lbl_name + '_test_gts.csv') as csvfile:
-            readCSV = csv.reader(csvfile, delimiter=',')
-            for row in readCSV:
-                gts.append(int(row[1][0]))
-
-        with open(files_path + 'densenet_' + self.lbl_name + '_test_preds.csv') as csvfile:
-            readCSV = csv.reader(csvfile, delimiter=',')
-            for row in readCSV:
-                p0, p1 = float(row[0]), float(row[1])
-                preds.append(np.argmax(np.array([p0, p1])))
-
-        ninds = imgs[:, 0].astype(int)
-        pnames = np.array(names)
-        pnames = pnames[ninds]
-        ppreds = np.array(preds)
-        ppreds = ppreds[ninds]
-        pgts = np.array(gts)
-        pgts = pgts[ninds]
-
-        pnames = ['7F5ZB850_F00024770.tif', '7F5ZB850_F00011264.tif', '7F5ZB850_F00017607.tif',
-                  '7F5ZB850_F00009726.tif', '7F5ZB850_F00022664.tif']
-
-        self.create_html(csvfname='_papefig_yy')
-
-        self.write_html_cal(img_name=pnames, cal=imgs[:, 1], uncal=imgs[:, 2], preds=ppreds, gts=pgts,
-                            csvfname='_papefig_yy')
-
-        self.close_html('', csvfname='_papefig_yy')
 
     def eval_calibration(self, dset='test', write_flag=False):
         with torch.no_grad():
@@ -1710,70 +1544,6 @@ class NefroNet():
                             preds_writer.writerow(logits_t.squeeze().tolist()[i])
                             lbls_writer.writerow(acc_t.squeeze().tolist()[i])
 
-    def create_html(self, csvfname=''):
-        ffname = files_path + self.net + "_" + str(self.lbl_name) + csvfname + ".html"
-        with open(ffname, 'w+') as f:
-            f.write(
-                '<!DOCTYPE html> <html> <head> <title>' + os.path.basename(
-                    ffname) + '</title> </head> <body> <h1>' + self.net + ' on ' + str(
-                    self.lbl_name) + '</h1>' + '<table>'
-                # + '<col width="1000"><col width="1000"><col width="1000"><col width="1000"><col width="1000">' +
-                # '<col width="1000">'
-            )
-
-    def write_html(self, img_name, target, res, conf, csvfname=''):
-        ffname = files_path + self.net + "_" + str(self.lbl_name) + csvfname + ".html"
-        for i in range(len(img_name)):
-            pngname = 'png/' + os.path.basename(img_name[i])[:-4] + '.png'
-            cam0name = 'GradCam/' + os.path.basename(img_name[i])[:-4] + str(self.lbl_name) + '_cls0_cam.png'
-            cam1name = 'GradCam/' + os.path.basename(img_name[i])[:-4] + str(self.lbl_name) + '_cls1_cam.png'
-            correct = target[i] == res[i]
-            lbl = get_label(target[i], correct)
-            pred = get_label(res[i], correct)
-            confidence = get_conf(conf[i].item(), correct)
-            with open(ffname, 'a') as f:
-                f.write(
-                    '<tr>' +
-                    ' <td> <font size=\"7\">' + os.path.basename(img_name[i])[:-4] + '</font> </td>' +
-                    ' <td> <img src=\"' + pngname + '\" width=\"512px\" height=\"512px\"> </td>' +
-                    ' <td> <img src=\"' + cam1name + '\" width=\"512px\" height=\"512px\"> </td>' +
-                    ' <td> <img src=\"' + cam0name + '\" width=\"512px\" height=\"512px\"> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> ' + str(self.lbl_name) + '</font></td> </tr>' + lbl +
-                    ' </table> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> Predizione </font> </td> </tr>' + pred + '</table> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> Confidence </font> </td> </tr>' + confidence + '</table> </td>' +
-                    '</tr>')
-
-    def write_html_cal(self, img_name, cal, uncal, preds, gts, csvfname=''):
-        ffname = files_path + self.net + "_" + str(self.lbl_name) + csvfname + ".html"
-        for i in range(len(img_name)):
-            pngname = 'nefro_png/' + img_name[i][:-4] + '.png'
-            correct = (preds[i]) == (gts[i])
-            lbl = get_label(gts[i], correct)
-            pred = get_label(preds[i], correct)
-            with open(ffname, 'a') as f:
-                f.write(
-                    '<tr>' +
-                    ' <td> <font size=\"7\">' + img_name[i][:-4] + '</font> </td>' +
-                    ' <td> <img src=\"' + pngname + '\" width=\"512px\" height=\"512px\"> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> Calibrated </font> </td> </tr>' + '<tr>' +
-                    '<td> <font size=\"7\">' + str(cal[i])[:5] + '</font> </td>' +
-                    '</tr>' + '</table> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> Uncalibrated </font> </td> </tr>' + '<tr>' +
-                    '<td> <font size=\"7\">' + str(uncal[i])[:5] + '</font> </td>' +
-                    '</tr>' + '</table> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> ' + 'GroundTruth' + '</font></td> </tr>' + '<tr>' +
-                    lbl +
-                    '</tr>' + ' </table> </td>' +
-                    '<td> <table> <tr> <td> <font size=\"7\"> Prediction </font> </td> </tr>' + '<tr>' +
-                    pred +
-                    '</tr>' + '</table> </td>' +
-                    '</tr>')
-
-    def close_html(self, stats, csvfname=''):
-        ffname = files_path + self.net + "_" + str(self.lbl_name) + csvfname + ".html"
-        with open(ffname, 'a') as f:
-            f.write('</table> <h1> ' + stats + ' </h1> </body> </html>')
 
     def write_csv(self, img_name, target, res, conf):
         for i in range(len(img_name)):
@@ -1999,201 +1769,6 @@ class NefroNet():
                            nrow=1, pad_value=0)
                 print(os.path.basename(data[2][0])[:-4] + "saved")
         print(cntr)
-
-# Funzione per pesare la Loss function 
-def get_weights(target):
-    # 0.9 for True, 0.2 for Falses
-    #weights = target * 0.7
-    weights = target * 0.2
-    weights += 0.
-    return weights
-
-def split_dataset(label, w4k=False, wdiapo=False, n_trues_test=375, n_test=1000, n_trues_val=100, n_val=200,
-                  custom_name=""):
-    # dataset = nefro.Nefro(load=False)
-    if w4k:
-        if wdiapo:
-            csv_file_name = nefro_4k_and_diapo.Nefro.splitsdic.get('images')
-        else:
-            csv_file_name = nefro_4k_and_diapo.Nefro.splitsdic.get('4k')
-    elif wdiapo:
-        csv_file_name = nefro_4k_and_diapo.Nefro.splitsdic.get('diapo')
-    else:
-        raise ValueError("no dataset to split (w4k and wdiapo are both set to False)")
-
-    # dataset = nefro_4k_and_diapo.Nefro(split='everything', label_name=label)
-    # lbl_idx = dataset.flagsdic.get(label)
-    lbl_idxs = [nefro_4k_and_diapo.Nefro.flagsdic.get(l) for l in label[0]]
-    d = {}
-    trues = 0
-    falses = 0
-    training = {}
-    test = {}
-    val = {}
-    with open(csv_file_name) as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        for row in readCSV:
-            t_flag = False
-            for lbl_idx in lbl_idxs:
-                if row[lbl_idx] == 'True' or row[lbl_idx] == 'TRUE':
-                    t_flag = True
-            d[row[0]] = str(t_flag)
-    print(len(d))
-    while len(test) < n_test:
-        n = random.choice(list(d.keys()))
-        if (d.get(n) == 'True' or d.get(n) == 'TRUE') and trues < n_trues_test and n not in test:
-            test[n] = d.get(n)
-            trues += 1
-        elif (d.get(n) == 'False' or d.get(n) == 'FALSE') and falses < 1000 - n_trues_test and n not in test:
-            test[n] = d.get(n)
-            falses += 1
-
-    s = set(test.keys())
-    print('test:' + str(len(s)))
-    trues = 0
-    falses = 0
-
-    while len(val) < n_val:
-        n = random.choice(list(d.keys()))
-        if (d.get(n) == 'True' or d.get(n) == 'TRUE') and trues < n_trues_val and n not in test and n not in val:
-            val[n] = d.get(n)
-            trues += 1
-        elif (d.get(n) == 'False' or d.get(
-                n) == 'FALSE') and falses < 500 - n_trues_val and n not in test and n not in val:
-            val[n] = d.get(n)
-            falses += 1
-
-    s = set(val.keys())
-    print('val:' + str(len(s)))
-
-    for el in d:
-        if el not in test and el not in val:
-            training[el] = d[el]
-    s = set(training.keys())
-    print('training:' + str(len(s)))
-
-    with open(csv_file_name) as csvfile, open(
-            nefro_4k_and_diapo.Nefro.get_split_name(label, w4k, wdiapo, 'test', custom_name), 'w',
-            newline='') as testfile, open(
-        nefro_4k_and_diapo.Nefro.get_split_name(label, w4k, wdiapo, 'training', custom_name), 'w',
-        newline='') as trainfile, open(
-        nefro_4k_and_diapo.Nefro.get_split_name(label, w4k, wdiapo, 'validation', custom_name), 'w',
-        newline='') as valfile:
-        # open(files_path + split_name + label + '_test.csv', 'w', newline='') as testfile,
-        readCSV = csv.reader(csvfile, delimiter=',')
-        test_writer = csv.writer(testfile, delimiter=',')
-        train_writer = csv.writer(trainfile, delimiter=',')
-        val_writer = csv.writer(valfile, delimiter=',')
-        for row in readCSV:
-            if row[0] not in d:
-                continue
-            else:
-                del d[row[0]]
-            if row[0] in test:
-                test_writer.writerow(row)
-            elif row[0] in val:
-                val_writer.writerow(row)
-            elif row[0] in training:
-                train_writer.writerow(row)
-            else:
-                print(row)
-
-
-def merge_datasets(label):
-    splits = ['training', 'validation', 'test']
-
-    for split in splits:
-        names_l = []
-        names_l.append(nefro_4k_and_diapo.Nefro.get_split_name(label=label, w4k=True, wdiapo=False, split=split))
-        names_l.append(nefro_4k_and_diapo.Nefro.get_split_name(label=label, w4k=False, wdiapo=True, split=split))
-        new_name = nefro_4k_and_diapo.Nefro.get_split_name(label=label, w4k=True, wdiapo=True, split=split)
-
-        with open(new_name, 'w', newline='') as csvfile:
-            csv_writer = csv.writer(csvfile, delimiter=',')
-            for name in names_l:
-                with open(name) as readfile:
-                    readCSV = csv.reader(readfile, delimiter=',')
-                    for row in readCSV:
-                        csv_writer.writerow(row)
-
-
-def split_dataset_morelabels(labels, name='multilabels'):
-    dataset = nefro_4k_and_diapo.Nefro(load=False)
-    lbl_idxs = []
-    for label in labels:
-        lbl_idxs.append(dataset.flagsdic.get(label))
-    d = {}
-    trues = 0
-    falses = 0
-    training = {}
-    val = {}
-    test = {}
-    t_count = 0
-    with open(files_path + 'whole_dataset_labels.csv') as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        for row in readCSV:
-            d[row[0]] = 'False'
-            for lbl_idx in lbl_idxs:
-                if row[lbl_idx] == 'True':
-                    d[row[0]] = row[lbl_idx]
-                    t_count += 1
-                    break
-    print(len(d))
-    print('of wich ' + str(t_count) + ' are true')
-
-    while len(test) < 1000:
-        n = random.choice(list(d.keys()))
-        if d.get(n) == 'True' and trues < 450 and n not in test:
-            test[n] = d.get(n)
-            trues += 1
-        elif d.get(n) == 'False' and falses < 550 and n not in test:
-            test[n] = d.get(n)
-            falses += 1
-
-    s = set(test.keys())
-    print('test:' + str(len(s)))
-    trues = 0
-    falses = 0
-
-    while len(val) < 500:
-        n = random.choice(list(d.keys()))
-        if d.get(n) == 'True' and trues < 150 and n not in test and n not in val:
-            val[n] = d.get(n)
-            trues += 1
-        elif d.get(n) == 'False' and falses < 350 and n not in test and n not in val:
-            val[n] = d.get(n)
-            falses += 1
-
-    s = set(val.keys())
-    print('val:' + str(len(s)))
-
-    for el in d:
-        if el not in test and el not in val:
-            training[el] = d[el]
-    s = set(training.keys())
-    print('training:' + str(len(s)))
-
-    with open(files_path + 'whole_dataset_labels.csv') as csvfile, \
-            open(files_path + name + '_test.csv', 'w', newline='') as testfile, \
-            open(files_path + name + '_training.csv', 'w', newline='') as trainfile, \
-            open(files_path + name + '_validation.csv', 'w', newline='') as valfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        test_writer = csv.writer(testfile, delimiter=',')
-        train_writer = csv.writer(trainfile, delimiter=',')
-        val_writer = csv.writer(valfile, delimiter=',')
-        for row in readCSV:
-            if row[0] not in d:
-                continue
-            else:
-                del d[row[0]]
-            if row[0] in test:
-                test_writer.writerow((row[0], test.get(row[0])))
-            elif row[0] in val:
-                val_writer.writerow((row[0], val.get(row[0])))
-            elif row[0] in training:
-                train_writer.writerow((row[0], training.get(row[0])))
-            else:
-                print(row)
 
 
 def write_on_file(epoch, training_cost, validation_acc, t_validation_acc, tm, filename):
