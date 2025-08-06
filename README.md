@@ -67,7 +67,7 @@ Questi pesi sono stati utilizzati per valutare le prestazioni del modello replic
 | Recall      | 0.737      |
 | F1-score    | 0.707      |
 
-## 🔁 Step 2 - Esperimenti su nuove WSI
+##  Step 2 - Esperimenti su nuove WSI
 
 Dopo aver replicato i risultati del paper originale (Step 1), sono stati condotti diversi esperimenti utilizzando la classe **MESANGIALE** su **glomeruli estratti da nuove Whole Slide Images (WSI)**.
 
@@ -119,3 +119,67 @@ Train_scripts/Results/aggregate_fold_results.py
 
 - `Train_scripts/Results/result_MESANGIALE.json`: contiene prove preliminari effettuate durante la fase di replicazione del paper.  
   > ⚠️ **Può essere ignorato**.
+
+#  Classificazione delle caratteristiche glomerulari da WSI
+
+##  Scopo del progetto
+
+Lo scopo del progetto è quello di **classificare caratteristiche glomerulari** legate a tre aspetti principali:
+
+- **Location**
+- **Appearance**
+- **Distribution**
+
+Il processo parte dalle **Whole Slide Images (WSI)** originali fornite, da cui sono stati **automaticamente estratti i glomeruli** attraverso un modello **YOLO**.
+
+##  Pipeline del progetto
+
+### 1.  Estrazione dei glomeruli dalle WSI
+
+- I glomeruli sono stati localizzati usando YOLO.
+- Le **bounding box** rilevate sono state salvate in: Train_scripts/Annotations/
+
+- A partire da queste coordinate, tramite lo script: Train_scripts/glomeruli_generator_from_wsi.py
+
+sono state generate le immagini dei glomeruli a **livello 0 della WSI**.
+
+- I glomeruli estratti sono **1.421 immagini** in formato `.png`.  
+ 
+
+### 2.  Assegnazione delle label ai glomeruli
+
+Dopo l’estrazione, è stato necessario **trasferire le annotazioni cliniche** (riferite all’intera WSI) ai singoli glomeruli.
+
+- Le annotazioni originali si trovano nel file: Train_scripts/Excels/IF score.xlsx
+
+- La propagazione delle etichette è stata effettuata tramite lo script:
+
+
+> ⚠️ Le etichette sono state fornite per l'intera WSI, **non** per il singolo glomerulo.  
+> Pertanto, **non tutti i glomeruli** ereditano perfettamente la caratteristica osservata a livello globale.
+
+
+## Strategia di aggregazione per la valutazione delle predizioni
+
+Poiché le caratteristiche sono state annotate a livello WSI, è stato necessario definire un criterio per **riaggregare le predizioni** fatte a livello di singolo glomerulo. I medici hanno fornito le seguenti regole:
+
+###  Classi "Segmentale" e "Globale"
+
+- Una **WSI è considerata Globale** se **≥ 70%** dei glomeruli positivi (con intensità ≥1) presenta tale caratteristica.
+- Una **WSI è considerata Segmentale** se **> 30%** dei glomeruli positivi presenta lesione segmentale  
+  (quindi Globale sarà < 70%).
+
+###  Tutte le altre classi
+
+Per le altre classi, una **WSI è considerata positiva** se:
+
+- **≥ 50%** dei glomeruli appartenenti a quella WSI ha la **caratteristica predetta**.
+
+
+##  Obiettivo del modello
+
+Il modello scelto per la classificazione è una **ResNet-18**, che verrà allenata sui **1.421 glomeruli estratti** per riconoscere le caratteristiche associate.  
+Le predizioni saranno valutate sia a livello di glomerulo, sia con la logica di **aggregazione a livello WSI**.
+
+
+
