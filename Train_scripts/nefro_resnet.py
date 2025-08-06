@@ -1601,36 +1601,6 @@ class NefroNet():
         c0_w = 1.0 / c0_w
         return c0_w, c1_w
 
-    
-    # Qui bisogna salvare i pesi con un identificativo di qualche tipo
-    # def save(self, fold):
-    #     # Questo serve per identificare se faccio esperimenti old o new 
-    #     if self.old_or_new_folder == 'Files_old_Pollo/':
-    #         nname = str(self.net) + '_' + str(self.lbl_name) + '_Old'
-    #     else:
-    #         nname = str(self.net) + '_' + str(self.lbl_name) + '_New'
-
-    #     if fold != None:
-    #         nname = nname + '_fold_' + str(fold) + '_'
-
-    #     if self.dropout:
-    #         nname = 'dropout_' + nname
-    #         # Questo serve per controllare se ci sono già pesi per quella classe e se ci sono mettere un numero incrementale per non sovrascriverli
-    #         # Questo per la prima epoca chiaramente, poi un volta creati i pesi nuovi si sovrascrivono
-    #     if not hasattr(self, 'base_index'):
-    #         i = self.incrementForFilename(nname)
-    #         self.base_index = i
-            
-    #     try:
-    #         save_dir_n = os.path.join(self.models_dir, nname + str(self.base_index) + '_net.pth')
-    #         torch.save(self.n.state_dict(), save_dir_n)
-    #         save_dir_optimizer = os.path.join(self.models_dir, nname + str(self.base_index) + '_opt.pth')
-    #         torch.save(self.optimizer.state_dict(), save_dir_optimizer)
-    #         print(f"Model weights successfully saved in {save_dir_n}")
-    #         return True
-    #     except Exception as e:
-    #         print(f"Error during Saving: {e}")
-    #         return False
 
     def save(self, fold=None):
 
