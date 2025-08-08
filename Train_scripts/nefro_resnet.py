@@ -1125,8 +1125,8 @@ class NefroNet():
             print('Doing GradCam ....')
             
             # Stampa i layer una sola volta per capire il numero giusto
-            # for idx, m in enumerate(self.n.modules()):
-            #     print(idx, m)
+            for idx, m in enumerate(self.n.modules()):
+                print(idx, m)
 
             grad_cam = GradCam(self.n, target_layer_names=["7"], use_cuda=True)
 
@@ -1867,9 +1867,17 @@ if __name__ == '__main__':
             """
             result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images/{opt.label}"
             folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
-            # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA, POI BISOGNA CAPIRE QUALE LAYER SELEZIONARE
-            #wsi_to_explain = 'R22-151'
-            wsi_to_explain = None
+            
+            # TODO
+            # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA
+            # SISTEMARE LE TRASFORMAZIONI AFFINI SULLE IMMAGINI DI TEST (NON CI VOGLIONO), RITESTARE IL TUTTO 
+            # SI POTREBBE METTERE A POSTO LA PARTE IN CUI VIENE CREATA CON CWD LA CARTELLA DI DESTINAZIONE DELLE IMMAGINI CON GRAD CAM
+            # SISTEMARE IL CODICE CHE NON SERVE
+            # AGGREGARE LE WSI 
+
+            # Se non vuoi usare Grad-cam passa wsi_to_explain = None
+            wsi_to_explain = 'R22-151'
+            #wsi_to_explain = None
             n.separeted_evaluation_on_folds(folds_weights_pth, result_path, wsi_to_explain=wsi_to_explain)
 
      
