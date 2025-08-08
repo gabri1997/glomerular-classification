@@ -644,7 +644,7 @@ class NefroNet():
             print('Validation: ')
             # Non sto facendo cross-validation quindi fold None
             fold = None
-            val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_data_loader, epoch=epoch, fold=fold, write_flag=True)
+            val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_data_loader, epoch=epoch, fold=fold, wsi_to_explain=None, write_flag=True, targte_index= None)
             if self.scheduler != 'OneCycle':
                 self.scheduler.step(val_f_score)
 
@@ -779,7 +779,7 @@ class NefroNet():
                 print("Validation:")
 
                 if self.lbl_name != [['INTENS']]:
-                    val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_fold_data_loader, epoch, fold, write_flag=True)
+                    val_acc, val_pr, val_recall, val_f_score, cm, _, _ = self.eval(self.validation_fold_data_loader, epoch, fold, wsi_name_to_explain = None, write_flag=True, target_index = None)
                     # Logging su wandb
                     try:
                         wandb.log({
@@ -850,7 +850,7 @@ class NefroNet():
                                     num_workers=self.n_workers, drop_last=False, pin_memory=True)
 
             if self.lbl_name != [['INTENS']]:
-                acc, pr, rec, f1, cm, _, _ = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+                acc, pr, rec, f1, cm, _, _ = self.eval(self.test_loader, epoch="final", fold=fold,  wsi_to_explain=None, write_flag=False, target_index = None)
                 cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                                 [FN={cm[1,0]} TP={cm[1,1]}]]"""
 
@@ -913,7 +913,7 @@ class NefroNet():
                 
         print('Ho finito di scrivere il csv dei risultati')
 
-    def separeted_evaluation_on_folds(self, folds_weights_pth, result_path):
+    def separeted_evaluation_on_folds(self, folds_weights_pth, result_path, wsi_to_explain):
 
         print("\n Inizio valutazione separata su test set per ciascun fold")
 
@@ -921,6 +921,11 @@ class NefroNet():
             print(f"\n Fold {fold} valutazione su test set")
 
             model_dir = os.path.join(folds_weights_pth, str(self.lbl_name), f"fold_{fold}")
+
+            # Pulizia memoria GPU e modello
+            self.n.cpu()
+            torch.cuda.empty_cache()
+            time.sleep(2)
 
             self.best_acc = 0  
 
@@ -951,7 +956,7 @@ class NefroNet():
 
             if self.lbl_name != [['INTENS']]:
 
-                _, _, _, _, _, y_pred_all, images = self.eval(self.test_loader, epoch="final", fold=fold, write_flag=False)
+                _, _, _, _, _, y_pred_all, images = self.eval(self.test_loader, epoch="final", fold=fold, wsi_to_explain=wsi_to_explain, write_flag=False, target_index = None)
                 self.write_on_descriptive_file(result_path, fold, images, y_pred_all)
                
    
@@ -1001,14 +1006,20 @@ class NefroNet():
                 print('Dataset 4k: ')
                 self.eval_intensity(self.eval_data_loader_4k, epoch=epoch)
 
-    def eval(self, d_loader, epoch, fold, write_flag=False):
+    def eval(self, d_loader, epoch=None, fold=None, wsi_to_explain=None, write_flag=False, target_index=None):
+        # Se non esiste ancora, inizializza il flag
+        if not hasattr(self, "gradcam_done"):
+            self.gradcam_done = False
+
         val_losses = []
         y_true_all = []
         y_pred_all = []
         y_scores_all = []
         images = []
+        start_time = time.time()
 
         with torch.no_grad():
+            print('Siamo in eval ...')
             sigm = nn.Sigmoid()
             sofmx = nn.Softmax(dim=1)
             trues = 0
@@ -1016,9 +1027,10 @@ class NefroNet():
             tr_trues = 0
             acc = 0
             self.n.eval()
-            start_time = time.time()
+            print(f"Fold {fold} - Inizio loop su dataloader con {len(d_loader.dataset)} samples")
 
             for i, (x, target, img_name) in enumerate(d_loader):
+                print(f"Fold {fold} - Batch {i} caricato")
                 x = x.to('cuda')
                 output = torch.squeeze(self.n(x))
 
@@ -1031,56 +1043,43 @@ class NefroNet():
                     target = target.to('cuda', torch.long)
                     check_output = sofmx(output)
                     check_output, res = torch.max(check_output, 1)
-                    # EVAL LOSS
                     if self.val_loss == 'True':
                         loss = self.criterion(output, target)
                         val_losses.append(loss.item())
 
-                # tr_target = target * s2 - 1  # only for custom F1 computation, fa riportare tr_target in dominio {-1, +1}
                 tr_target = target
-
-                # PER DEBUG
-                # print(f"res unique values: {torch.unique(res)}")
-                # print(f"tr_target unique values: {torch.unique(tr_target)}")
-
                 tr_trues += (res == tr_target).sum().item()
                 trues += res.sum().item()
                 g_trues += target.sum().item()
                 acc += (res.int() == target.int()).sum().item()
 
-                # Stampa dei valori di accumulo per batch per capire meglio 
-                #print(f"Batch {i}: tr_trues={tr_trues}, trues={trues}, g_trues={g_trues}")
-
-                # Wandb rompe le palle se non metto tutta sta roba .cpu().int().numpy().tolist()
                 y_true_all.extend(target.cpu().int().numpy().tolist())
                 y_pred_all.extend(res.cpu().int().numpy().tolist())
                 images.extend(img_name)
 
-            # EVAL LOSS
             if self.val_loss == 'True':
                 mean_loss = np.mean(val_losses)
-                if wandb.run: 
-                    wandb.log({"val/loss" : mean_loss, 'epoch': epoch})
+                if wandb.run:
+                    wandb.log({"val/loss": mean_loss, 'epoch': epoch})
                 print(f"Validation Loss: {mean_loss:.6f}")
-
 
             class_names = self.conf_matrix_lbl
             print("Predizione 0 significa:", class_names[0])
-            print("Predizione 1 significa:", class_names[1])  # e.g., ['Negative', 'Positive']
+            print("Predizione 1 significa:", class_names[1])
 
             y_pred_all = np.array(y_pred_all)
             y_true_all = np.array(y_true_all)
+
             print("\n Classification Report:")
             print(classification_report(
-                y_true_all, 
-                y_pred_all, 
-                target_names=class_names,  # es. ['Globale', 'Segmentale']
+                y_true_all,
+                y_pred_all,
+                target_names=class_names,
                 digits=4
             ))
 
             print("Etichette presenti nel validation set:", sorted(set(y_true_all)))
 
-            # Calcolo TP, FP, FN su tutto il validation set
             tp = int(((y_pred_all == 1) & (y_true_all == 1)).sum())
             fp = int(((y_pred_all == 1) & (y_true_all == 0)).sum())
             fn = int(((y_pred_all == 0) & (y_true_all == 1)).sum())
@@ -1100,23 +1099,13 @@ class NefroNet():
             )
             print(stats_string)
 
-            # PER Debugging
-            # print("SAVING MODEL")
-            # saved = self.save()
-            # if saved:
-            #     self.best_acc = accuracy
-
             if accuracy > self.best_acc and write_flag and epoch > 15:
-
                 print(f"L'accuracy è {accuracy:.4f} mentre la best_accuracy è {self.best_acc:.4f}, quindi salvo i pesi")
-                print("SAVING MODEL")
                 saved = self.save(fold)
                 if saved:
                     self.best_acc = accuracy
-
                 if epoch % 5 != 0:
                     self.thresh_eval(epoch)
-
                 try:
                     print('Logging confusion matrix')
                     wandb.log({
@@ -1131,8 +1120,42 @@ class NefroNet():
                 except Exception as e:
                     print(f"[ERROR] Failed to log confusion matrix: {e}")
 
+        # --- GradCam solo la prima volta ---
+        if wsi_to_explain is not None and not self.gradcam_done:
+            print('Doing GradCam ....')
+            
+            # Stampa i layer una sola volta per capire il numero giusto
+            # for idx, m in enumerate(self.n.modules()):
+            #     print(idx, m)
+
+            grad_cam = GradCam(self.n, target_layer_names=["7"], use_cuda=True)
+
+            # Cerco SOLO la patch corrispondente alla WSI
+            for i, (x, target, img_name) in enumerate(d_loader):
+                for j in range(len(img_name)):
+                    if wsi_to_explain in img_name[j]:
+                        print(f"Found WSI {wsi_to_explain} in batch {i}, index {j}")
+                        in_im = Variable(x[j].unsqueeze(0).to('cuda'), requires_grad=True)
+                        mask = grad_cam(in_im, target_index)
+
+                        overlay = show_cam_on_image(
+                            nefro_4k_and_diapo.denormalize(x[j]),
+                            mask,
+                            None,
+                            return_image=True
+                        )
+
+                        save_dir = os.path.join(os.getcwd(), "Wsi_explained")
+                        os.makedirs(save_dir, exist_ok=True)
+                        save_path = os.path.join(
+                            save_dir,
+                            os.path.basename(img_name[j])[:-4] + f'_cls{target_index}_gradcam.png'
+                        )
+                        cv2.imwrite(save_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+
 
         return accuracy, pr, rec, fscore, cm, y_pred_all, images
+
 
 
     def eval_intensity(self, d_loader, epoch, fold, write_flag=False):
@@ -1361,188 +1384,78 @@ class NefroNet():
                 tr_trues) + ' | time: ' + str(time.time() - start_time)
             print(stats_string)
 
-    def explain_eval(self, write_flag=False, target_index=None):
-        sigm = nn.Sigmoid()
+    def explain_eval(self, wsi_name_to_explain, save_pth, write_flag=False, target_index=None):
+        y_true_all = []
+        y_pred_all = []
+        images = []
+
         sofmx = nn.Softmax(dim=1)
         trues = 0
         tr_trues = 0
+        g_trues = 0
         acc = 0
+
         self.n.eval()
         grad_cam = GradCam(self.n, target_layer_names=["7"], use_cuda=True)
 
-        # If None, returns the map for the highest scoring category.
-        # Otherwise, targets the requested index.
-        # target_index = None
-
-        if write_flag:
-            self.create_html()
-
-        start_time = time.time()
-        for i, (x, target, img_name) in enumerate(self.eval_data_loader_4k):
-            # measure data loading time
-            # print("data time: " + str(time.time() - start_time))
-
-            # compute output
+        for _, (x, target, img_name) in enumerate(self.eval_data_loader_4k):
             x = x.to('cuda')
-            output = torch.squeeze(self.n(x))
-            if self.num_classes == 2:
-                target = target.to('cuda', torch.long)
-                check_output = sofmx(output)
-                check_output, res = torch.max(check_output, 1)
-            elif self.num_classes == 7:
-                target = target.to('cuda', torch.long)
-                check_output = sofmx(output)
-                check_output, res = torch.max(check_output, 1)
-            else:
-                print('unrecognized number of classes')
-                exit(1)
+            target = target.to('cuda', torch.long)
 
-            tr_target = target * 2
-            tr_target = tr_target - 1
-            tr_trues += sum(res == tr_target).item()
-            trues += sum(res).item()
-            acc += sum(res == target).item()
+            output = self.n(x)  # shape: [batch, num_classes]
+            probs = sofmx(output)
+            conf_scores, res = torch.max(probs, 1)
 
-            # gb_model = GuidedBackprop(self.n)
+            tr_target = target
+            tr_trues += (res == tr_target).sum().item()
+            trues += res.sum().item()
+            g_trues += target.sum().item()
+            acc += (res == target).sum().item()
+
+            y_true_all.extend(target.cpu().numpy().tolist())
+            y_pred_all.extend(res.cpu().numpy().tolist())
+            images.extend(img_name)
+
             for j in range(len(x)):
                 in_im = Variable(x[j].unsqueeze(0), requires_grad=True)
-                # mask = grad_cam(in_im, 0)
-                # show_cam_on_image(nefro.denormalize(x[j]), mask, os.path.basename(img_name[j])[:-4] + self.lbl_name + '_cls0')
                 mask = grad_cam(in_im, target_index)
-                show_cam_on_image(nefro_4k_and_diapo.denormalize(x[j]), mask,
-                                  os.path.basename(img_name[j])[:-4] + str(self.lbl_name) + f'_cls{target_index}')
 
-                # gb = gb_model.generate_gradients(in_im, target_index)
-                # save_gradient_images(gb, '/homes/fpollastri/nefro_GradCam/' + os.path.basename(img_name[j])[
-                #                                                               :-4] + '_gb.png')
-                # cam_gb = np.zeros(gb.shape)
-                # if not np.isnan(mask).any():
-                #     for c in range(0, gb.shape[0]):
-                #         cam_gb[c, :, :] = mask
-                #     cam_gb = np.multiply(cam_gb, gb)
-                # save_gradient_images(cam_gb, '/homes/fpollastri/nefro_GradCam/' + os.path.basename(img_name[j])[
-                #                                                                   :-4] + '_cam_gb.png')
-            if write_flag:
-                self.write_html(img_name=img_name, target=target, res=res, conf=check_output)
-            # # measure elapsed time
-            # printProgressBar(i + 1, total + 1,
-            #                  length=20,
-            #                  prefix=f'Epoch {epoch} ',
-            #                  suffix=f', loss: {loss.item():.3f}'
-            #                  )
-        pr = tr_trues / (trues + 10e-5)
-        rec = tr_trues / 375
-        fscore = (2 * pr * rec) / (pr + rec + 10e-5)
-        stats_string = 'Test set = Acc: ' + str(acc / 1000.0) + ' | F1 Score: ' + str(fscore) + ' | Precision: ' + str(
-            pr) + ' | Recall: ' + str(rec) + ' | Trues: ' + str(trues) + ' | Correct Trues: ' + str(
-            tr_trues) + ' | time: ' + str(time.time() - start_time)
-        print(stats_string)
+                # Converto in RGB con heatmap sopra l'immagine originale
+                overlay = show_cam_on_image(
+                    nefro_4k_and_diapo.denormalize(x[j]),  # immagine originale normalizzata
+                    mask,
+                    None,  # non passo un nome file, ritorno solo l'immagine
+                    return_image=True  # modificare show_cam_on_image per permettere questo
+                )
 
-        if write_flag:
-            self.close_html(stats_string)
+                # Salvo SOLO alcune heatmap
+                if wsi_name_to_explain in img_name[j]:  # ad esempio: salva solo se il nome contiene "R22-90"
+                    save_path = os.path.join(
+                        save_pth,
+                        os.path.basename(img_name[j])[:-4] + f'_cls{target_index}_gradcam.png'
+                    )
+                    cv2.imwrite(save_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
 
 
-    def eval_calibration(self, dset='test', write_flag=False):
-        with torch.no_grad():
-            criterion = nn.CrossEntropyLoss()
-            sigm = nn.Sigmoid()
-            sofmx = nn.Softmax(dim=1)
-            trues = 0
-            tr_trues = 0
-            acc = 0
-            self.n.eval()
-            eval_logit_losses = []
-            eval_prob_losses = []
-            eval_probs = []
-            eval_logits = []
-            eval_labels = []
-            eval_cat_labels = []
+        # Conversione in array alla fine
+        y_pred_all = np.array(y_pred_all)
+        y_true_all = np.array(y_true_all)
 
-            tot_samples = 1000.0
-            tot_trues = 375
+        # Metriche finali
+        tp = int(((y_pred_all == 1) & (y_true_all == 1)).sum())
+        fp = int(((y_pred_all == 1) & (y_true_all == 0)).sum())
+        fn = int(((y_pred_all == 0) & (y_true_all == 1)).sum())
 
-            if dset == 'test':
-                eval_loader = self.eval_data_loader
+        rec = tp / (tp + fn + 1e-5)
+        predicted_positives = tp + fp
+        pr = tp / (predicted_positives + 1e-5)
+        cm = confusion_matrix(y_true_all, y_pred_all)
+        print('Questa è la confusion matrix : ', cm)
 
-            elif dset == 'validation':
-                eval_loader = self.validation_data_loader
-                tot_samples = 500.0
-                tot_trues = 100
-            else:
-                print("ERROR")
-                return
-            start_time = time.time()
-            for i, (x, target, img_name) in enumerate(eval_loader):
-                # measure data loading time
-                # print("data time: " + str(time.time() - start_time))
+        fscore = (2 * pr * rec) / (pr + rec + 1e-5)
+        accuracy = acc / len(self.eval_data_loader_4k.dataset)
 
-                # compute output
-                x = x.to('cuda')
-                output = torch.squeeze(self.n(x))
-                if self.num_classes == 1:
-                    target = target.to('cuda', torch.float)
-                    loss = criterion(output, target)
-                    eval_logit_losses.append(loss.item())
-                    check_output = sigm(output)
-                    loss = criterion(check_output, target)
-                    eval_prob_losses.append(loss.item())
-                    res = (check_output > self.thresh).float()
-                else:
-                    target = target.to('cuda', torch.long)
-                    loss = criterion(output, target)
-                    eval_logit_losses.append(loss.item())
-                    check_output = sofmx(output)
-                    loss = criterion(check_output, target)
-                    eval_prob_losses.append(loss.item())
-                    eval_probs.append(check_output.to('cpu'))
-                    eval_logits.append(output.to('cpu'))
-                    eval_labels.append(categorical_to_one_hot(target.to('cpu'), 2))
-                    eval_cat_labels.append(target.to('cpu'))
-                    check_output, res = torch.max(check_output, 1)
-
-                tr_target = target * 2
-                tr_target = tr_target - 1
-                tr_trues += sum(res == tr_target).item()
-                trues += sum(res).item()
-                acc += sum(res == target).item()
-
-            pr = tr_trues / (trues + 10e-5)
-            rec = tr_trues / tot_trues
-            fscore = (2 * pr * rec) / (pr + rec + 10e-5)
-            stats_string = 'Test set = Acc: ' + str(acc / tot_samples) + ' | F1 Score: ' + str(
-                fscore) + ' | Precision: ' + str(
-                pr) + ' | Recall: ' + str(rec) + ' | Trues: ' + str(trues) + ' | Correct Trues: ' + str(
-                tr_trues) + ' | time: ' + str(time.time() - start_time)
-            print(stats_string)
-
-            if self.num_classes > 1:
-                conf_t = torch.cat(eval_probs, 0)
-                logits_t = torch.cat(eval_logits, 0)
-                acc_t = torch.cat(eval_labels, 0)
-                acc_cat_t = torch.cat(eval_cat_labels, 0)
-
-                brier = compute_brier(conf_t, acc_t)
-                cpb, _, samples_per_bin = average_confidence_per_bin(conf_t, 15, False)
-                apb, _, _ = accuracy_per_bin(conf_t, acc_cat_t, 15, False)
-                ece, _ = compute_ECE(apb, cpb, samples_per_bin)
-
-                print('logits NLL: ' + str(np.mean(eval_logit_losses)))
-                print('probs NLL: ' + str(np.mean(eval_prob_losses)))
-                print('brier: ' + str(brier.item()))
-                print('confidence per bin: ' + str(cpb))
-                print('accuracy per bin: ' + str(apb))
-                print('samples per bin: ' + str(samples_per_bin))
-                print('ECE: ' + str(ece * 100))
-
-                if write_flag:
-                    with open(files_path + self.nname + '_' + dset + '_preds.csv', 'w') as predsfile, open(
-                            files_path + self.nname + '_' + dset + '_gts.csv',
-                            'w') as lblsfile:
-                        preds_writer = csv.writer(predsfile, delimiter=',')
-                        lbls_writer = csv.writer(lblsfile, delimiter=',')
-                        for i in range(len(conf_t.squeeze().tolist())):
-                            preds_writer.writerow(logits_t.squeeze().tolist()[i])
-                            lbls_writer.writerow(acc_t.squeeze().tolist()[i])
+        return accuracy, fscore, pr, rec, cm
 
 
     def write_csv(self, img_name, target, res, conf):
@@ -1769,12 +1682,18 @@ def get_color(corr):
     return "FF0000"
 
 
-def show_cam_on_image(img, mask, name):
+def show_cam_on_image(img, mask, name=None, return_image=False):
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     cam = heatmap + np.moveaxis(np.float32(img.cpu()), 0, -1)
     cam = cam / np.max(cam)
-    cv2.imwrite('/homes/fpollastri/nefro_GradCam/' + name + '_cam.png', np.uint8(255 * cam))
+    
+    if return_image:
+        # Restituisci immagine in formato uint8 (0-255) RGB
+        return np.uint8(255 * cam)
+    else:
+        print('No image to be returned')
+
 
 
 def plot(img):
@@ -1807,7 +1726,7 @@ if __name__ == '__main__':
     weights_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/resnet18_[['MESANGIALE']]_Old10_net.pth"
 
     parser = argparse.ArgumentParser(description='Train ResNet on Glomeruli Labels')
-    parser.add_argument('--label', type=str, default='GLOBAL_SEGMENTAL', help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
+    parser.add_argument('--label', type=str, default='MESANGIALE', help='Label group name (e.g., MESANGIALE, LIN_PSEUDOLIN, etc.)')
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
     parser.add_argument('--train_or_test', type=str, default='Test_on_folds', help='Train or test on your data')
     parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
@@ -1904,7 +1823,7 @@ if __name__ == '__main__':
             if opt.label != 'INTENS':
                 data = opt.weights
                 w_path = n.load(data)
-                accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, True)
+                accuracy, pr, rec, fscore, cm = n.eval(n.eval_data_loader_4k, write_flag=True)
                 cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
                                 [FN={cm[1,0]} TP={cm[1,1]}]]"""
                 res_dict = {
@@ -1941,59 +1860,19 @@ if __name__ == '__main__':
                     # n.eval_intensity(n.validation_data_loader, 0)
                 
         elif opt.train_or_test == 'Test_on_folds':
+
+            print('Sto testando sui fold separatamente')
             """Questa funzione serve per fare una evaluation seprata sui fold su cui ho trainato con n.train_test_on_folds(), 
                i risultati vengono scritti dentro a result_path dove ho sia il nome del glomerulo sia l'output della rete per quella immagine.
             """
             result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images/{opt.label}"
             folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
-            n.separeted_evaluation_on_folds(folds_weights_pth, result_path)
+            # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA, POI BISOGNA CAPIRE QUALE LAYER SELEZIONARE
+            #wsi_to_explain = 'R22-151'
+            wsi_to_explain = None
+            n.separeted_evaluation_on_folds(folds_weights_pth, result_path, wsi_to_explain=wsi_to_explain)
 
-        
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+     
 
 
         ##########################################
