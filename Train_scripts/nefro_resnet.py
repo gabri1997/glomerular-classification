@@ -458,6 +458,13 @@ class NefroNet():
 
 
     def extract_base_id(self, wsi_name):
+
+        """
+        Mi serve per estrarre l'identificativo di biopsia della WSI, 
+        cosi da generare uno split corretto mantenendo unite le stesse biopsia con immonoglobuline diverse.
+        Esempio: voglio che R22-IgA e R22-IgG finiscano entrambe nello split di test e non vengano separate.
+        Verrà fatto nell funzione group_indices_by_base_id.
+        """
         name = wsi_name.strip()
 
         if name.startswith("R24") or name.startswith("R23"):
@@ -1867,7 +1874,7 @@ if __name__ == '__main__':
             """
             result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images/{opt.label}"
             folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
-            
+
             # TODO
             # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA
             # SISTEMARE LE TRASFORMAZIONI AFFINI SULLE IMMAGINI DI TEST (NON CI VOGLIONO), RITESTARE IL TUTTO 
