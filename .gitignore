@@ -26,6 +26,8 @@ Inference_scripts
 Script_per_analisi
 # Ignora tutto nella cartella
 Train_scripts/Files_old_Pollo/**
+Train_scripts/Results_folds_test**
+Train_scripts/Wsi_explained**
 Train_scripts/golm_names_extractor_from_folder.py
 Pollastri_Glomeruli/folds_csv
 # NON ignorare la cartella stessa

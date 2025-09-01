@@ -284,6 +284,7 @@ class NefroNet():
             )
 
         
+        
         dataset = nefro_4k_and_diapo.Nefro(
                                 split='training',
                                 old_or_new_folder = self.old_or_new_folder,
@@ -338,7 +339,8 @@ class NefroNet():
         print('Il numero di dati nel dataset di validation è :', len(validation_dataset))
         print('Il numero di dati nel test dataset è :', len(eval_dataset_4k))
        
-        
+        # TODO SISTEMARE QUA 
+        # Qui se si vuole eseguire il test bisogna mettere inference_imgaug_transforms nella transform per evitare di avere le trasformazioni affini anche in test
         self.dataset_for_folds = nefro_4k_and_diapo.Nefro(
                                 split='NewComplete',
                                 old_or_new_folder = self.old_or_new_folder,
@@ -347,12 +349,14 @@ class NefroNet():
                                 wdiapo=self.wdiapo,
                                 size=(opt.size, opt.size),
                                 transform=transforms.Compose([
-                                    imgaug_transforms,  # questo deve avere __call__ definito
+                                    inference_imgaug_transforms,  # questo deve avere __call__ definito
                                     # Questo non ci vuole perchè viene già fatto quando chiamo get_images
                                     #nefro.NefroTiffToTensor(),
                                     #transforms.Normalize((0.1224, 0.1224, 0.1224), (0.0851, 0.0851, 0.0851))
                                 ])
         )
+
+        # Qua va creato quello del test 
 
         self.folds = self.kfold_train_val_test_split(self.dataset_for_folds, 4)
         self.check_no_overlap(self.folds)
@@ -737,7 +741,7 @@ class NefroNet():
                 print('Loss NON pesata')
                 self.criterion = nn.CrossEntropyLoss()
 
-            # Inizializzo il modello per ogni fold altrimenti riparte dal training del fold precednete senza resettarsi
+            # Inizializzo il modello per ogni fold altrimenti riparte dal training del fold precedente senza resettarsi
             self.n = self.init_model()
 
             self.optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.n.parameters()), lr=self.learning_rate)
@@ -904,11 +908,38 @@ class NefroNet():
 
         print(f"\nTutti i risultati salvati in: {result_path}")
 
+
+    def write_on_json(self, fold, acc, pr, rec, f1, cm, model_path, all_results):
+       
+        # Per evitare che esploda quando non ho due classi 
+        if cm.shape == (2, 2):
+            cm_pretty = f"""[[TN={cm[0,0]} FP={cm[0,1]}]
+                         [FN={cm[1,0]} TP={cm[1,1]}]]
+                      """
+        else:
+            cm_pretty = cm.tolist() if hasattr(cm, "tolist") else str(cm)
+
+        res_dict = {
+            "Fold": fold,
+            "Commento": "Eval finale su test set dopo training su tutti i fold",
+            "Esperimento": vars(self.opt) if hasattr(self, "opt") else {},
+            "Accuracy": float(acc),
+            "Precision": float(pr),
+            "Recall": float(rec),
+            "Fscore": float(f1),
+            "Conf_matrix": cm_pretty,
+            "Weights": model_path
+        }
+
+        all_results.append(res_dict)
+
+
     def write_on_descriptive_file(self, result_path, fold, images, y_pred_all):
         """
         Salvo i risultati della evaluation separata in un result files dove tengo traccia del nome del glomerulo e della sua prediction associata.
         """
         os.makedirs(result_path, exist_ok = True)   
+       
         final_pth = os.path.join(result_path, f'fold{fold}.csv')
         with open(final_pth, 'a', newline='') as csvfile:
                     label_name = self.lbl_name[0] if isinstance(self.lbl_name, list) and len(self.lbl_name) > 0 else 'Prediction'
@@ -923,7 +954,7 @@ class NefroNet():
     def separeted_evaluation_on_folds(self, folds_weights_pth, result_path, wsi_to_explain):
 
         print("\n Inizio valutazione separata su test set per ciascun fold")
-
+        all_results = []
         for fold, (_, _, test_indices) in enumerate(self.folds):
             print(f"\n Fold {fold} valutazione su test set")
 
@@ -961,17 +992,24 @@ class NefroNet():
             self.test_loader = DataLoader(test_subset, batch_size=self.batch_size, shuffle=False,
                                     num_workers=self.n_workers, drop_last=False, pin_memory=True)
 
+            json_save_pth = os.path.join(result_path, f"{self.lbl_name}.json")
+
             if self.lbl_name != [['INTENS']]:
 
-                _, _, _, _, _, y_pred_all, images = self.eval(self.test_loader, epoch="final", fold=fold, wsi_to_explain=wsi_to_explain, write_flag=False, target_index = None)
+                acc, pr, rec, f1, cm, y_pred_all, images = self.eval(self.test_loader, epoch="final", fold=fold, wsi_to_explain=wsi_to_explain, write_flag=False, target_index = None)
                 self.write_on_descriptive_file(result_path, fold, images, y_pred_all)
-               
+                self.write_on_json(fold, acc, pr, rec, f1, cm, model_path, all_results)
    
             elif self.lbl_name == [['INTENS']]:
 
-                _, _, y_pred_all, images = self.eval_intensity(self.test_loader, epoch='final', fold=fold, write_flag=False)
+                acc, conf_matrix, y_pred_all, images = self.eval_intensity(self.test_loader, epoch='final', fold=fold, write_flag=False)
                 self.write_on_descriptive_file(result_path, fold, images, y_pred_all)
-               
+                # TODO aggiungere self.write_on_json
+
+        with open(json_save_pth, 'w') as f:
+            json.dump(all_results, f, indent=4)
+
+        print(f"\nTutti i risultati salvati in: {result_path}") 
                 
     # I livelli di intensità sono livelli da 0 a 3 con step 0.5.
     def train_intensity(self):
@@ -1070,6 +1108,7 @@ class NefroNet():
                     wandb.log({"val/loss": mean_loss, 'epoch': epoch})
                 print(f"Validation Loss: {mean_loss:.6f}")
 
+            # TODO questo fa schifo 
             class_names = self.conf_matrix_lbl
             print("Predizione 0 significa:", class_names[0])
             print("Predizione 1 significa:", class_names[1])
@@ -1737,7 +1776,8 @@ if __name__ == '__main__':
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
     parser.add_argument('--train_or_test', type=str, default='Test_on_folds', help='Train or test on your data')
     parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
-    parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=['0', '0.5', '1', '1.5', '2', '2.5', '3'],help='Etichette da mostrare nella matrice di confusione')
+    # ['0', '0.5', '1', '1.5', '2', '2.5', '3']
+    parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=[ 'mes', 'non-mes'],help='Etichette da mostrare nella matrice di confusione')
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
     parser.add_argument('--dropout', action='store_true', help='DropOut')
@@ -1872,10 +1912,12 @@ if __name__ == '__main__':
             """Questa funzione serve per fare una evaluation seprata sui fold su cui ho trainato con n.train_test_on_folds(), 
                i risultati vengono scritti dentro a result_path dove ho sia il nome del glomerulo sia l'output della rete per quella immagine.
             """
-            result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images/{opt.label}"
+            result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test/{opt.label}"
             folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
 
             # TODO
+            # SISTEMARE LE TRASFORMAZIONI CHE PASSO QUANDO COSTRUISCO IL DATASET(AD ORA DEVO MANUALMENTE CAMBIARE IN TRASFORMAZIONI DI TRAIN QUANDO FACCIO TRAIN E TRASFORMAZIONI DI TEST QUANDO SONO IN TEST)
+            # ANDREBBERO RIMESSE A POSTO ANCHE NEL VALIDATION MA PAZIENZA
             # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA
             # SISTEMARE LE TRASFORMAZIONI AFFINI SULLE IMMAGINI DI TEST (NON CI VOGLIONO), RITESTARE IL TUTTO 
             # SI POTREBBE METTERE A POSTO LA PARTE IN CUI VIENE CREATA CON CWD LA CARTELLA DI DESTINAZIONE DELLE IMMAGINI CON GRAD CAM
@@ -1883,8 +1925,8 @@ if __name__ == '__main__':
             # AGGREGARE LE WSI 
 
             # Se non vuoi usare Grad-cam passa wsi_to_explain = None
-            wsi_to_explain = 'R22-151'
-            #wsi_to_explain = None
+            #wsi_to_explain = 'R22-151'
+            wsi_to_explain = None
             n.separeted_evaluation_on_folds(folds_weights_pth, result_path, wsi_to_explain=wsi_to_explain)
 
      

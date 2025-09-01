@@ -139,7 +139,7 @@ def aggregate (path, label):
 
     
 if __name__ == '__main__':
-    label = 'GLOBAL_SEGMENTAL'
-    path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_with_images'
+    label = 'SEGMENTAL'
+    path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test'
   
     aggregate(path, label)
