@@ -205,7 +205,7 @@ Usando lo script `from_prediction_to_final_excel.py` (presente nella cartella `R
 Per ciascuna classe, lo script genera nelle sottocartelle di `Results_folds_test` i file `allfolds_aggregated.csv`.
 
 Successivamente, lo script `results_comparison.py` (anch’esso in `Results_folds_test`) confronta i risultati ottenuti con il file Excel fornito dai medici.  
-Per semplicità, si parte da una versione del file già pre-manipolata:  
+Per semplicità, si parte da una versione del file già pre-manipolata (le annotazioni dei medici originali sono nel file `Train_scripts/Excels/If-score.xlsx`):  
 
 `Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF.xlsx`
 
@@ -215,8 +215,8 @@ Lo script calcola inoltre le **metriche aggregate** e produce come output il fil
 
 ## Risultati finali
 
-| Class      | Accuracy | Precision | Recall | F1   |
-|------------|----------|-----------|--------|------|
+| Class      | Accuracy | Precision | Recall | F1    |
+|------------|----------|-----------|--------|------ |
 | Coarse     | 0.697    | 0.795     | 0.738  | 0.765 |
 | Fine       | 0.745    | 0.565     | 0.481  | 0.520 |
 | Segmental  | 0.761    | 0.250     | 0.333  | 0.286 |
