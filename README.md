@@ -219,7 +219,7 @@ I risultati medi per classe (sulle cross-validation folds) sono riportati di seg
 
 I risultati aggregati e confrontati con l’Excel fornito dai medici sono disponibili in questo file:
 
-[Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx](./Results_folds_test/Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx)
+[Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx](Train_scripts/Results_folds_test Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx)
 
 
 
