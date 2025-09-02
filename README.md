@@ -62,7 +62,7 @@ Le predizioni saranno valutate sia a livello di glomerulo, sia con la logica di 
 
 I dati di grandi dimensioni utilizzati in questo progetto non sono inclusi direttamente nel repository per motivi di spazio.
 
-Puoi scaricare i dati da Google Drive al seguente link:
+Puoi scaricare i dati da Google Drive (e i pesi del training per le varie classi) al seguente link:
 
 [Download dataset (Google Drive)](https://drive.google.com/drive/folders/16ot_9aC8AH_lzr0gr3YE9ain1ZNVYlxk?usp=drive_link)
 
