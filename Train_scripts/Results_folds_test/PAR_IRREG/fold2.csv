@@ -1,0 +1,549 @@
+Glom_name,Prediction_['PAR_IRREG']
+R23_188_2A1_IgA-FITC_glomerulo_003.png,0
+R23_188_2A1_IgA-FITC_glomerulo_004.png,1
+R23_188_2A1_IgA-FITC_glomerulo_012.png,0
+R23_188_2A1_IgA-FITC_glomerulo_006.png,1
+R23_188_2A1_IgA-FITC_glomerulo_011.png,0
+R23_188_2A1_IgA-FITC_glomerulo_007.png,0
+R23_188_2A1_IgA-FITC_glomerulo_010.png,0
+R23_188_2A1_IgA-FITC_glomerulo_002.png,0
+R23_188_2A1_IgA-FITC_glomerulo_005.png,1
+R23_188_2A1_IgA-FITC_glomerulo_008.png,0
+R23_188_2A1_IgA-FITC_glomerulo_001.png,0
+R23_188_2A1_IgA-FITC_glomerulo_009.png,1
+R23_188_2A1_C1q-FITC_glomerulo_005.png,1
+R23_188_2A1_C1q-FITC_glomerulo_002.png,1
+R23_188_2A1_C1q-FITC_glomerulo_003.png,1
+R23_188_2A1_C1q-FITC_glomerulo_004.png,1
+R23_188_2A1_C1q-FITC_glomerulo_001.png,1
+R23_188_2A1_IgM-FITC_glomerulo_002.png,0
+R23_188_2A1_IgM-FITC_glomerulo_005.png,0
+R23_188_2A1_IgM-FITC_glomerulo_006.png,0
+R23_188_2A1_IgM-FITC_glomerulo_001.png,0
+R23_188_2A1_IgM-FITC_glomerulo_003.png,0
+R23_188_2A1_IgM-FITC_glomerulo_004.png,0
+R23_188_2A1_C3-FITC_glomerulo_002.png,1
+R23_188_2A1_C3-FITC_glomerulo_004.png,1
+R23_188_2A1_C3-FITC_glomerulo_001.png,1
+R23_188_2A1_C3-FITC_glomerulo_003.png,1
+R23_188_2A1_C3-FITC_glomerulo_005.png,1
+R23_188_2A1_IgG-FITC_glomerulo_002.png,1
+R23_188_2A1_IgG-FITC_glomerulo_001.png,1
+R23_243_1A1_IGA-FITC_glomerulo_001.png,1
+R23_243_1A1_LAMBDA-FITC_glomerulo_002.png,1
+R23_243_1A1_LAMBDA-FITC_glomerulo_003.png,0
+R23_243_1A1_LAMBDA-FITC_glomerulo_001.png,0
+R23_243_1A1_KAPPA-FITC_glomerulo_002.png,1
+R23_243_1A1_KAPPA-FITC_glomerulo_001.png,0
+R22-93 IgA_glomerulo_005.png,0
+R22-93 IgA_glomerulo_004.png,0
+R22-93 IgA_glomerulo_002.png,0
+R22-93 IgA_glomerulo_003.png,1
+R22-93 IgA_glomerulo_001.png,0
+R22-168 C3_glomerulo_003.png,1
+R22-168 C3_glomerulo_006.png,0
+R22-168 C3_glomerulo_007.png,1
+R22-168 C3_glomerulo_004.png,1
+R22-168 C3_glomerulo_008.png,1
+R22-168 C3_glomerulo_005.png,1
+R22-168 C3_glomerulo_001.png,1
+R22-168 C3_glomerulo_002.png,1
+R22-90 C3_glomerulo_003.png,1
+R22-90 C3_glomerulo_001.png,0
+R22-90 C3_glomerulo_006.png,1
+R22-90 C3_glomerulo_004.png,0
+R22-90 C3_glomerulo_009.png,1
+R22-90 C3_glomerulo_007.png,1
+R22-90 C3_glomerulo_005.png,0
+R22-90 C3_glomerulo_008.png,0
+R22-90 C3_glomerulo_010.png,1
+R22-90 C3_glomerulo_002.png,0
+R22-90 IgG_glomerulo_007.png,0
+R22-90 IgG_glomerulo_004.png,0
+R22-90 IgG_glomerulo_005.png,0
+R22-90 IgG_glomerulo_009.png,0
+R22-90 IgG_glomerulo_008.png,0
+R22-90 IgG_glomerulo_006.png,1
+R22-90 IgG_glomerulo_001.png,0
+R22-90 IgG_glomerulo_003.png,1
+R22-90 IgG_glomerulo_002.png,0
+R22-189 IgM_glomerulo_007.png,0
+R22-189 IgM_glomerulo_005.png,0
+R22-189 IgM_glomerulo_004.png,0
+R22-189 IgM_glomerulo_001.png,1
+R22-189 IgM_glomerulo_003.png,0
+R22-189 IgM_glomerulo_002.png,0
+R22-189 IgM_glomerulo_006.png,0
+R22-189 C1q_glomerulo_009.png,0
+R22-189 C1q_glomerulo_003.png,0
+R22-189 C1q_glomerulo_006.png,0
+R22-189 C1q_glomerulo_004.png,0
+R22-189 C1q_glomerulo_007.png,0
+R22-189 C1q_glomerulo_008.png,0
+R22-189 C1q_glomerulo_005.png,0
+R22-189 C1q_glomerulo_001.png,0
+R22-189 C1q_glomerulo_002.png,0
+R22-189 C3_glomerulo_002.png,0
+R22-189 C3_glomerulo_001.png,0
+R22-189 C3_glomerulo_003.png,0
+R22-189 IgG_glomerulo_005.png,1
+R22-189 IgG_glomerulo_007.png,1
+R22-189 IgG_glomerulo_008.png,1
+R22-189 IgG_glomerulo_001.png,1
+R22-189 IgG_glomerulo_010.png,1
+R22-189 IgG_glomerulo_006.png,0
+R22-189 IgG_glomerulo_009.png,1
+R22-189 IgG_glomerulo_003.png,0
+R22-189 IgG_glomerulo_002.png,1
+R22-189 IgG_glomerulo_004.png,1
+R22-117 IgG_glomerulo_011.png,0
+R22-117 IgG_glomerulo_004.png,0
+R22-117 IgG_glomerulo_012.png,1
+R22-117 IgG_glomerulo_008.png,1
+R22-117 IgG_glomerulo_005.png,0
+R22-117 IgG_glomerulo_010.png,0
+R22-117 IgG_glomerulo_001.png,0
+R22-117 IgG_glomerulo_003.png,0
+R22-117 IgG_glomerulo_007.png,0
+R22-117 IgG_glomerulo_006.png,0
+R22-117 IgG_glomerulo_002.png,1
+R22-117 IgG_glomerulo_009.png,1
+R22-117 C3_glomerulo_002.png,1
+R22-117 C3_glomerulo_008.png,0
+R22-117 C3_glomerulo_011.png,0
+R22-117 C3_glomerulo_006.png,0
+R22-117 C3_glomerulo_010.png,0
+R22-117 C3_glomerulo_001.png,0
+R22-117 C3_glomerulo_012.png,0
+R22-117 C3_glomerulo_013.png,0
+R22-117 C3_glomerulo_005.png,0
+R22-117 C3_glomerulo_007.png,0
+R22-117 C3_glomerulo_009.png,0
+R22-117 C3_glomerulo_004.png,1
+R22-117 C3_glomerulo_003.png,0
+R22-117 C1q_glomerulo_012.png,0
+R22-117 C1q_glomerulo_001.png,1
+R22-117 C1q_glomerulo_002.png,1
+R22-117 C1q_glomerulo_005.png,0
+R22-117 C1q_glomerulo_007.png,0
+R22-117 C1q_glomerulo_006.png,0
+R22-117 C1q_glomerulo_011.png,1
+R22-117 C1q_glomerulo_010.png,1
+R22-117 C1q_glomerulo_008.png,0
+R22-117 C1q_glomerulo_004.png,0
+R22-117 C1q_glomerulo_009.png,1
+R22-117 C1q_glomerulo_003.png,1
+R23_246_1A1_KAPPA-FITC_glomerulo_010.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_008.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_004.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_002.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_011.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_013.png,1
+R23_246_1A1_KAPPA-FITC_glomerulo_009.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_012.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_003.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_007.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_005.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_014.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_001.png,0
+R23_246_1A1_KAPPA-FITC_glomerulo_006.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_016.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_002.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_015.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_011.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_008.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_013.png,1
+R23_246_1A1_C1Q-FITC_glomerulo_003.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_004.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_009.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_012.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_007.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_005.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_006.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_010.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_014.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_017.png,0
+R23_246_1A1_C1Q-FITC_glomerulo_001.png,1
+R23_246_1A1_IGG-FITC_glomerulo_003.png,0
+R23_246_1A1_IGG-FITC_glomerulo_012.png,0
+R23_246_1A1_IGG-FITC_glomerulo_005.png,0
+R23_246_1A1_IGG-FITC_glomerulo_010.png,0
+R23_246_1A1_IGG-FITC_glomerulo_016.png,0
+R23_246_1A1_IGG-FITC_glomerulo_008.png,0
+R23_246_1A1_IGG-FITC_glomerulo_009.png,0
+R23_246_1A1_IGG-FITC_glomerulo_001.png,0
+R23_246_1A1_IGG-FITC_glomerulo_002.png,0
+R23_246_1A1_IGG-FITC_glomerulo_004.png,0
+R23_246_1A1_IGG-FITC_glomerulo_015.png,0
+R23_246_1A1_IGG-FITC_glomerulo_011.png,0
+R23_246_1A1_IGG-FITC_glomerulo_013.png,0
+R23_246_1A1_IGG-FITC_glomerulo_006.png,0
+R23_246_1A1_IGG-FITC_glomerulo_014.png,0
+R23_246_1A1_IGG-FITC_glomerulo_007.png,0
+R23_246_1A1_IGG-FITC_glomerulo_017.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_010.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_002.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_008.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_003.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_006.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_007.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_012.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_011.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_013.png,1
+R23_246_1A1_LAMBDA-FITC_glomerulo_009.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_016.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_001.png,1
+R23_246_1A1_LAMBDA-FITC_glomerulo_015.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_004.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_014.png,0
+R23_246_1A1_LAMBDA-FITC_glomerulo_005.png,0
+R23_246_1A1_C3-FITC_glomerulo_010.png,0
+R23_246_1A1_C3-FITC_glomerulo_005.png,0
+R23_246_1A1_C3-FITC_glomerulo_011.png,1
+R23_246_1A1_C3-FITC_glomerulo_008.png,1
+R23_246_1A1_C3-FITC_glomerulo_006.png,0
+R23_246_1A1_C3-FITC_glomerulo_013.png,0
+R23_246_1A1_C3-FITC_glomerulo_004.png,0
+R23_246_1A1_C3-FITC_glomerulo_009.png,1
+R23_246_1A1_C3-FITC_glomerulo_012.png,1
+R23_246_1A1_C3-FITC_glomerulo_003.png,0
+R23_246_1A1_C3-FITC_glomerulo_002.png,0
+R23_246_1A1_C3-FITC_glomerulo_007.png,0
+R23_246_1A1_C3-FITC_glomerulo_001.png,0
+R24_10_2A1_LAMBDA-FITC_glomerulo_001.png,0
+R24_10_2A1_LAMBDA-FITC_glomerulo_002.png,1
+R24_10_2A1_KAPPA-FITC_glomerulo_002.png,1
+R24_10_2A1_KAPPA-FITC_glomerulo_005.png,1
+R24_10_2A1_KAPPA-FITC_glomerulo_006.png,0
+R24_10_2A1_KAPPA-FITC_glomerulo_004.png,0
+R24_10_2A1_KAPPA-FITC_glomerulo_003.png,1
+R24_10_2A1_KAPPA-FITC_glomerulo_001.png,0
+R22-131 IgG_glomerulo_006.png,0
+R22-131 IgG_glomerulo_005.png,0
+R22-131 IgG_glomerulo_002.png,0
+R22-131 IgG_glomerulo_008.png,0
+R22-131 IgG_glomerulo_010.png,0
+R22-131 IgG_glomerulo_009.png,0
+R22-131 IgG_glomerulo_012.png,0
+R22-131 IgG_glomerulo_001.png,0
+R22-131 IgG_glomerulo_003.png,0
+R22-131 IgG_glomerulo_007.png,0
+R22-131 IgG_glomerulo_011.png,1
+R22-131 IgG_glomerulo_004.png,0
+R22-131 C3_glomerulo_009.png,0
+R22-131 C3_glomerulo_001.png,0
+R22-131 C3_glomerulo_003.png,0
+R22-131 C3_glomerulo_002.png,0
+R22-131 C3_glomerulo_005.png,0
+R22-131 C3_glomerulo_007.png,0
+R22-131 C3_glomerulo_006.png,0
+R22-131 C3_glomerulo_011.png,0
+R22-131 C3_glomerulo_004.png,0
+R22-131 C3_glomerulo_008.png,0
+R22-131 C3_glomerulo_010.png,1
+R22-132 IgG_glomerulo_003.png,0
+R22-132 IgG_glomerulo_001.png,0
+R22-132 IgG_glomerulo_007.png,0
+R22-132 IgG_glomerulo_004.png,0
+R22-132 IgG_glomerulo_005.png,0
+R22-132 IgG_glomerulo_002.png,0
+R22-132 IgG_glomerulo_006.png,0
+R22-154 LAMBDA_glomerulo_022.png,1
+R22-154 LAMBDA_glomerulo_024.png,0
+R22-154 LAMBDA_glomerulo_003.png,0
+R22-154 LAMBDA_glomerulo_008.png,0
+R22-154 LAMBDA_glomerulo_016.png,1
+R22-154 LAMBDA_glomerulo_021.png,1
+R22-154 LAMBDA_glomerulo_020.png,0
+R22-154 LAMBDA_glomerulo_002.png,1
+R22-154 LAMBDA_glomerulo_017.png,1
+R22-154 LAMBDA_glomerulo_018.png,1
+R22-154 LAMBDA_glomerulo_010.png,0
+R22-154 LAMBDA_glomerulo_007.png,1
+R22-154 LAMBDA_glomerulo_015.png,0
+R22-154 LAMBDA_glomerulo_026.png,1
+R22-154 LAMBDA_glomerulo_001.png,0
+R22-154 LAMBDA_glomerulo_005.png,0
+R22-154 LAMBDA_glomerulo_004.png,1
+R22-154 LAMBDA_glomerulo_019.png,0
+R22-154 LAMBDA_glomerulo_006.png,1
+R22-154 LAMBDA_glomerulo_012.png,1
+R22-154 LAMBDA_glomerulo_023.png,0
+R22-154 LAMBDA_glomerulo_025.png,1
+R22-154 LAMBDA_glomerulo_009.png,1
+R22-154 LAMBDA_glomerulo_014.png,0
+R22-154 LAMBDA_glomerulo_011.png,0
+R22-154 LAMBDA_glomerulo_013.png,1
+R22-154 KAPPA_glomerulo_026.png,0
+R22-154 KAPPA_glomerulo_013.png,0
+R22-154 KAPPA_glomerulo_006.png,0
+R22-154 KAPPA_glomerulo_011.png,0
+R22-154 KAPPA_glomerulo_024.png,0
+R22-154 KAPPA_glomerulo_017.png,1
+R22-154 KAPPA_glomerulo_005.png,0
+R22-154 KAPPA_glomerulo_009.png,0
+R22-154 KAPPA_glomerulo_020.png,0
+R22-154 KAPPA_glomerulo_004.png,0
+R22-154 KAPPA_glomerulo_014.png,0
+R22-154 KAPPA_glomerulo_007.png,0
+R22-154 KAPPA_glomerulo_023.png,0
+R22-154 KAPPA_glomerulo_012.png,0
+R22-154 KAPPA_glomerulo_002.png,0
+R22-154 KAPPA_glomerulo_025.png,1
+R22-154 KAPPA_glomerulo_027.png,1
+R22-154 KAPPA_glomerulo_001.png,0
+R22-154 KAPPA_glomerulo_018.png,1
+R22-154 KAPPA_glomerulo_029.png,1
+R22-154 KAPPA_glomerulo_003.png,0
+R22-154 KAPPA_glomerulo_010.png,0
+R22-154 KAPPA_glomerulo_019.png,0
+R22-154 KAPPA_glomerulo_008.png,0
+R22-154 KAPPA_glomerulo_030.png,0
+R22-154 KAPPA_glomerulo_015.png,0
+R22-154 KAPPA_glomerulo_028.png,0
+R22-154 KAPPA_glomerulo_016.png,0
+R22-154 KAPPA_glomerulo_022.png,0
+R22-154 KAPPA_glomerulo_021.png,0
+R22-177 KAPPA_glomerulo_003.png,0
+R22-177 KAPPA_glomerulo_002.png,0
+R22-177 KAPPA_glomerulo_001.png,1
+R22-177 LAMBDA_glomerulo_002.png,1
+R22-177 LAMBDA_glomerulo_001.png,0
+R23_234_2A1_C3-FITC_glomerulo_004.png,1
+R23_234_2A1_C3-FITC_glomerulo_002.png,1
+R23_234_2A1_C3-FITC_glomerulo_003.png,1
+R23_234_2A1_C3-FITC_glomerulo_001.png,1
+R23_234_2A1_IgA-FITC_glomerulo_014.png,1
+R23_234_2A1_IgA-FITC_glomerulo_006.png,1
+R23_234_2A1_IgA-FITC_glomerulo_001.png,1
+R23_234_2A1_IgA-FITC_glomerulo_010.png,0
+R23_234_2A1_IgA-FITC_glomerulo_003.png,0
+R23_234_2A1_IgA-FITC_glomerulo_002.png,0
+R23_234_2A1_IgA-FITC_glomerulo_011.png,1
+R23_234_2A1_IgA-FITC_glomerulo_009.png,0
+R23_234_2A1_IgA-FITC_glomerulo_012.png,1
+R23_234_2A1_IgA-FITC_glomerulo_007.png,0
+R23_234_2A1_IgA-FITC_glomerulo_004.png,0
+R23_234_2A1_IgA-FITC_glomerulo_008.png,1
+R23_234_2A1_IgA-FITC_glomerulo_013.png,1
+R23_234_2A1_IgA-FITC_glomerulo_005.png,1
+R22-98 lambda_glomerulo_002.png,0
+R22-98 lambda_glomerulo_001.png,0
+R22-98 lambda_glomerulo_009.png,0
+R22-98 lambda_glomerulo_010.png,0
+R22-98 lambda_glomerulo_013.png,0
+R22-98 lambda_glomerulo_007.png,0
+R22-98 lambda_glomerulo_011.png,0
+R22-98 lambda_glomerulo_004.png,0
+R22-98 lambda_glomerulo_015.png,0
+R22-98 lambda_glomerulo_008.png,0
+R22-98 lambda_glomerulo_014.png,0
+R22-98 lambda_glomerulo_005.png,0
+R22-98 lambda_glomerulo_006.png,0
+R22-98 lambda_glomerulo_003.png,0
+R22-98 lambda_glomerulo_012.png,0
+R22-98 kappa_glomerulo_006.png,0
+R22-98 kappa_glomerulo_007.png,0
+R22-98 kappa_glomerulo_014.png,0
+R22-98 kappa_glomerulo_008.png,0
+R22-98 kappa_glomerulo_012.png,0
+R22-98 kappa_glomerulo_009.png,0
+R22-98 kappa_glomerulo_010.png,0
+R22-98 kappa_glomerulo_003.png,1
+R22-98 kappa_glomerulo_013.png,0
+R22-98 kappa_glomerulo_001.png,0
+R22-98 kappa_glomerulo_004.png,0
+R22-98 kappa_glomerulo_002.png,1
+R22-98 kappa_glomerulo_011.png,0
+R22-98 kappa_glomerulo_005.png,0
+R22-98 IgG_glomerulo_007.png,0
+R22-98 IgG_glomerulo_003.png,0
+R22-98 IgG_glomerulo_012.png,0
+R22-98 IgG_glomerulo_005.png,0
+R22-98 IgG_glomerulo_001.png,0
+R22-98 IgG_glomerulo_009.png,0
+R22-98 IgG_glomerulo_002.png,0
+R22-98 IgG_glomerulo_011.png,0
+R22-98 IgG_glomerulo_008.png,0
+R22-98 IgG_glomerulo_006.png,0
+R22-98 IgG_glomerulo_010.png,0
+R22-98 IgG_glomerulo_004.png,0
+R23_236_1A1_C3-FITC_glomerulo_002.png,0
+R23_236_1A1_C3-FITC_glomerulo_005.png,0
+R23_236_1A1_C3-FITC_glomerulo_006.png,1
+R23_236_1A1_C3-FITC_glomerulo_007.png,0
+R23_236_1A1_C3-FITC_glomerulo_004.png,0
+R23_236_1A1_C3-FITC_glomerulo_008.png,0
+R23_236_1A1_C3-FITC_glomerulo_001.png,0
+R23_236_1A1_C3-FITC_glomerulo_003.png,0
+R23_207_1A1_IgM-FITC_glomerulo_005.png,1
+R23_207_1A1_IgM-FITC_glomerulo_004.png,1
+R23_207_1A1_IgM-FITC_glomerulo_003.png,1
+R23_207_1A1_IgM-FITC_glomerulo_011.png,1
+R23_207_1A1_IgM-FITC_glomerulo_007.png,1
+R23_207_1A1_IgM-FITC_glomerulo_010.png,1
+R23_207_1A1_IgM-FITC_glomerulo_008.png,1
+R23_207_1A1_IgM-FITC_glomerulo_009.png,1
+R23_207_1A1_IgM-FITC_glomerulo_002.png,0
+R23_207_1A1_IgM-FITC_glomerulo_001.png,0
+R23_207_1A1_IgM-FITC_glomerulo_006.png,1
+R23_207_1A1_IgA-FITC_glomerulo_005.png,1
+R23_207_1A1_IgA-FITC_glomerulo_007.png,1
+R23_207_1A1_IgA-FITC_glomerulo_003.png,1
+R23_207_1A1_IgA-FITC_glomerulo_013.png,1
+R23_207_1A1_IgA-FITC_glomerulo_002.png,0
+R23_207_1A1_IgA-FITC_glomerulo_014.png,0
+R23_207_1A1_IgA-FITC_glomerulo_015.png,1
+R23_207_1A1_IgA-FITC_glomerulo_016.png,1
+R23_207_1A1_IgA-FITC_glomerulo_006.png,1
+R23_207_1A1_IgA-FITC_glomerulo_009.png,1
+R23_207_1A1_IgA-FITC_glomerulo_004.png,0
+R23_207_1A1_IgA-FITC_glomerulo_010.png,0
+R23_207_1A1_IgA-FITC_glomerulo_011.png,1
+R23_207_1A1_IgA-FITC_glomerulo_001.png,1
+R23_207_1A1_IgA-FITC_glomerulo_012.png,1
+R23_207_1A1_IgA-FITC_glomerulo_008.png,1
+R23_207_1A1_C1q-FITC_glomerulo_016.png,0
+R23_207_1A1_C1q-FITC_glomerulo_007.png,1
+R23_207_1A1_C1q-FITC_glomerulo_004.png,1
+R23_207_1A1_C1q-FITC_glomerulo_001.png,1
+R23_207_1A1_C1q-FITC_glomerulo_022.png,1
+R23_207_1A1_C1q-FITC_glomerulo_017.png,1
+R23_207_1A1_C1q-FITC_glomerulo_011.png,1
+R23_207_1A1_C1q-FITC_glomerulo_003.png,1
+R23_207_1A1_C1q-FITC_glomerulo_015.png,1
+R23_207_1A1_C1q-FITC_glomerulo_018.png,1
+R23_207_1A1_C1q-FITC_glomerulo_021.png,1
+R23_207_1A1_C1q-FITC_glomerulo_009.png,0
+R23_207_1A1_C1q-FITC_glomerulo_002.png,1
+R23_207_1A1_C1q-FITC_glomerulo_013.png,1
+R23_207_1A1_C1q-FITC_glomerulo_024.png,1
+R23_207_1A1_C1q-FITC_glomerulo_008.png,1
+R23_207_1A1_C1q-FITC_glomerulo_023.png,1
+R23_207_1A1_C1q-FITC_glomerulo_020.png,1
+R23_207_1A1_C1q-FITC_glomerulo_019.png,1
+R23_207_1A1_C1q-FITC_glomerulo_014.png,1
+R23_207_1A1_C1q-FITC_glomerulo_010.png,1
+R23_207_1A1_C1q-FITC_glomerulo_005.png,1
+R23_207_1A1_C1q-FITC_glomerulo_006.png,1
+R23_207_1A1_C1q-FITC_glomerulo_012.png,1
+R23_207_1A1_IgG-FITC_glomerulo_011.png,1
+R23_207_1A1_IgG-FITC_glomerulo_002.png,0
+R23_207_1A1_IgG-FITC_glomerulo_006.png,0
+R23_207_1A1_IgG-FITC_glomerulo_010.png,0
+R23_207_1A1_IgG-FITC_glomerulo_008.png,1
+R23_207_1A1_IgG-FITC_glomerulo_004.png,1
+R23_207_1A1_IgG-FITC_glomerulo_007.png,0
+R23_207_1A1_IgG-FITC_glomerulo_003.png,0
+R23_207_1A1_IgG-FITC_glomerulo_009.png,1
+R23_207_1A1_IgG-FITC_glomerulo_005.png,1
+R23_207_1A1_IgG-FITC_glomerulo_001.png,0
+R23_207_1A1_C3-FITC_glomerulo_001.png,1
+R23_207_1A1_C3-FITC_glomerulo_019.png,1
+R23_207_1A1_C3-FITC_glomerulo_004.png,1
+R23_207_1A1_C3-FITC_glomerulo_008.png,1
+R23_207_1A1_C3-FITC_glomerulo_022.png,1
+R23_207_1A1_C3-FITC_glomerulo_005.png,1
+R23_207_1A1_C3-FITC_glomerulo_016.png,1
+R23_207_1A1_C3-FITC_glomerulo_002.png,1
+R23_207_1A1_C3-FITC_glomerulo_006.png,1
+R23_207_1A1_C3-FITC_glomerulo_003.png,1
+R23_207_1A1_C3-FITC_glomerulo_011.png,1
+R23_207_1A1_C3-FITC_glomerulo_021.png,1
+R23_207_1A1_C3-FITC_glomerulo_009.png,1
+R23_207_1A1_C3-FITC_glomerulo_014.png,1
+R23_207_1A1_C3-FITC_glomerulo_017.png,1
+R23_207_1A1_C3-FITC_glomerulo_018.png,1
+R23_207_1A1_C3-FITC_glomerulo_010.png,1
+R23_207_1A1_C3-FITC_glomerulo_015.png,1
+R23_207_1A1_C3-FITC_glomerulo_007.png,1
+R23_207_1A1_C3-FITC_glomerulo_020.png,1
+R23_207_1A1_C3-FITC_glomerulo_013.png,1
+R23_207_1A1_C3-FITC_glomerulo_012.png,1
+R24_17_2A1_C3-FITC_glomerulo_008.png,1
+R24_17_2A1_C3-FITC_glomerulo_005.png,1
+R24_17_2A1_C3-FITC_glomerulo_007.png,1
+R24_17_2A1_C3-FITC_glomerulo_004.png,1
+R24_17_2A1_C3-FITC_glomerulo_001.png,1
+R24_17_2A1_C3-FITC_glomerulo_002.png,1
+R24_17_2A1_C3-FITC_glomerulo_006.png,1
+R24_17_2A1_C3-FITC_glomerulo_003.png,1
+R24_17_2A1_IgA-FITC_glomerulo_010.png,1
+R24_17_2A1_IgA-FITC_glomerulo_008.png,1
+R24_17_2A1_IgA-FITC_glomerulo_005.png,1
+R24_17_2A1_IgA-FITC_glomerulo_002.png,1
+R24_17_2A1_IgA-FITC_glomerulo_006.png,1
+R24_17_2A1_IgA-FITC_glomerulo_004.png,0
+R24_17_2A1_IgA-FITC_glomerulo_001.png,1
+R24_17_2A1_IgA-FITC_glomerulo_013.png,1
+R24_17_2A1_IgA-FITC_glomerulo_007.png,1
+R24_17_2A1_IgA-FITC_glomerulo_012.png,1
+R24_17_2A1_IgA-FITC_glomerulo_009.png,1
+R24_17_2A1_IgA-FITC_glomerulo_011.png,1
+R24_17_2A1_IgA-FITC_glomerulo_003.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_015.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_009.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_005.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_014.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_004.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_010.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_007.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_003.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_013.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_006.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_001.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_002.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_011.png,1
+R23_242_2A1_LAMBDA-FITC_glomerulo_012.png,0
+R23_242_2A1_LAMBDA-FITC_glomerulo_008.png,0
+R23_242_2A1_IgM-FITC_glomerulo_001.png,0
+R23_242_2A1_IgM-FITC_glomerulo_005.png,0
+R23_242_2A1_IgM-FITC_glomerulo_004.png,0
+R23_242_2A1_IgM-FITC_glomerulo_002.png,0
+R23_242_2A1_IgM-FITC_glomerulo_006.png,0
+R23_242_2A1_IgM-FITC_glomerulo_007.png,1
+R23_242_2A1_IgM-FITC_glomerulo_003.png,0
+R23_242_2A1_C3-FITC_glomerulo_010.png,0
+R23_242_2A1_C3-FITC_glomerulo_005.png,0
+R23_242_2A1_C3-FITC_glomerulo_008.png,0
+R23_242_2A1_C3-FITC_glomerulo_007.png,0
+R23_242_2A1_C3-FITC_glomerulo_004.png,0
+R23_242_2A1_C3-FITC_glomerulo_009.png,0
+R23_242_2A1_C3-FITC_glomerulo_006.png,1
+R23_242_2A1_C3-FITC_glomerulo_001.png,0
+R23_242_2A1_C3-FITC_glomerulo_002.png,0
+R23_242_2A1_C3-FITC_glomerulo_003.png,0
+R23_242_2A1_C1q-FITC_glomerulo_003.png,0
+R23_242_2A1_C1q-FITC_glomerulo_007.png,0
+R23_242_2A1_C1q-FITC_glomerulo_004.png,0
+R23_242_2A1_C1q-FITC_glomerulo_005.png,1
+R23_242_2A1_C1q-FITC_glomerulo_006.png,0
+R23_242_2A1_C1q-FITC_glomerulo_001.png,0
+R23_242_2A1_C1q-FITC_glomerulo_002.png,1
+R23_242_2A1_KAPPA-FITC_glomerulo_005.png,1
+R23_242_2A1_KAPPA-FITC_glomerulo_003.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_006.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_002.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_011.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_010.png,1
+R23_242_2A1_KAPPA-FITC_glomerulo_009.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_008.png,1
+R23_242_2A1_KAPPA-FITC_glomerulo_007.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_004.png,0
+R23_242_2A1_KAPPA-FITC_glomerulo_001.png,0
+R22-185 IgM_glomerulo_002.png,1
+R22-185 IgM_glomerulo_004.png,0
+R22-185 IgM_glomerulo_001.png,1
+R22-185 IgM_glomerulo_003.png,0
+R22-185 C1q_glomerulo_001.png,1
+R22-185 C1q_glomerulo_004.png,1
+R22-185 C1q_glomerulo_003.png,0
+R22-185 C1q_glomerulo_002.png,1
+R23_222_1A1_IgG-FITC_glomerulo_001.png,0
+R23_222_1A1_IgG-FITC_glomerulo_002.png,0
+R23_222_1A1_C1q-FITC_glomerulo_001.png,1
+R23_222_1A1_C1q-FITC_glomerulo_004.png,1
+R23_222_1A1_C1q-FITC_glomerulo_003.png,1
+R23_222_1A1_C1q-FITC_glomerulo_002.png,1
+R23_222_1A1_C1q-FITC_glomerulo_006.png,1
+R23_222_1A1_C1q-FITC_glomerulo_005.png,1

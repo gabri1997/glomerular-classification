@@ -1,0 +1,46 @@
+[
+    {
+        "Fold": 0,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7088122605363985,
+        "Precision": 0.6161615539230754,
+        "Recall": 0.6161615539230754,
+        "Fscore": 0.6161565539636488,
+        "Conf_matrix": "[[TN=124 FP=38]\n                         [FN=38 TP=61]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['PAR_IRREG']]/fold_0/resnet18_[['PAR_IRREG']]_New_0_net.pth"
+    },
+    {
+        "Fold": 1,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6690821256038647,
+        "Precision": 0.5875705882728481,
+        "Recall": 0.6190475821995487,
+        "Fscore": 0.6028935192180548,
+        "Conf_matrix": "[[TN=173 FP=73]\n                         [FN=64 TP=104]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['PAR_IRREG']]/fold_1/resnet18_[['PAR_IRREG']]_New_1_net.pth"
+    },
+    {
+        "Fold": 2,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.572992700729927,
+        "Precision": 0.5675675420014621,
+        "Recall": 0.4772727091942156,
+        "Fscore": 0.5185135345696706,
+        "Conf_matrix": "[[TN=188 FP=96]\n                         [FN=138 TP=126]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['PAR_IRREG']]/fold_2/resnet18_[['PAR_IRREG']]_New_2_net.pth"
+    },
+    {
+        "Fold": 3,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6363636363636364,
+        "Precision": 0.5714285170068079,
+        "Recall": 0.6896550931430927,
+        "Fscore": 0.6249949788804431,
+        "Conf_matrix": "[[TN=66 FP=45]\n                         [FN=27 TP=60]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['PAR_IRREG']]/fold_3/resnet18_[['PAR_IRREG']]_New_3_net.pth"
+    }
+]

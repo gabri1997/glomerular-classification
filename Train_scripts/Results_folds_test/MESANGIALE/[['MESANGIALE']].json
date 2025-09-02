@@ -1,0 +1,46 @@
+[
+    {
+        "Fold": 0,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7394636015325671,
+        "Precision": 0.6232876285419432,
+        "Recall": 0.8749999158653927,
+        "Fscore": 0.7279950829124113,
+        "Conf_matrix": "[[TN=102 FP=55]\n                         [FN=13 TP=91]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['MESANGIALE']]/fold_0/resnet18_[['MESANGIALE']]_New_0_net.pth"
+    },
+    {
+        "Fold": 1,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.7777777777777778,
+        "Precision": 0.917050648983841,
+        "Recall": 0.7289377022367143,
+        "Fscore": 0.8122399301424291,
+        "Conf_matrix": "[[TN=123 FP=18]\n                         [FN=74 TP=199]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['MESANGIALE']]/fold_1/resnet18_[['MESANGIALE']]_New_1_net.pth"
+    },
+    {
+        "Fold": 2,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6843065693430657,
+        "Precision": 0.8795180457976493,
+        "Recall": 0.6870588073633223,
+        "Fscore": 0.7714613695129241,
+        "Conf_matrix": "[[TN=83 FP=40]\n                         [FN=133 TP=292]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['MESANGIALE']]/fold_2/resnet18_[['MESANGIALE']]_New_2_net.pth"
+    },
+    {
+        "Fold": 3,
+        "Commento": "Eval finale su test set dopo training su tutti i fold",
+        "Esperimento": {},
+        "Accuracy": 0.6666666666666666,
+        "Precision": 0.8688523877989845,
+        "Recall": 0.6794871359303117,
+        "Fscore": 0.7625849480158614,
+        "Conf_matrix": "[[TN=26 FP=16]\n                         [FN=50 TP=106]]\n                      ",
+        "Weights": "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds/[['MESANGIALE']]/fold_3/resnet18_[['MESANGIALE']]_New_3_net.pth"
+    }
+]
