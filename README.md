@@ -201,7 +201,7 @@ Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capilla
 
 ## Aggregazione dei risultati
 
-Usando lo script `from_prediction_to_final_excel.py` (presente nella cartella `Results_folds_test`), i risultati ottenuti sui glomeruli vengono **aggregati seguendo le regole proposte da Magistroni**.  
+Usando lo script `from_prediction_to_final_excel.py` (presente nella cartella `Results_folds_test`), i risultati ottenuti sui glomeruli vengono **aggregati seguendo le regole proposte da Magistroni**.    
 Per ciascuna classe, lo script genera nelle sottocartelle di `Results_folds_test` i file `allfolds_aggregated.csv`.
 
 Successivamente, lo script `results_comparison.py` (anch’esso in `Results_folds_test`) confronta i risultati ottenuti con il file Excel fornito dai medici.  
@@ -215,6 +215,11 @@ Lo script calcola inoltre le **metriche aggregate** e produce come output il fil
 
 I risultati medi per classe (sulle cross-validation folds) sono riportati di seguito:
 
+## Risultati finali
+
+I risultati aggregati e confrontati con l’Excel fornito dai medici sono disponibili in questo file:
+
+[Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx](./Results_folds_test/Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx)
 
 
 
