@@ -213,13 +213,19 @@ Lo script calcola inoltre le **metriche aggregate** e produce come output il fil
 
 `Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx`
 
-I risultati medi per classe (sulle cross-validation folds) sono riportati di seguito:
-
 ## Risultati finali
 
-I risultati aggregati e confrontati con l’Excel fornito dai medici sono disponibili in questo file:
+| Class      | Accuracy | Precision | Recall | F1   |
+|------------|----------|-----------|--------|------|
+| Coarse     | 0.697    | 0.795     | 0.738  | 0.765 |
+| Fine       | 0.745    | 0.565     | 0.481  | 0.520 |
+| Segmental  | 0.761    | 0.250     | 0.333  | 0.286 |
+| Global     | 0.729    | 0.833     | 0.828  | 0.831 |
+| Irregular  | 0.612    | 0.608     | 0.533  | 0.568 |
+| Continuous | 0.798    | 0.617     | 0.592  | 0.604 |
+| Mesangial  | 0.750    | 0.892     | 0.759  | 0.820 |
 
-[Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx](Train_scripts/Results_folds_test Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx)
+
 
 
 
