@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 def compute_correct(pred_col, gt_col):
     correct = []
     for p, g in zip(pred_col, gt_col):

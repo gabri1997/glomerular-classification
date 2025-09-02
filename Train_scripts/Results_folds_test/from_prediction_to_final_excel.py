@@ -95,49 +95,8 @@ def aggregate (path, label):
                 print(gid)
 
 
-
-    """
-    SEGM G_ID -> 
-    'R22-157 C3', no
-    'R22-168 C3', no
-    'R23 209_2A1_KAPPA-FITC', no
-    'R23_192_1A1_IgA_ind-FITC', ok
-    'R23_207_1A1_C3-FITC', no
-    'R23_209_2A1_LAMBDA_FITC', no
-    'R23_223_2A1_C1q-FITC', ok
-    'R23_235_2A1_IgA-FITC', ok
-    'R23_235_2A1_IgG-FITC', ok
-    'R23_235_2A1_IgM-FITC', ok
-    'R23_240_2A1_IgG-FITC', no
-    'R24_03_1A1_C3-FITC', ok
-    'R24_27_2A1_IgA-FITC', ok
-    'R24_27_2A1_IgG-FITC', ok
-    'R23_222_1A1_C1q-FITC', ok
-    'R23_255_2A1_C3-FITC', ok
-    'R23_269_1A1_IGG-FITC', no
-    'R23_281_2A1_C1q-FITC', no
-    'R23_281_2A1_IgA-FITC', no
-    'R23_281_2A1_IgM-FITC', no
-    'R23_284_1A1_IGG-FITC', no
-    'R24_13_2A1_C3-FITC', no
-    'R24_20_1C5_C3c-FITC',no 
-    'R24_25_2A1_C3-FITC', no
-    'R24_45_2A1_C1q-FITC', no
-    'R24_45_2A1_IgA-FITC', no
-    'R24_45_2A1_IgG-FITC', no
-    'R24_45_2A1_IgM-FITC', no
-    'R22-181 C3', no
-    'R24_10_2A1_KAPPA-FITC', ok
-    'R24_10_2A1_LAMBDA-FITC', ok 
-    'R23 210_1A1_C3_IND-FITC', no
-    'R23 210_1A1_IgG_IND-FITC', no
-    'R23_187_2A1_C3-FITC', no
-    'R23_187_2A1_IgA-FITC' no
-    
-    """
     print('END!')   
 
-    
 if __name__ == '__main__':
     label = 'SEGMENTAL'
     path = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test'

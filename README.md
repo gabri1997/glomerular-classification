@@ -187,17 +187,33 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 
 | Classe                           | Accuracy       | Precision      | Recall         | F1-Score       |
 |----------------------------------|----------------|----------------|----------------|----------------|
-| MESANGIALE                       | 0.724 ± 0.050  | 0.810 ± 0.120  | 0.757 ± 0.093  | 0.776 ± 0.036  |
-| GRAN_GROSS                       | 0.629 ± 0.102  | 0.676 ± 0.160  | 0.725 ± 0.050  | 0.696 ± 0.111  |
-| GRAN_FINE                        | 0.702 ± 0.059  | 0.585 ± 0.123  | 0.566 ± 0.183  | 0.565 ± 0.138  |
+| MESANGIALE                       | 0.717 ± 0.050  | 0.822 ± 0.134  | 0.742 ± 0.090  | 0.768 ± 0.034  |
+| GRAN_GROSS                       | 0.662 ± 0.084  | 0.706 ± 0.120  | 0.707 ± 0.040  | 0.703 ± 0.071  |
+| GRAN_FINE                        | 0.704 ± 0.041  | 0.593 ± 0.104  | 0.576 ± 0.164  | 0.574 ± 0.111  |
 | PARETE REGOLARE DISCONTINUA      | —              | —              | —              | —              |
-| PARETE REGOLARE CONTINUA         | 0.735 ± 0.073  | 0.612 ± 0.252  | 0.585 ± 0.236  | 0.592 ± 0.232  |
-| PARETE IRREGOLARE                | 0.658 ± 0.063  | 0.595 ± 0.030  | 0.632 ± 0.087  | 0.611 ± 0.053  |
-| GLOBALE                          | 0.802 ± 0.099  | 0.876 ± 0.068  | 0.908 ± 0.087  | 0.892 ± 0.067  |
-| SEGMENTALE                       | 0.773 ± 0.125  | 0.176 ± 0.165  | 0.122 ± 0.169  | 0.101 ± 0.088  |
+| PARETE REGOLARE CONTINUA         | 0.734 ± 0.056  | 0.620 ± 0.202  | 0.645 ± 0.151  | 0.624 ± 0.162  |
+| PARETE IRREGOLARE                | 0.646 ± 0.057  | 0.585 ± 0.022  | 0.600 ± 0.088  | 0.590 ± 0.048  |
+| GLOBALE                          | 0.798 ± 0.107  | 0.880 ± 0.068  | 0.884 ± 0.114  | 0.879 ± 0.072  |
+| SEGMENTALE                       | 0.773 ± 0.140  | 0.202 ± 0.211  | 0.132 ± 0.172  | 0.107 ± 0.084  |
 
 > *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
 Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capillary wall regular discontinuous) non ci sono abbastanza esempi positivi. 
+
+## Aggregazione dei risultati
+
+Usando lo script `from_prediction_to_final_excel.py` (presente nella cartella `Results_folds_test`), i risultati ottenuti sui glomeruli vengono **aggregati seguendo le regole proposte da Magistroni**.  
+Per ciascuna classe, lo script genera nelle sottocartelle di `Results_folds_test` i file `allfolds_aggregated.csv`.
+
+Successivamente, lo script `results_comparison.py` (anch’esso in `Results_folds_test`) confronta i risultati ottenuti con il file Excel fornito dai medici.  
+Per semplicità, si parte da una versione del file già pre-manipolata:  
+
+`Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF.xlsx`
+
+Lo script calcola inoltre le **metriche aggregate** e produce come output il file Excel finale:  
+
+`Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx`
+
+I risultati medi per classe (sulle cross-validation folds) sono riportati di seguito:
 
 
 
