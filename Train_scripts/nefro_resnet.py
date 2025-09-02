@@ -1909,8 +1909,9 @@ if __name__ == '__main__':
         elif opt.train_or_test == 'Test_on_folds':
 
             print('Sto testando sui fold separatamente')
-            """Questa funzione serve per fare una evaluation seprata sui fold su cui ho trainato con n.train_test_on_folds(), 
-               i risultati vengono scritti dentro a result_path dove ho sia il nome del glomerulo sia l'output della rete per quella immagine.
+            """
+            Questa funzione serve per fare una evaluation seprata sui fold su cui ho trainato con n.train_test_on_folds(), 
+            i risultati vengono scritti dentro a result_path dove ho sia il nome del glomerulo sia l'output della rete per quella immagine.
             """
             result_path = f"/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test/{opt.label}"
             folds_weights_pth = '/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Models_retrain/Folds'
