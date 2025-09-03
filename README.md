@@ -44,7 +44,7 @@ Poiché le caratteristiche sono state annotate a livello WSI, è stato necessari
 
 - Una **WSI è considerata Globale** se **≥ 70%** dei glomeruli positivi (con intensità ≥1) presenta tale caratteristica.
 - Una **WSI è considerata Segmentale** se **> 30%** dei glomeruli positivi presenta lesione segmentale  
-  (quindi Globale sarà < 70%).
+  (quindi Globale sarà <= 70%).
 
 ###  Tutte le altre classi
 
