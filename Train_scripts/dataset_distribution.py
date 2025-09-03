@@ -29,7 +29,7 @@ flagsdic = {
 #csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Base_split_over_wsi/csv_test_seed16.csv"
 csv_file = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Files/[['GLOB', 'SEGM']]_4k_NewComplete.csv"
 # ----------- ANALISI TRUE in una specifica colonna ----------- #
-label_to_check = 'SEGM'  # Cambia qui per usare un'altra label
+label_to_check = 'SEGM'  
 col_idx = flagsdic[label_to_check]
 true_count = 0
 false_count = 0

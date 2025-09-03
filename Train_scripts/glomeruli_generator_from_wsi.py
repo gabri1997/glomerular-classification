@@ -6,6 +6,8 @@ import json
 from PIL import Image
 from tqdm import tqdm
 
+"""Questo script prende la WSI e partendo dalle coordinate trovate con YOLO croppa tutti i glomeruli"""
+
 def get_slide_element_at_level(slide, lvl):
     num_levels = slide.level_count
     while lvl >= 0:

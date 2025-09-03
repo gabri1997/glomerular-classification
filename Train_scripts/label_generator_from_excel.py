@@ -22,7 +22,7 @@ Per evitare **data leakage** tra i set di train, validation e test, è fondament
 In questo modo si evita che il modello apprenda caratteristiche specifiche della colorazione che potrebbe poi ritrovare nel validation o test set, falsando i risultati.
 
 Logica di identificazione:
-Poiché le WSI hanno nomi strutturati in modo diverso a seconda del laboratorio (R22, R23, R24), viene adottata una logica di estrazione dell'ID base su misura per ciascun prefisso, in modo da poter aggregare correttamente le immagini appartenenti alla stessa WSI.
+Poiché le WSI hanno nomi strutturati in modo diverso a seconda della macchina (R22, R23, R24), viene adottata una logica di estrazione dell'ID base su misura per ciascun prefisso, in modo da poter aggregare correttamente le immagini appartenenti alla stessa WSI.
 
 Output:
 - `csv_train_seed{N}.csv`: etichette delle immagini nel training set
