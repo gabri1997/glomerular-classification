@@ -205,9 +205,7 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
   - *diffuse/global*  
   - *focal/global*  
 
----
-
-### Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file Excel (mappatura presente anche nello script `label_generator_from_excel.py`):
+Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file Excel (mappatura presente anche nello script `label_generator_from_excel.py`):
 
 | Nome Excel         | Nome classe finale                                      |
 |--------------------|---------------------------------------------------------|
