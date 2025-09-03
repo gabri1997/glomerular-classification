@@ -30,9 +30,7 @@ Dopo l’estrazione, è stato necessario **trasferire le annotazioni cliniche** 
 
 - Le annotazioni originali si trovano nel file: `Train_scripts/Excels/IF score.xlsx`
 
-- La propagazione delle etichette è stata effettuata tramite lo script:
-
-`label_generator_from_excel.py`
+- La propagazione delle etichette è stata effettuata tramite lo script: `label_generator_from_excel.py`
 
 > ⚠️ Le etichette sono state fornite per l'intera WSI, **non** per il singolo glomerulo.  
 > Pertanto, **non tutti i glomeruli** ereditano perfettamente la caratteristica osservata a livello globale.
