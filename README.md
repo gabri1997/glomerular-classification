@@ -195,6 +195,9 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 | GLOBALE                          | 0.798 ± 0.107  | 0.880 ± 0.068  | 0.884 ± 0.114  | 0.879 ± 0.072  |
 | SEGMENTALE                       | 0.773 ± 0.140  | 0.202 ± 0.211  | 0.132 ± 0.172  | 0.107 ± 0.084  |
 
+> *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
+Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capillary wall regular discontinuous) non ci sono abbastanza esempi positivi. 
+
 **Nota importante**: le etichette per le classi **GLOBALE** e **SEGMENTALE** sono state ottenute per aggregazione:
 
 - **SEGMENTALE** = `True` se almeno una delle due etichette è `True`:
@@ -219,13 +222,10 @@ Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file
 | `FOC_GLOB`         | focal/global                                            |
 | `MESANGIALE`       | mesangial                                               |
 | `PAR_REGOL_CONT`   | continuous regular capillary wall (subendothelial)      |
-| `PAR_REGOL_DISCONT`| capillary wall regular discontinuous                     |
+| `PAR_REGOL_DISCONT`| capillary wall regular discontinuous                    |
 | `PAR_IRREG`        | irregular capillary wall (subendothelial)               |
 | `INTENS`           | INTENSITY                                               |
 
-
-> *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
-Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capillary wall regular discontinuous) non ci sono abbastanza esempi positivi. 
 
 ## Aggregazione dei risultati
 
