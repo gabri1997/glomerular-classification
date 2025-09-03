@@ -56,7 +56,7 @@ def aggregate (path, label):
                 denominator = len(valid_indices)
 
                 if denominator == 0:
-                    final_pred = 'SEGM'  # oppure fallback decision
+                    final_pred = 'SEGM'  
                 else:
                     final_pred = 'GLOB' if total / denominator >= 0.7 else 'SEGM'
 

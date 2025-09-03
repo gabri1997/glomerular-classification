@@ -114,7 +114,6 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 labels_metrics = ["mesangial", "coarse", "fine", "segmental", "global", "irregular", "continuous"]
 
-# funzione per trasformare X / vuoto in binario
 def binarize(col):
     return col.apply(lambda x: 1 if x == "X" else 0)
 
@@ -123,7 +122,7 @@ for label in labels_metrics:
     preds_col = f"{label}_preds"
     gt_col = f"{label}_gt"
     
-    # binarizzo predizioni e ground truth
+
     df_excel[f"{label}_preds_bin"] = binarize(df_excel[preds_col])
     df_excel[f"{label}_gt_bin"] = binarize(df_excel[gt_col])
     
