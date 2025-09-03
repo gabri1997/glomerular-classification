@@ -157,6 +157,8 @@ I risultati di tutti questi esperimenti si trovano nel file:
 
 `Train_scripts/Results/result_Seed16_MESANGIALE.json`
 
+La cartella `Results` per il resto può essere ignorata.
+
 ###  K-Fold Cross-Validation
 
 Per validare il modello in modo più robusto, è stata eseguita una **K-Fold Cross-Validation** con `k=4`, sempre sui nuovi dati. Sono stati generati 4 fold (split casuali) nella directory:
@@ -165,15 +167,15 @@ Per validare il modello in modo più robusto, è stata eseguita una **K-Fold Cro
 
 Per motivi di spazio, i **pesi generati** dal training sui 4 fold **non sono stati salvati** nel repository.
 
-I risultati dei test sui 4 fold sono stati salvati in:
+I risultati dei test sui 4 fold per ciascuna classe sono stati salvati in:
 
-`Train_scripts/Results/result_FoldSeed42_[['MESANGIALE']].json`
+`Train_scripts/Results_folds_test`
 
-Per aggregare i risultati provenienti dai vari fold, è disponibile uno script Python:
+Per aggregare i risultati provenienti dai vari fold, uso lo script Python:
 
 `Train_scripts/Results/aggregate_fold_results.py`
 
-> Questo script consente di raccogliere i risultati dei 4 esperimenti e ottenere una media delle metriche più rilevanti.
+> Questo script consente di raccogliere i risultati dei 4 esperimenti e ottenere una media delle metriche più rilevanti con la loro deviazione standard.
 
 ### 📂 Altri file
 
