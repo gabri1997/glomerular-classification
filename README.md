@@ -33,12 +33,12 @@ Dopo l’estrazione, è stato necessario **trasferire le annotazioni cliniche** 
 - La propagazione delle etichette è stata effettuata tramite lo script: `label_generator_from_excel.py`
 
 > ⚠️ Le etichette sono state fornite per l'intera WSI, **non** per il singolo glomerulo.  
-> Pertanto, **non tutti i glomeruli** ereditano perfettamente la caratteristica osservata a livello globale.
+> Pertanto, a livello clinico, **non tutti i glomeruli** ereditano perfettamente la caratteristica osservata a livello globale.
 
 
 ## Strategia di aggregazione per la valutazione delle predizioni
 
-Poiché le caratteristiche sono state annotate a livello WSI, è stato necessario definire un criterio per **riaggregare le predizioni** fatte a livello di singolo glomerulo. I medici hanno fornito le seguenti regole:
+Poiché le caratteristiche sono state annotate a livello WSI, è stato necessario definire un criterio per **riaggregare le predizioni** fatte a livello di singolo glomerulo. I medici hanno fornito le seguenti regole (solo per la classe Globale e Segmentale):
 
 ###  Classi "Segmentale" e "Globale"
 
@@ -50,7 +50,7 @@ Poiché le caratteristiche sono state annotate a livello WSI, è stato necessari
 
 Per le altre classi, una **WSI è considerata positiva** se:
 
-- **≥ 50%** dei glomeruli appartenenti a quella WSI ha la **caratteristica predetta**.
+- **≥ 50%** dei glomeruli appartenenti a quella WSI ha la **caratteristica predetta**, ma questa regola NON è stata fornita dai medici.
 
 ##  Obiettivo del modello
 
@@ -73,7 +73,7 @@ Puoi scaricare i dati da Google Drive (e i pesi del training per le varie classi
 
 ##  Obiettivo del progetto
 
-Questo repository contiene il codice e i dati utilizzati per **replicare i risultati** presentati nel seguente articolo:
+Questo repository contiene il codice e i dati utilizzati per **replicare i risultati** presentati nel seguente articolo, il codice è stato poi riadattato sui nuovi dati forniti dai medici:
 
  **Evaluation of the Classification Accuracy of the Kidney Biopsy Direct Immunofluorescence through Convolutional Neural Networks**  
 🔗 **Link al paper**: [(https://pmc.ncbi.nlm.nih.gov/articles/PMC7536749/)]
@@ -153,7 +153,7 @@ Tutti gli esperimenti sono stati **loggati e confrontati su Weights & Biases (wa
 
 Dopo aver confrontato gli esperimenti eseguiti su uno **split singolo random** (con `seed = 16`), è stato selezionato il miglior set di parametri sulla base dei grafici ottenuti.
 
-I risultati di questo esperimento si trovano nel file: 
+I risultati di tutti questi esperimenti si trovano nel file: 
 
 `Train_scripts/Results/result_Seed16_MESANGIALE.json`
 
@@ -194,6 +194,17 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 | PARETE IRREGOLARE                | 0.646 ± 0.057  | 0.585 ± 0.022  | 0.600 ± 0.088  | 0.590 ± 0.048  |
 | GLOBALE                          | 0.798 ± 0.107  | 0.880 ± 0.068  | 0.884 ± 0.114  | 0.879 ± 0.072  |
 | SEGMENTALE                       | 0.773 ± 0.140  | 0.202 ± 0.211  | 0.132 ± 0.172  | 0.107 ± 0.084  |
+
+**Nota importante**: le etichette (presenti nel file excle `IF_score.xlsx`) per le classi **GLOBALE** e **SEGMENTALE** sono state ottenute per aggregazione:
+
+- **SEGMENTALE** = `True` se almeno una delle due etichette è `True`:
+  - *diffuse/segmental*  
+  - *focal/segmental*  
+
+- **GLOBALE** = `True` se almeno una delle due etichette è `True`:
+  - *diffuse/global*  
+  - *focal/global*  
+
 
 > *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
 Per la classe PARETE REGOLARE DISCONTINUA (che nel file IF score.xlsx è capillary wall regular discontinuous) non ci sono abbastanza esempi positivi. 
