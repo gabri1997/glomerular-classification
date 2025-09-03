@@ -195,7 +195,7 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 | GLOBALE                          | 0.798 ± 0.107  | 0.880 ± 0.068  | 0.884 ± 0.114  | 0.879 ± 0.072  |
 | SEGMENTALE                       | 0.773 ± 0.140  | 0.202 ± 0.211  | 0.132 ± 0.172  | 0.107 ± 0.084  |
 
-**Nota importante**: le etichette (presenti nel file excle `IF_score.xlsx`) per le classi **GLOBALE** e **SEGMENTALE** sono state ottenute per aggregazione:
+**Nota importante**: le etichette per le classi **GLOBALE** e **SEGMENTALE** sono state ottenute per aggregazione:
 
 - **SEGMENTALE** = `True` se almeno una delle due etichette è `True`:
   - *diffuse/segmental*  
@@ -204,6 +204,26 @@ I risultati finali ottenuti tramite k-fold cross-validation con `k=4` sono riass
 - **GLOBALE** = `True` se almeno una delle due etichette è `True`:
   - *diffuse/global*  
   - *focal/global*  
+
+---
+
+### Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file Excel (mappatura presente anche nello script `label_generator_from_excel.py`):
+
+| Nome Excel         | Nome classe finale                                      |
+|--------------------|---------------------------------------------------------|
+| `LIN`              | linear                                                  |
+| `PSEUDOLIN`        | pseudolinear                                            |
+| `GRAN_GROSS`       | coarse granular                                         |
+| `GRAN_FINE`        | fine granular                                           |
+| `GEN_SEGM`         | diffuse/segmental                                       |
+| `GEN_DIFF`         | diffuse/global                                          |
+| `FOC_SEGM`         | focal/segmental                                         |
+| `FOC_GLOB`         | focal/global                                            |
+| `MESANGIALE`       | mesangial                                               |
+| `PAR_REGOL_CONT`   | continuous regular capillary wall (subendothelial)      |
+| `PAR_REGOL_DISCONT`| capillary wall regular discontinuous                     |
+| `PAR_IRREG`        | irregular capillary wall (subendothelial)               |
+| `INTENS`           | INTENSITY                                               |
 
 
 > *I valori rappresentano media e deviazione standard delle metriche calcolate su 4 diverse suddivisioni del dataset.*
