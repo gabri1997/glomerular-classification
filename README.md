@@ -224,7 +224,7 @@ Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file
 | `PAR_IRREG`        | irregular capillary wall (subendothelial)               |
 | `INTENS`           | INTENSITY                                               |
 
-
+ 
 ## Aggregazione dei risultati
 
 Usando lo script `from_prediction_to_final_excel.py` (presente nella cartella `Results_folds_test`), i risultati ottenuti sui glomeruli vengono **aggregati seguendo le regole proposte da Magistroni**.    
