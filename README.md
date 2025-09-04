@@ -235,9 +235,7 @@ Per semplicità, si parte da una versione del file già pre-manipolata (le annot
 
 `Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF.xlsx`
 
-Lo script calcola inoltre le **metriche aggregate** e produce come output il file Excel finale:  
-
-`WSI_Score.xlsx`
+Lo script calcola inoltre le **metriche aggregate** e produce come output il file Excel finale: `WSI_Score.xlsx`
 
 ## Risultati finali
 
