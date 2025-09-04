@@ -1776,7 +1776,7 @@ if __name__ == '__main__':
     parser.add_argument('--old_or_new_dataset_folder', type= str, default = 'Files/', help='use old Pollastri dataset or new Magistroni, Files_old_Pollo/ or Files/')
     parser.add_argument('--train_or_test', type=str, default='Test_on_folds', help='Train or test on your data')
     parser.add_argument('--weights', type=str, default='', help='Name of weights to be loaded')
-    # ['0', '0.5', '1', '1.5', '2', '2.5', '3']
+    # Labels confusion matrix classe INTENS ['0', '0.5', '1', '1.5', '2', '2.5', '3']
     parser.add_argument('--conf_matrix_label', type=str, nargs='+', default=[ 'mes', 'non-mes'],help='Etichette da mostrare nella matrice di confusione')
     parser.add_argument('--network', default='resnet18')
     parser.add_argument('--project_name', default='Train_ResNet_18')
@@ -1920,8 +1920,8 @@ if __name__ == '__main__':
             # SISTEMARE LE TRASFORMAZIONI CHE PASSO QUANDO COSTRUISCO IL DATASET(AD ORA DEVO MANUALMENTE CAMBIARE IN TRASFORMAZIONI DI TRAIN QUANDO FACCIO TRAIN E TRASFORMAZIONI DI TEST QUANDO SONO IN TEST)
             # ANDREBBERO RIMESSE A POSTO ANCHE NEL VALIDATION, MA PAZIENZA
             # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA
-            # SI POTREBBE METTERE A POSTO LA PARTE IN CUI VIENE CREATA CON CWD LA CARTELLA DI DESTINAZIONE DELLE IMMAGINI CON GRAD CAM
-            # SISTEMARE IL CODICE CHE NON SERVE
+            # SI POTREBBE METTERE A POSTO LA PARTE IN CUI VIENE CREATA CON CWD LA CARTELLA DI DESTINAZIONE DELLE IMMAGINI CON GRAD-CAM
+            # SISTEMARE IL CODICE CHE NON SERVE FCENDO UN REFACTORING GENERALE PERCHE' FA SCHIFO
           
             # Se non vuoi usare Grad-cam passa wsi_to_explain = None
             #wsi_to_explain = 'R22-151'
