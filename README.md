@@ -3,7 +3,11 @@
 Classificazione di alcune caratteristiche dei glomeruli presenti nella WSI usando il deep learning.
 In questo progetto viene fatto il training di un modello di ResNet-18 per fare predizione sulle caratteristiche di location, appearance e distribution dei glomeruli della WSI. Le predizioni sono eseguite prima a livello dei singoli glomeruli poi sono aggregate facendole ereditare anche alla WSI di provenienza seguendo alcune semplici regole di aggregazione. La posizione dei glomeruli è stata individuata con Yolo, i glomeruli sono poi stati estratti alle coordinate indicate e usati come dataset.
 
-<img src="Example_of_glomerulous/glom.png" alt="Glomerulo" width="100">
+<p float="left">
+  <img src="Example_of_glomerulous/glom.png" alt="Glomerulo" width="150" />
+  <img src="Example_of_glomerulous/glom_2.png" alt="Glomerulo 2" width="150" />
+</p>
+
 
 ##  Scopo del progetto
 
