@@ -124,7 +124,7 @@ class MyDensenet(nn.Module):
         x = self.last_fc(x)
         return x
 
-
+# Questa parte è da cambiare, si passa il config code per ora, ma bisogna fare refactoring
 class ImgAugTransform:
     def __init__(self, config_code, size=512, SRV=False):
         self.SRV = SRV
