@@ -14,7 +14,8 @@ Il processo parte dalle **Whole Slide Images (WSI)** originali fornite, da cui s
 
 ### 1.  Estrazione dei glomeruli dalle WSI
 
-- I glomeruli sono stati localizzati usando YOLO.
+- I glomeruli sono stati localizzati usando YOLO. Il processo di localizzazione è riassunto nel documento `Report_Progetto_IgAN.docx`.
+
 - Le **bounding box** rilevate sono state salvate in: `Train_scripts/Annotations/`
 
 - A partire da queste coordinate, tramite lo script: `Train_scripts/glomeruli_generator_from_wsi.py`
