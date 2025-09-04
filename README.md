@@ -28,7 +28,7 @@ Dopo l’estrazione, è stato necessario **trasferire le annotazioni cliniche** 
 
 - La propagazione delle etichette è stata effettuata tramite lo script: `label_generator_from_excel.py`
 
-> ⚠️ Le etichette sono state fornite per l'intera WSI, **non** per il singolo glomerulo.  
+> **Nota:** Le etichette sono state fornite per l'intera WSI, **non** per il singolo glomerulo.  
 > Pertanto, a livello clinico, **non tutti i glomeruli** ereditano perfettamente la caratteristica osservata a livello globale.
 
 
@@ -62,7 +62,7 @@ Puoi scaricare i dati da Google Drive (e i pesi del training per le varie classi
 [Download dataset (Google Drive)](https://drive.google.com/drive/folders/16ot_9aC8AH_lzr0gr3YE9ain1ZNVYlxk?usp=drive_link)  
 [Download weights (Google Drive)](https://drive.google.com/drive/folders/1AqZdaK2FUIaQOHouKmhDmR4v9ubl0ZRX?usp=drive_link)
 
-> ⚠️ **Nota:** Assicurati di avere i permessi necessari per accedere al file.  
+> **Nota:** Assicurati di avere i permessi necessari per accedere al file.  
 > Se il link non funziona, contattami.
 
 #  Replicazione Risultati - Segmentazione Glomeruli
@@ -176,7 +176,7 @@ Per aggregare i risultati provenienti dai vari fold, uso lo script Python:
 ### 📂 Altri file
 
 - `Train_scripts/Results/result_MESANGIALE.json`: contiene prove preliminari effettuate durante la fase di replicazione del paper.  
-  > ⚠️ **Può essere ignorato**.
+  > **Può essere ignorato**.
 
 ## Risultati finali a livello dei glomeruli - Cross Validation (4 Fold)
 
