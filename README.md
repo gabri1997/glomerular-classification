@@ -1,5 +1,10 @@
 #  Classificazione delle caratteristiche glomerulari da WSI
 
+Classification of glomerular features from Whole Slide Images (WSI) using deep learning. 
+The project extracts glomeruli with YOLO, labels them based on clinical annotations, 
+and trains a ResNet-18 model to predict location, appearance, and distribution characteristics 
+at both glomerulus and WSI levels.
+
 ##  Scopo del progetto
 
 Lo scopo del progetto è quello di **classificare caratteristiche glomerulari** legate a tre aspetti principali:
