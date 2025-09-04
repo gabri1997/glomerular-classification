@@ -17,7 +17,7 @@ def compute_correct(pred_col, gt_col):
 labels = ['INTENS','MESANGIALE','GRAN_GROSS','GRAN_FINE','GLOBAL_SEGMENTAL','PAR_IRREG','PAR_REGOL_CONT']
 
 excel_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test/Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF.xlsx"
-output_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test/Prettified_scores_total_wsi_classification_Lv0_magistroni_norm_IF_out.xlsx"
+output_path = "/work/grana_far2023_fomo/Pollastri_Glomeruli/Train_scripts/Results_folds_test/WSI_Score.xlsx"
 
 df_excel = pd.read_excel(excel_path, skiprows=1)
 #df_excel = pd.read_excel(excel_path)
@@ -75,7 +75,7 @@ for label in labels:
 
 df_excel = df_excel.drop(columns=["wsi_id_norm"], errors="ignore")
 
-#df_excel.to_excel(output_path, index=False)
+df_excel.to_excel(output_path, index=False)
 print(f"File aggiornato salvato in: {output_path}")
 
 # Colora_celle_corrette
@@ -100,7 +100,7 @@ for row in ws.iter_rows(min_row=2):
         if cell.value == 1:
             cell.fill = green_fill
 
-#wb.save(output_path)
+wb.save(output_path)
 print(f"File finale con colori salvato in: {output_path}")
 
 
