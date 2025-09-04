@@ -1191,6 +1191,7 @@ class NefroNet():
                             return_image=True
                         )
 
+                        # Qua uso CWD ma devo passare un percorso
                         save_dir = os.path.join(os.getcwd(), "Wsi_explained")
                         os.makedirs(save_dir, exist_ok=True)
                         save_path = os.path.join(
@@ -1388,47 +1389,6 @@ class NefroNet():
                                 preds_writer.writerow(logits_t.squeeze().tolist()[i])
                                 # lbls_writer.writerow(acc_t.squeeze().tolist()[i])
 
-    def validate(self, write_flag=False):
-        with torch.no_grad():
-            sigm = nn.Sigmoid()
-            sofmx = nn.Softmax(dim=1)
-            trues = 0
-            tr_trues = 0
-            acc = 0
-            self.n.eval()
-            eval_losses = []
-
-            start_time = time.time()
-            for i, (x, target, img_name) in enumerate(self.validation_data_loader):
-                # measure data loading time
-                # print("data time: " + str(time.time() - start_time))
-
-                # compute output
-                x = x.to('cuda')
-                output = torch.squeeze(self.n(x))
-                if self.num_classes == 1:
-                    target = target.to('cuda', torch.float)
-                    check_output = sigm(output)
-                    res = (check_output > self.thresh).float()
-                else:
-                    target = target.to('cuda', torch.long)
-                    check_output = sofmx(output)
-                    check_output, res = torch.max(check_output, 1)
-
-                tr_target = target * 2
-                tr_target = tr_target - 1
-                tr_trues += sum(res == tr_target).item()
-                trues += sum(res).item()
-                acc += sum(res == target).item()
-
-            pr = tr_trues / (trues + 10e-5)
-            rec = tr_trues / 100
-            fscore = (2 * pr * rec) / (pr + rec + 10e-5)
-            stats_string = 'Test set = Acc: ' + str(acc / 500.0) + ' | F1 Score: ' + str(
-                fscore) + ' | Precision: ' + str(
-                pr) + ' | Recall: ' + str(rec) + ' | Trues: ' + str(trues) + ' | Correct Trues: ' + str(
-                tr_trues) + ' | time: ' + str(time.time() - start_time)
-            print(stats_string)
 
     def explain_eval(self, wsi_name_to_explain, save_pth, write_flag=False, target_index=None):
         y_true_all = []
@@ -1921,7 +1881,7 @@ if __name__ == '__main__':
             # ANDREBBERO RIMESSE A POSTO ANCHE NEL VALIDATION, MA PAZIENZA
             # PER ORA GRAD-CAM FUNZIONA SOLO SE LA WSI APPARTIENE ALL'ULTIMO FOLD, ALTRIMENTI SI BLOCCA
             # SI POTREBBE METTERE A POSTO LA PARTE IN CUI VIENE CREATA CON CWD LA CARTELLA DI DESTINAZIONE DELLE IMMAGINI CON GRAD-CAM
-            # SISTEMARE IL CODICE CHE NON SERVE FCENDO UN REFACTORING GENERALE PERCHE' FA SCHIFO
+            # SISTEMARE IL CODICE CHE NON SERVE FACENDO UN REFACTORING GENERALE PERCHE' FA DAVVERO SCHIFO
           
             # Se non vuoi usare Grad-cam passa wsi_to_explain = None
             #wsi_to_explain = 'R22-151'
