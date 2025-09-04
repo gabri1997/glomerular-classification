@@ -84,7 +84,7 @@ L'obiettivo di questo primo step è stato **replicare i risultati pubblicati**, 
 
 Per la classe **MESANGIALE**, sono stati utilizzati gli stessi file `.csv` presenti nel paper. Questi file sono stati salvati nella cartella:
 
-### 📁 Contenuto della cartella `Files_old_Pollo`
+### Contenuto della cartella `Files_old_Pollo`
 
 | File                    | Descrizione                                  |
 |-------------------------|----------------------------------------------|
@@ -173,7 +173,7 @@ Per aggregare i risultati provenienti dai vari fold, uso lo script Python:
 
 > Questo script consente di raccogliere i risultati dei 4 esperimenti e ottenere una media delle metriche più rilevanti con la loro deviazione standard.
 
-### 📂 Altri file
+### Altri file
 
 - `Train_scripts/Results/result_MESANGIALE.json`: contiene prove preliminari effettuate durante la fase di replicazione del paper.  
   > **Può essere ignorato**.
