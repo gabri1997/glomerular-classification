@@ -6,7 +6,7 @@ In questo progetto viene fatto il training di un modello di ResNet-18 per fare p
 <p float="left">
   <img src="Example_of_glomerulous/glom.png" alt="Glomerulo" width="150" />
   <img src="Example_of_glomerulous/glom_2.png" alt="Glomerulo 2" width="150" />
-  <img src="Example_of_glomerulous/example.gif" width="600">
+  <img src="Example_of_glomerulous/example.mp4" width="600">
 
 
 </p>
