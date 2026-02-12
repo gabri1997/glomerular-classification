@@ -1,0 +1,21 @@
+# Dizionario delle etichette e relative colonne
+flagsdic = {
+    'LIN': 2,
+    'PSEUDOLIN': 3,
+    'GRAN_GROSS': 4,
+    'GRAN_FINE': 5,
+    'GEN_SEGM': 6,
+    'GEN_DIFF': 7,
+    'FOC_SEGM': 8,
+    'FOC_GLOB': 9,
+    'MESANGIALE': 10,
+    'PARIETALE': 11,
+    'PAR_REGOL_CONT': 12,
+    'PAR_REGOL_DISCONT': 13,
+    'PAR_IRREG': 14,
+    'CAPS_BOW': 15,
+    'POLOVASC': 16,
+    'INTENS': 17,
+    'GLOB': 18,
+    'SEGM' : 19, 
+}
