@@ -238,7 +238,7 @@ Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file
 ## Distribuzione globale dei glomeruli per classe (classi non mutuamente esclusive)
 
 La tabella seguente riporta il **numero totale di glomeruli associati a ciascuna classe**.
-I glomeruli delle classi elencate non sommano a 1421 perchè alcune annotazioni mancavano o perchè alcune sono state escluse :  
+I glomeruli delle classi segmentale e globale non sommano a 1421 perchè alcune annotazioni mancavano.
 
 
 | Classe | Glomeruli totali |
