@@ -235,39 +235,31 @@ Mappatura delle labels tra i nomi delle classi finali e quelli presenti nel file
 | `PAR_IRREG`        | irregular capillary wall (subendothelial)               |
 | `INTENS`           | INTENSITY                                               |
 
-## Distribuzione globale dei glomeruli per classe
+## Distribuzione globale dei glomeruli per classe (classi non mutuamente esclusive)
 
-Conteggio ottenuto aggregando le etichette a livello di **Whole Slide Image (WSI)** e pesandole per il numero di glomeruli per vetrino.
+La tabella seguente riporta il **numero totale di glomeruli associati a ciascuna classe**.
+I glomeruli delle classi elencate non sommano a 1421 perchè alcune annotazioni mancavano o perchè alcune sono state escluse :  
+
 
 | Classe | Glomeruli totali |
 |---|---:|
-| MESANGIALE | 348 |
-| GRANULARE GROSSOLANO | 251 |
-| GRANULARE FINE | 175 |
-| PARETE REGOLARE CONTINUA | 240 |
-| PARETE REGOLARE DISCONTINUA | 5 |
-| PARETE IRREGOLARE | 176 |
-| SEGMENTALE | 21 |
-| GLOBALE | 486 |
+| MESANGIALE | 958 |
+| GRANULARE GROSSOLANO (GRAN_GROSS) | 820 |
+| GRANULARE FINE (GRAN_FINE) | 508 |
+| PARETE REGOLARE CONTINUA (PAR_REGOL_CONT) | 554 |
+| PARETE REGOLARE DISCONTINUA (PAR_REGOL_DISCONT) | 5 |
+| PARETE IRREGOLARE (PAR_IRREG) | 618 |
+| SEGMENTALE (diffuse/segmental OR focal/segmental) | 188 |
+| GLOBALE (diffuse/global OR focal/global) | 1228 |
 
 ---
 
-## Note metodologiche
+## Interpretazione della tabella
 
-- Le etichette sono definite **a livello di WSI**.
-- Ogni WSI contribuisce con **tutti i suoi glomeruli** alle classi presenti.
-- Le classi aggregate sono definite come:
-  - **SEGMENTALE** = `diffuse/segmental` **OR** `focal/segmental`
-  - **GLOBALE** = `diffuse/global` **OR** `focal/global`
 
----
+- Questa tabella fornisce una **descrizione globale del dataset** ed è usata a scopo **descrittivo**.
+- Per gli esperimenti di classificazione, vengono invece utilizzate **partizioni mutuamente esclusive**.
 
-## Conclusioni
-
-- La distribuzione delle classi è **fortemente sbilanciata**.
-- **GLOBALE** e **MESANGIALE** hanno un supporto numerico adeguato per analisi quantitative affidabili.
-- **SEGMENTALE** è una classe **estremamente rara** (21 glomeruli), con conseguente elevata varianza e instabilità delle metriche.
-- **PARETE REGOLARE DISCONTINUA** presenta un supporto trascurabile e non consente analisi statisticamente robuste.
 
  
 ## Aggregazione dei risultati
